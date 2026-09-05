@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Watchlist design tokens
+   Source: Figma "wachlist" — Dashboard / overview (node 64:1444)
+
+   Two rules from CLAUDE.md are encoded here, not just documented:
+     - Maroon (--color-brand) is BRAND ONLY: the wordmark underline and the
+       selected nav item. It never expresses gain or loss.
+     - Green / red (--color-up / --color-down) are market direction ONLY.
+   Reach for a token by what it MEANS, not by what colour it happens to be.
+   ========================================================================== */
+
+@theme {
+  /* ---- Brand -------------------------------------------------------------
+     Maroon: the bar under the wordmark, and the active nav underline.
+     Washed black: the wordmark's leading mark, and primary text. */
+  --color-brand: #a63d57;
+  --color-brand-tint: #e8b8c3;
+  --color-brand-foreground: #fff9f5;
+  --color-ink: #241f21;
+  --color-ink-strong: #221e1b;
+
+  /* ---- Surfaces ---------------------------------------------------------- */
+  --color-surface: #efe9e2;
+  --color-surface-raised: #faf8f5;
+  --color-surface-sunken: #f4efe8;
+  --color-surface-row-hover: #f2eee7;   /* a watchlist row under the cursor */
+
+  /* ---- Text -------------------------------------------------------------- */
+  --color-text: #241f21;
+  --color-text-secondary: #574f52;
+  --color-text-muted: #7e766d;
+  --color-text-faint: #9a9186;
+  --color-text-label: #706c63;
+  --color-text-caption: #676058;
+  --color-text-numeric: #2a2623;
+  --color-text-ticker: #625b52;
+
+  /* ---- Lines ------------------------------------------------------------- */
+  --color-line: #d8c5c1;
+  --color-line-soft: #e6ded6;
+  --color-line-avatar: #dfd9cf;
+
+  /* ---- Row actions -------------------------------------------------------
+     The remove control on a watchlist row. Its rust mark is neither brand nor
+     market direction: it reads as "take this out", so it gets its own name. */
+  --color-remove-idle: #c7beb1;
+  --color-remove-surface: #ece4e0;
+  --color-remove-mark: #b04735;
+
+  /* ---- Compare pills ----------------------------------------------------- */
+  --color-pill: #ece6de;
+  --color-pill-row: #eeeae1;
+  --color-pill-remove: #857e75;
+  --color-value-empty: #c7bfb2;   /* the dash where a stock meets itself */
+
+  /* ---- Explore filters and membership ------------------------------------
+     The check tile marks a stock already on the watchlist. Its mark is a
+     deep brand red — an ownership badge, never a gain or a loss. */
+  --color-filter-line: #e4ded5;
+  --color-filter-text: #645d54;
+  --color-filter-hint: #6b625b;
+  --color-filter-hint-line: #c3b9ad;
+  --color-added-surface: #ece4e0;
+  --color-added-line: #e0dad0;
+  --color-added-mark: #7b2d3b;
+
+  /* ---- Market direction --------------------------------------------------
+     Never brand. Never decoration. Direction only. */
+  --color-up: #1b7a4b;
+  --color-up-deep: #2d6e45;
+  --color-up-surface: #dee3d8;
+  --color-down: #eb5757;
+  --color-down-deep: #c0392b;
+  --color-down-surface: #eedbd3;
+
+  /* ---- Chart series ------------------------------------------------------ */
+  --color-chart-watchlist: #000000;
+  --color-chart-benchmark: #b1a99b;
+  --color-chart-lead: #dee3d8;
+  --color-chart-grid: #f4f1ee;
+
+  /* ---- Compare series ----------------------------------------------------
+     Identity, not judgement: these say WHICH stock a line belongs to and
+     carry no opinion about whether it went up. Green and red stay reserved
+     for direction, maroon for brand — so a series never borrows either. */
+  --color-series-1: #241f21;
+  --color-series-2: #94502d;
+  --color-series-3: #3e5f4f;
+  --color-series-benchmark: #a9a091;
+
+  /* ---- Families ----------------------------------------------------------
+     Helvetica Neue carries structure: headings, nav, labels, tickers.
+     Poppins carries data: every price, percentage and delta. */
+  --font-sans: var(--font-helvetica-neue), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-data: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Type scale -------------------------------------------------------- */
+  --text-display: 4rem;              /* 64 — the headline percentage */
+  --text-display--line-height: 0.9625;
+  --text-display--letter-spacing: -0.01em;
+
+  --text-title: 3rem;                /* 48 — page title */
+  --text-title--line-height: 1.1;
+
+  --text-title-sm: 2.5rem;           /* 40 — section title */
+  --text-title-sm--line-height: 1.1;
+
+  --text-wordmark: 1.5625rem;        /* 25 — logo */
+  --text-wordmark--line-height: 0.8;
+
+  --text-price: 2rem;                /* 32 — price on an explore card */
+  --text-price--line-height: 1.19;
+
+  --text-2xl: 1.5rem;                /* 24 — card ticker, card price, vs-market in table */
+  --text-2xl--line-height: 1.29;
+
+  --text-ticker: 1.375rem;           /* 22 — ticker in a watchlist row */
+  --text-ticker--line-height: 1.29;
+
+  --text-xl: 1.25rem;                /* 20 — vs-market figures, holdings count */
+  --text-xl--line-height: 1.29;
+
+  --text-lg: 1.125rem;               /* 18 — nav */
+  --text-lg--line-height: 1.111;
+
+  --text-md: 1.0625rem;              /* 17 — chart legend */
+  --text-md--line-height: 1.4;
+
+  --text-base: 1rem;                 /* 16 — market bar, section labels */
+  --text-base--line-height: 1.5;
+
+  --text-sm: 0.9375rem;              /* 15 — currency suffix */
+  --text-sm--line-height: 1.29;
+
+  --text-xs: 0.875rem;               /* 14 — company name, intraday delta */
+  --text-xs--line-height: 1.29;
+
+  /* ---- Tracking ---------------------------------------------------------- */
+  --tracking-ticker: -0.05em;        /* -0.8px on 16 */
+  --tracking-tight: -0.06em;         /* -1.2 on 20, -0.9 on 15, -0.84 on 14 */
+  --tracking-loose: 0.05em;          /* 0.7 on 14 */
+
+  /* ---- Radii ------------------------------------------------------------- */
+  --radius-card: 20px;
+  --radius-card-lg: 32px;
+  --radius-pill-row: 17px;
+  --radius-tile: 12px;
+  --radius-logo: 8px;
+  --radius-logo-lg: 23px;
+  --radius-chip: 2px;
+
+  /* ---- Elevation --------------------------------------------------------- */
+  --shadow-card: 4px 4px 4px rgb(0 0 0 / 0.09);
+  --shadow-tile: 0 4px 4px rgb(0 0 0 / 0.05);
+
+  /* ---- Layout ------------------------------------------------------------ */
+  --container-page: 1656px;          /* content column at 1920 */
+  --spacing-header: 88px;
+  --spacing-marketbar: 66px;
+
+  /* Background rule grid. Figma ships this at 0.01, which is all but
+     invisible on screen — raise it here if you want the grid to read. */
+  --grid-line: rgb(21 46 52 / 0.01);
+  --grid-step: 120px;
+}
+
+/* ---- Background rule grid --------------------------------------------------
+   120x120 hairlines at 1% opacity. Reproduced as gradients rather than the
+   exported 1920x1080 SVG so it tiles to any page height. */
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        var(--grid-line) 0 1px,
+        transparent 1px var(--grid-step)
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        var(--grid-line) 0 1px,
+        transparent 1px var(--grid-step)
+      );
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+
+  /* Tabular figures everywhere numbers are compared down a column. */
+  .font-data,
+  [class*="font-data"] {
+    font-variant-numeric: tabular-nums;
+  }
+}

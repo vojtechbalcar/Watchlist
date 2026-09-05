@@ -1,0 +1,6 @@
+- [Design tokens from Figma](design-tokens-from-figma.md) — where the visual language lives and why the Figma export was rebuilt, not pasted.
+- [Watchlist placeholder data](watchlist-placeholder-data.md) — every number on the dashboard is fake; this is the one seam to replace for Postgres.
+- [MCP config leading-space gotcha](mcp-config-leading-space-gotcha.md) — a token that looked ignored, a filename with a leading space, and a secret that reached the git index.
+- [Watchlist table frame](watchlist-table-frame.md) — the /watchlist build, and where the mock lost to the app's data.
+- [Compare frame](compare-frame.md) — the /compare build: derived comparison matrix, series colours, and the range/geometry gap.
+- [Explore frame](explore-frame.md) — the /explore build: sector-index rule, the hero's empty case, derived watchlist membership.

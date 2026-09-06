@@ -10,10 +10,10 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderProps) {
   return (
-    <header className="h-header border-b border-line">
-      <div className="mx-auto flex h-full max-w-(--container-page) items-center gap-8 px-6 sm:px-8 xl:gap-12">
+    <header className="site-header border-b border-line bg-surface-raised">
+      <div className="header-inner mx-auto flex max-w-(--container-page) items-center gap-8 px-5 sm:px-8 xl:gap-12">
         <Link href="/" className="shrink-0">
-          <Wordmark />
+          <Wordmark className="h-auto w-[122px]" />
         </Link>
 
         <nav
@@ -35,20 +35,14 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
                 ].join(" ")}
               >
                 {item.label}
-                {isActive && (
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 -bottom-1 h-[3px] bg-brand"
-                  />
-                )}
               </Link>
             );
           })}
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-6">
-          <span className="hidden text-lg font-medium text-text-muted md:inline">{asOf}</span>
-          <span className="grid size-[41px] place-items-center rounded-full border border-line-avatar bg-surface-raised text-lg font-medium text-text-muted">
+          <span className="hidden text-sm font-medium text-text-muted md:inline">{asOf}</span>
+          <span className="grid size-[34px] place-items-center rounded-full border border-line-avatar bg-surface text-sm font-medium text-text-muted">
             {initials}
           </span>
         </div>

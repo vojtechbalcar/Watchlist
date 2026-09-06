@@ -11,8 +11,8 @@ export default function WatchlistPage() {
     <>
       <SiteHeader active="Watchlist" asOf="Aug 25 · 15:58 ET" initials="JR" />
 
-      <main className="mx-auto w-full max-w-(--container-page) px-6 pb-24 sm:px-8">
-        <div className="mt-24">
+      <main className="page-shell">
+        <div>
           <WatchlistTable
             holdings={holdings}
             summary={watchlistSummary}

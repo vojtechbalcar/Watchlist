@@ -1,28 +1,32 @@
 ---
 name: watchlist-placeholder-data
-description: All dashboard numbers come from src/lib/watchlist-data.ts, the single seam to replace when Postgres lands — no component reads a data source.
-metadata:
-  type: project
+description: Current demo data sources and the boundaries to replace when Postgres and persisted watchlists are implemented.
+type: project
+updated: 2026-09-06
 ---
 
-Every price, percentage and series on the dashboard is placeholder data in
-`src/lib/watchlist-data.ts`. Nothing touches a data source yet.
+# Watchlist placeholder data
 
-It is deliberately the *only* seam: components take typed props
-(`Holding`, `OverviewSummary`, `MarketIndex`), so wiring Postgres means
-replacing that module's exports and changing no component.
+All market values and plotted histories are illustrative. No component currently reads a live price source. See [[neutral-page-design]] and [[checkpoint-2026-09-06]] for the current UI.
 
-Still hardcoded and needing real data when the schema exists:
+## Data sources
 
-- Ranged series for the overview chart — the `d` attributes in
-  `performance-chart.tsx` must be generated from price history.
-- Per-holding intraday series behind `sparkline.tsx`.
-- The range selector (1D/1W/1M/YTD/1Y) renders and highlights but does not
-  refetch; `summary.range` is static.
-- Company logos exist only for AAPL and NVDA (`public/logos/`). Everything
-  else falls back to a two-letter monogram on the black tile.
+- `src/lib/watchlist-data.ts` supplies dashboard indices, overview summary, and the seven-stock watchlist.
+- `src/lib/compare-data.ts` supplies per-range demo returns for NVDA, MSFT, AMZN, and the fixed S&P 500 benchmark. The comparison matrix is derived from those returns; differences are percentage points.
+- `src/lib/explore-data.ts` supplies 22 demo stocks, nine sectors, and the sector-to-index map.
 
-Per [[CLAUDE-hard-rules]], when this is wired the reads go to Postgres only —
-the cron job stays the sole caller of the stock API.
+These fixtures are not a unified market snapshot. Prices, daily returns, or benchmarks may differ between fixtures. Do not present them as synchronized live market data.
 
-See [[design-tokens-from-figma]] for where the visual values came from.
+## Charts and interactions
+
+Dashboard history is now in `overview-card.tsx`. Its 1M/3M/6M/YTD controls select and rebase illustrative samples. Compare history is generated in `compare-chart.tsx` from an illustrative shape normalized to each range's demo return; switching ranges updates both metrics and geometry. Neither chart is sourced from dated price history.
+
+Old Figma paths and legacy chart components remain in the repository but are not the currently rendered dashboard or comparison histories.
+
+Watchlist removal and Explore membership are local component state. They reset on remount and do not synchronize across routes. Add links navigate to Explore; they do not imply database persistence.
+
+Company logos use available local assets and the shared `stock-logo.tsx` fallback. The old claim that only AAPL and NVDA have logos is obsolete.
+
+## Future integration boundary
+
+Per [[CLAUDE-hard-rules]], price reads must come from Postgres and only the cron job may call the stock API. Integration must replace the fixtures and component-level illustrative histories, establish consistent timestamps/ranges, and persist watchlist membership when authorized. Merely replacing the exports of `watchlist-data.ts` will not connect every current page.

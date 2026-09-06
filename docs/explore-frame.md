@@ -8,6 +8,9 @@ metadata:
   modified: 2026-09-04T20:02:11.363Z
 ---
 
+> [!info] Historical frame — superseded 2026-09-06
+> See [[neutral-page-design]] for the current summary-and-table layout. Sector selection now uses a dropdown containing all nine sectors; the large hero, card grid, More pills, and featured-card layout below are historical. The live route uses `explore-view.tsx` and shared `stock-logo.tsx`; the old card/chart components remain unused. Sector benchmarks and local-only membership still apply.
+
 The `/explore` route was built on 2026-09-04 from Figma frame
 **Dashboard – explore** (node `101:711`) in file `3bxSmnFWXAAfBGTudWLAUV`.
 Same approach as [[watchlist-table-frame]] and [[compare-frame]].

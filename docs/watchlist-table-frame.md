@@ -8,6 +8,9 @@ metadata:
   modified: 2026-09-04T19:30:30.078Z
 ---
 
+> [!info] Historical frame — superseded 2026-09-06
+> See [[neutral-page-design]] for the current compact table shared by Dashboard and Watchlist. The seven-stock source and local removal remain. Search, Ahead/Behind filters, sortable columns, day changes, and benchmark gap bars replace the old framed table and 30-day sparklines below. The current table starts in source order rather than ranking by benchmark gap.
+
 The `/watchlist` route (`src/app/watchlist/page.tsx` + `watchlist-table.tsx`)
 was built on 2026-09-04 from Figma frame **Dashboard – watchlist**
 (node `89:4309`) in file `3bxSmnFWXAAfBGTudWLAUV`, following the same rules as

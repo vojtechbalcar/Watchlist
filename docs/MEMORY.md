@@ -1,6 +1,22 @@
-- [Design tokens from Figma](design-tokens-from-figma.md) — where the visual language lives and why the Figma export was rebuilt, not pasted.
-- [Watchlist placeholder data](watchlist-placeholder-data.md) — every number on the dashboard is fake; this is the one seam to replace for Postgres.
-- [MCP config leading-space gotcha](mcp-config-leading-space-gotcha.md) — a token that looked ignored, a filename with a leading space, and a secret that reached the git index.
-- [Watchlist table frame](watchlist-table-frame.md) — the /watchlist build, and where the mock lost to the app's data.
-- [Compare frame](compare-frame.md) — the /compare build: derived comparison matrix, series colours, and the range/geometry gap.
-- [Explore frame](explore-frame.md) — the /explore build: sector-index rule, the hero's empty case, derived watchlist membership.
+# Watchlist memory
+
+## Current state
+
+- [[checkpoint-2026-09-06]] — completed work, verification, current limitations, and next steps.
+- [[neutral-page-design]] — current visual rules and the correction that Compare and Explore need structural redesigns, not just new colors.
+- [[git-commit-workflow]] — commit each completed, verified change; local commits and remote pushes are separate.
+- [[watchlist-placeholder-data]] — demo data, illustrative histories, and the future Postgres boundary.
+- [[CLAUDE-hard-rules]] — market data access, brand/direction colors, and product language.
+
+## Historical implementation decisions
+
+These notes retain the original Figma rationale. Their current-status callouts link to the design that supersedes the old layouts.
+
+- [[design-tokens-from-figma]] — original token system and why exported fixed-position React was rebuilt.
+- [[watchlist-table-frame]] — original table frame and mock/data discrepancies.
+- [[compare-frame]] — derived matrix arithmetic, series identity, and original chart limitations.
+- [[explore-frame]] — sector-index mapping and original card/hero scope.
+
+## Troubleshooting
+
+- [[mcp-config-leading-space-gotcha]] — configuration filename issue and sensitive settings handling.

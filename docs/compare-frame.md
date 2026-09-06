@@ -8,6 +8,9 @@ metadata:
   modified: 2026-09-04T19:43:12.537Z
 ---
 
+> [!info] Historical frame — superseded 2026-09-06
+> See [[neutral-page-design]] for the current chart/sidebar/table layout. The current chart changes with the selected range using illustrative history normalized to demo returns; the static-geometry limitation below no longer describes the rendered chart. The three-stock pool, fixed benchmark, and derived percentage-point matrix remain. The table now lives in `compare-view.tsx`; `full-comparison-table.tsx` is legacy. Series colors are now ink, muted taupe, and slate.
+
 The `/compare` route was built on 2026-09-04 from Figma frame
 **Dashboard – compare** (node `97:212`) in file `3bxSmnFWXAAfBGTudWLAUV`.
 Same approach as [[watchlist-table-frame]] and [[design-tokens-from-figma]].

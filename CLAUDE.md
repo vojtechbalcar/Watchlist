@@ -25,3 +25,11 @@ Save a memory when:
 
 When I say "checkpoint", save the current state: what works, what's broken,
 what's next.
+
+## Git workflow
+
+- Commit after each completed, verified, coherent change; do not leave finished work uncommitted until the end of a session.
+- Use focused commits and descriptive messages. Check the diff and run checks appropriate to the change before committing.
+- Update the Obsidian notes when the memory rules above apply, and commit those updates too.
+- Preserve unrelated user changes; stage only the files belonging to the change being committed.
+- Commits are local. Push when the user requests it; do not equate a commit with a remote backup.

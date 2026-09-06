@@ -5,7 +5,10 @@ metadata:
   type: project
 ---
 
-The design system is a single `@theme` block in `src/app/globals.css`, derived
+> [!info] Historical design — superseded 2026-09-06
+> The current design is documented in [[neutral-page-design]]. The live palette is neutral, Helvetica Neue now carries both text and numbers, and the original card layouts and chart geometry below are historical. Retain the brand/direction distinction and the rationale for rebuilding Figma exports responsively.
+
+The original design system was a single `@theme` block in `src/app/globals.css`, derived
 from the Figma file `3bxSmnFWXAAfBGTudWLAUV`, frame **Dashboard – overview**
 (node `64:1444`) on 2026-09-04.
 

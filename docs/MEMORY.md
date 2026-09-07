@@ -6,7 +6,7 @@
 
 - [[checkpoint-2026-09-06]] — completed work, verification, current limitations, and next steps.
 - [[neutral-page-design]] — current visual rules and the correction that Compare and Explore need structural redesigns, not just new colors.
-- [[git-commit-workflow]] — commit each completed, verified change; local commits and remote pushes are separate.
+- [[git-commit-workflow]] — automatically commit and push each completed, verified change to GitHub.
 - [[watchlist-placeholder-data]] — demo data, illustrative histories, and the future Postgres boundary.
 - [[CLAUDE-hard-rules]] — market data access, brand/direction colors, and product language.
 

@@ -32,4 +32,4 @@ what's next.
 - Use focused commits and descriptive messages. Check the diff and run checks appropriate to the change before committing.
 - Update the Obsidian notes when the memory rules above apply, and commit those updates too.
 - Preserve unrelated user changes; stage only the files belonging to the change being committed.
-- Commits are local. Push when the user requests it; do not equate a commit with a remote backup.
+- Automatically push each completed, verified commit to GitHub on the current branch after committing; do not wait for a separate push request. Set the upstream when needed, and verify the push succeeded before reporting completion. Never force-push without explicit authorization.

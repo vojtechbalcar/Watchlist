@@ -12,8 +12,8 @@ Commit each completed, verified, coherent change as it is finished. Do not accum
 
 Update this Obsidian vault after corrections and product/architecture decisions, including what was rejected, per `AGENTS.md`. Commit the notes as well. Preserve unrelated user work and stage only the intended files.
 
-Local commits do not create a remote backup. Push when requested; the standing instruction here authorizes regular commits, not automatic pushes.
+Automatically push every completed, verified commit to GitHub on the current branch. Set the upstream when needed and verify the push succeeded before reporting completion. Do not wait for a separate push request, and never force-push without explicit authorization. This standing authorization is recorded in `AGENTS.md` and mirrored in `CLAUDE.md`.
 
-On 2026-09-07, the user clarified that the account-page change must also be pushed to GitHub. For this change, a local commit alone is insufficient; push to `origin/main` and verify the remote commit. See [[account-pages]].
+On 2026-09-07, the user corrected the earlier local-only workflow after [[account-pages]]: committing and pushing must happen automatically for future verified changes, not just that one change. The previous rule requiring a separate push request was rejected and superseded.
 
 The completed redesign was saved in `a67a2e9`. See [[neutral-page-design]] and [[checkpoint-2026-09-06]].

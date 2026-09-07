@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
+
 - [[account-pages]] — login/register UI before database integration; previews do not authenticate.
 
 - [[checkpoint-2026-09-06]] — completed work, verification, current limitations, and next steps.

@@ -34,8 +34,19 @@ yarn-error.log*
 .env*
 .mcp.json
 
-# local Claude Code settings — holds secrets, never commit
-.claude/settings.local.json
+# local editor, vault, and assistant settings
+.idea/
+.vscode/
+.obsidian/
+.claude/
+.codex/
+
+# local editor and operating system files
+*.swp
+*.swo
+*~
+Thumbs.db
+Desktop.ini
 
 # vercel
 .vercel
@@ -43,6 +54,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-
-

@@ -27,7 +27,7 @@ const helveticaNeue = localFont({
 
 export const metadata: Metadata = {
   title: "Watchlist",
-  description: "Track any stock against the market in real time.",
+  description: "Is your stock beating its benchmark, or just moving with it? See stock performance in context with Watchlist.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${helveticaNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}<footer className="site-footer"><span>Market snapshot &nbsp; / &nbsp; Aug 25, 15:58 ET</span><span>Demo data &nbsp; · &nbsp; Prices in USD</span></footer></body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

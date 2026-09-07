@@ -3,7 +3,7 @@ import { ExploreView } from "@/components/explore-view";
 import { holdings } from "@/lib/watchlist-data";
 
 export const metadata = {
-  title: "Explore",
+  title: "Explore | Watchlist",
 };
 
 export default function ExplorePage() {

@@ -3,7 +3,7 @@ import { WatchlistTable } from "@/components/watchlist-table";
 import { holdings, overview, watchlistSummary } from "@/lib/watchlist-data";
 
 export const metadata = {
-  title: "Watchlist",
+  title: "Your Watchlist",
 };
 
 export default function WatchlistPage() {

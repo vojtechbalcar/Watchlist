@@ -2,6 +2,7 @@
 
 ## Current state
 
+- [[landing-page]] — landing page at `/`, dashboard at `/dashboard`, verification, and environment limitations on the `landingPage` branch.
 - [[checkpoint-2026-09-06]] — completed work, verification, current limitations, and next steps.
 - [[neutral-page-design]] — current visual rules and the correction that Compare and Explore need structural redesigns, not just new colors.
 - [[git-commit-workflow]] — commit each completed, verified change; local commits and remote pushes are separate.

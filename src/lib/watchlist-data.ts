@@ -96,7 +96,7 @@ export const watchlistSummary: WatchlistSummary = {
 };
 
 export const navItems = [
-  { label: "Dashboard", href: "/" },
+  { label: "Dashboard", href: "/dashboard" },
   { label: "Watchlist", href: "/watchlist" },
   { label: "Compare", href: "/compare" },
   { label: "Explore", href: "/explore" },

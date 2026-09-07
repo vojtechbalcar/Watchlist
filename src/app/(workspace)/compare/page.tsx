@@ -2,7 +2,7 @@ import { SiteHeader } from "@/components/site-header";
 import { CompareView } from "@/components/compare-view";
 
 export const metadata = {
-  title: "Compare",
+  title: "Compare | Watchlist",
 };
 
 export default function ComparePage() {

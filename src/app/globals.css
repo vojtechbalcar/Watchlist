@@ -493,3 +493,52 @@ button:not(:disabled), select { cursor: pointer; }
   .editorial-page section { padding-block: 22px; }
   .editorial-page .min-w-\[220px\] { min-width: 150px; }
 }
+
+/* Account pages share the dashboard's neutral, rule-led visual language. */
+.auth-shell { width: 100%; max-width: var(--container-page); min-height: 100svh; margin: 0 auto; padding: 0 32px; display: flex; flex-direction: column; }
+.auth-header { min-height: 90px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--color-line); }
+.auth-demo-link { display: flex; align-items: center; gap: 18px; font-size: 12px; color: var(--color-text-secondary); }
+.auth-demo-link:hover { color: var(--color-brand); }
+.auth-main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; padding: 64px 0; align-items: stretch; }
+.auth-intro { display: flex; flex-direction: column; justify-content: center; padding: 24px 64px 24px 24px; }
+.auth-intro h2 { margin: 24px 0; font-size: clamp(38px, 4.3vw, 60px); line-height: 1.08; letter-spacing: -.045em; font-weight: 500; }
+.auth-intro h2 span { color: var(--color-brand); }
+.auth-intro-copy { max-width: 335px; font-size: 14px; line-height: 1.8; color: var(--color-text-secondary); }
+.auth-intro-foot { display: flex; align-items: center; gap: 12px; margin-top: 64px; font-size: 11px; color: var(--color-text-secondary); }
+.auth-brand-rule { width: 24px; height: 2px; background: var(--color-brand); }
+.auth-form-panel { border-left: 1px solid var(--color-line); padding: 40px 32px 40px 64px; display: flex; align-items: center; justify-content: center; }
+.auth-form-section { width: 100%; max-width: 360px; }
+.auth-form-section h1 { margin: 16px 0 10px; font-size: 28px; line-height: 1.2; font-weight: 500; letter-spacing: -.035em; }
+.auth-description { color: var(--color-text-secondary); font-size: 13px; line-height: 1.6; }
+.auth-form { margin-top: 32px; display: flex; flex-direction: column; gap: 22px; }
+.auth-field { display: flex; flex-direction: column; gap: 9px; }
+.auth-field label { font-size: 12px; font-weight: 500; }
+.auth-field input { width: 100%; min-width: 0; border: 1px solid var(--color-line); border-radius: 5px; background: var(--color-surface-raised); padding: 14px; font-size: 14px; color: var(--color-ink); }
+.auth-field input::placeholder { color: var(--color-text-caption); }
+.auth-password { position: relative; }
+.auth-password input { padding-right: 65px; }
+.auth-password button { position: absolute; right: 4px; top: 4px; bottom: 4px; padding: 0 10px; font-size: 11px; color: var(--color-text-secondary); cursor: pointer; border-radius: 3px; }
+.auth-password button:hover { color: var(--color-ink); background: var(--color-surface); }
+.auth-hint { font-size: 11px; color: var(--color-text-caption); }
+.auth-submit { display: flex; align-items: center; justify-content: space-between; min-height: 46px; padding: 12px 16px; margin-top: 2px; border-radius: 5px; background: var(--color-ink); color: var(--color-surface-raised); font-size: 13px; cursor: pointer; transition: background .15s; }
+.auth-submit:hover { background: #44464a; }
+.auth-notice { min-height: 36px; font-size: 11px; line-height: 1.6; color: var(--color-text-caption); }
+.auth-switch { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--color-line); font-size: 12px; line-height: 1.8; color: var(--color-text-secondary); }
+.auth-switch a { color: var(--color-brand); font-weight: 500; text-underline-offset: 4px; }
+.auth-switch a:hover { text-decoration: underline; }
+.auth-footer { border-top: 1px solid var(--color-line); padding: 24px 0; display: flex; justify-content: space-between; gap: 16px; font-size: 10px; color: var(--color-text-caption); }
+@media (max-width: 760px) {
+  .auth-shell { padding: 0 20px; }
+  .auth-header { min-height: 74px; }
+  .auth-main { grid-template-columns: 1fr; padding: 32px 0 40px; gap: 32px; }
+  .auth-intro { padding: 0; }
+  .auth-intro h2 { margin: 16px 0; font-size: 36px; }
+  .auth-heading-break { display: none; }
+  .auth-intro-copy { max-width: 390px; font-size: 13px; }
+  .auth-intro-foot { display: none; }
+  .auth-form-panel { border-left: 0; border-top: 1px solid var(--color-line); padding: 32px 0 0; justify-content: flex-start; }
+  .auth-form-section { max-width: none; }
+  .auth-form-section h1 { font-size: 26px; }
+  .auth-field input { font-size: 16px; }
+  .auth-footer { flex-wrap: wrap; }
+}

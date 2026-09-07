@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${helveticaNeue.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}<footer className="site-footer"><span>Market snapshot &nbsp; / &nbsp; Aug 25, 15:58 ET</span><span>Demo data &nbsp; · &nbsp; Prices in USD</span></footer></body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

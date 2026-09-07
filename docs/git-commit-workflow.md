@@ -1,6 +1,6 @@
 ---
 type: preference
-updated: 2026-09-06
+updated: 2026-09-07
 status: current
 ---
 
@@ -13,5 +13,7 @@ Commit each completed, verified, coherent change as it is finished. Do not accum
 Update this Obsidian vault after corrections and product/architecture decisions, including what was rejected, per `AGENTS.md`. Commit the notes as well. Preserve unrelated user work and stage only the intended files.
 
 Local commits do not create a remote backup. Push when requested; the standing instruction here authorizes regular commits, not automatic pushes.
+
+On 2026-09-07, the user clarified that the account-page change must also be pushed to GitHub. For this change, a local commit alone is insufficient; push to `origin/main` and verify the remote commit. See [[account-pages]].
 
 The completed redesign was saved in `a67a2e9`. See [[neutral-page-design]] and [[checkpoint-2026-09-06]].

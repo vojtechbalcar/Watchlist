@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
 import { LandingIllustration } from "@/components/landing-illustration";
+import { BenchmarkSpark } from "@/components/benchmark-spark";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -12,6 +13,13 @@ export const metadata: Metadata = {
 const sourceUrl = "https://github.com/vojtechbalcar/Watchlist";
 // Temporary entry point until auth and onboarding state determine the destination.
 const watchlistEntryUrl = "/register";
+
+// NVDA is marked the same way the illustration marks it: brand, not direction.
+const tickers = [
+  { symbol: "AAPL", selected: false },
+  { symbol: "NVDA", selected: true },
+  { symbol: "MSFT", selected: false },
+];
 
 export default function LandingPage() {
   return (
@@ -28,19 +36,38 @@ export default function LandingPage() {
       </header>
 
       <main className={styles.hero}>
-        <section className={styles.copy} aria-labelledby="hero-title">
-          <h1 id="hero-title">Both green.<br />One losing<span className={styles.period}>.</span></h1>
-          <p className={styles.description}>Up feels like winning.<br />Until you see what the market did.</p>
-          <p className={styles.explanation}>Put your stocks in context. Watchlist shows what’s actually beating the market — and what’s just along for the ride.</p>
-          <div className={styles.actions}>
-            <Link href={watchlistEntryUrl} className={styles.primary}>Go to watchlist <span aria-hidden="true">↗</span></Link>
-            <a href={sourceUrl} className={styles.source}>View source code <span aria-hidden="true">↗</span></a>
+        <section className={styles.showcase} aria-labelledby="hero-title">
+          <div className={styles.copy}>
+            <h1 id="hero-title">Both green.<br />One losing<span className={styles.period}>.</span></h1>
+            <p className={styles.description}>Up feels like winning.<br />Until you see what the market did.</p>
+            <div className={styles.actions}>
+              <Link href={watchlistEntryUrl} className={styles.primary}>Go to watchlist <span aria-hidden="true">↗</span></Link>
+              <a href={sourceUrl} className={styles.source}>View source code <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          <div className={styles.visual}>
+            <LandingIllustration />
           </div>
         </section>
 
-        <div className={styles.visual}>
-          <LandingIllustration />
-        </div>
+        <section className={styles.compareCard} aria-labelledby="compare-title">
+          <h2 id="compare-title">Measured against<br />the market</h2>
+          <p className={styles.cardLegend}>
+            <span className={styles.keyStock} aria-hidden="true" />Your stock
+            <span className={styles.keyBenchmark} aria-hidden="true" />S&amp;P 500
+          </p>
+          <BenchmarkSpark />
+        </section>
+
+        <section className={styles.tickerCard} aria-labelledby="tickers-title">
+          <h2 id="tickers-title">Your stocks,<br />one list</h2>
+          <p className={styles.tickerRow}>
+            {tickers.map(({ symbol, selected }) => (
+              <span key={symbol} className={selected ? `${styles.ticker} ${styles.tickerSelected}` : styles.ticker}>{symbol}</span>
+            ))}
+            <span className={styles.tickerMore}>+ any listed stock</span>
+          </p>
+        </section>
       </main>
 
     </div>

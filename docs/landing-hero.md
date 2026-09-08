@@ -30,42 +30,49 @@ Later, replace the static destination using session/cached authentication and se
 
 The SVG remains responsive, has an accessible description, and supports reduced motion. No extra landing sections are added.
 
-## Integrating the illustration into the hero
+## Correction: a container is not a layout
 
-The illustration read as a sticker parked beside the copy: two columns with a
-visible seam, the drawing floating in its own empty space. Placing it in a
-containing panel is what unified it — not moving it closer to the text.
+Wrapping the existing two-column hero in one rounded panel was rejected. The
+user's words: "you just gave it a border you didn't actually change anything."
+A shared background does not unify a layout — the arrangement has to change.
 
-The hero is now one rounded panel on a white page: `--color-surface-raised` for
-the page, `--color-surface` for the panel, header outside it. The panel holds the
-headline and the drawing together, and the panel's bottom edge crops the board's
-near corner so the object continues past the frame instead of ending in mid-air.
-Reference the user supplied: the Outcrowd "Fiscal" landing page, for the feel of
-a single container, not a 1:1 copy.
+## Bento hero: three cards
 
-Supporting moves: the SVG's `viewBox` was tightened from `0 0 680 610` to
-`34 138 622 444` (roughly 30% of its height was empty margin, which is why the
-drawing looked small and adrift); the drawing reaches back under the copy column;
-a soft white-and-maroon light field sits behind it so the board reads as lit.
-Maroon there is brand decoration, never direction.
+Reference the user supplied: the Outcrowd "Fiscal" landing page, for its three
+card structure, in Watchlist's colours and with Watchlist's vector. Not a 1:1
+copy.
 
-Two labels were removed or moved because they read as defects, not detail: the
-board's `01 / COMPARE` index was almost entirely hidden behind the raised MSFT
-tile and rendered as "ARE", and the `1Y` timeframe was clipped by the comparison
-slip. `01 / COMPARE` is gone; `1Y` moved left to clear the slip.
+- **Showcase card** (`--color-surface`, spans both rows): headline, the two-line
+  description, both calls to action, and the isometric board anchored to the
+  card's floor, cropped by its bottom and right edges.
+- **Brand card** (`--color-brand`): "Measured against the market", with two
+  illustrative one-year paths that both climb while the benchmark stays above.
+- **Ink card** (`--color-ink`): "Your stocks, one list", with ticker chips.
 
-Two constraints govern the placement at every width. The `−3.4 pp` slip is the
-payoff and must stay whole inside the panel, so the drawing never bleeds off the
-right. Only the board's bottom corner — plain geometry, no text — is cropped.
+The page itself is white so the cards read as objects on it, and the header sits
+outside them.
 
-## Correction: do not bleed by the page gutter
+Colour rules hold inside the new cards. The maroon card is a brand surface; the
+two paths on it are drawn in the brand foreground at different opacities because
+they carry identity — which line is which — not direction. NVDA's chip is maroon
+for the same reason the illustration's NVDA tile is: selection, not gain. No
+green or red appears on either small card.
 
-An earlier attempt bled the drawing to the viewport edge by adding the page
-gutter to its width. The gutter is `max(24px, (100vw - 1376px) / 2)`, which grows
-without limit once the content is capped at 1376px, so on a ~1990px screen the
-drawing inflated to nearly double its size. The user's words: "way too big."
-Size the drawing from its column, never from the gutter. This was only visible on
-a wide viewport — check one before calling a hero layout done.
+Two content decisions came out of the layout:
+
+- The explanation paragraph ("Put your stocks in context…") was cut from the
+  showcase card. The reference's big card carries a headline and a button only,
+  and with the paragraph in place the drawing had roughly 280px of height left,
+  far too little to read.
+- The detached "−3.4 pp" slip was removed from the SVG. The brand card now tells
+  that story, so keeping both duplicated it — and being the drawing's rightmost
+  element, the slip was what prevented cropping the board at all.
+
+The drawing is positioned out of flow and cropped by the card, so it can never
+stretch the card to fit it. Its bottom crop is set with a negative margin in
+percent, which resolves against width — so the amount cropped stays constant at
+any viewport height. Anchoring by `top` percentage does not: on a tall viewport
+the drawing floats clear of the floor and the crop disappears.
 
 ## Push exception
 
@@ -77,7 +84,7 @@ The illustrated revision passes TypeScript, ESLint, and a production build with 
 
 ## Verification
 
-The panel revision passes TypeScript, ESLint, and a production build. Checked in
-Chrome at 1990 × 1040, 1440 × 900, 1024 × 820 and 390 × 844: the slip stays whole
-and the bottom crop reads as deliberate at each. Still no client state and no
-market API calls.
+The bento revision passes TypeScript, ESLint, and a production build. Checked in
+Chrome at 1990 × 1040, 1440 × 900, 1024 × 820 and 390 × 844; below 760px the
+three cards stack and hug their content. Still no client state and no market API
+calls.

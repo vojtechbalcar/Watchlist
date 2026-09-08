@@ -28,7 +28,7 @@ function StockTile({ x, ticker, name, selected = false }: { x: number; ticker: s
 /** Original line illustration of stock selection and benchmark comparison. */
 export function LandingIllustration() {
   return (
-    <svg className={styles.illustration} viewBox="34 138 622 444" role="img" aria-labelledby="landing-art-title landing-art-description">
+    <svg className={styles.illustration} viewBox="34 138 584 444" role="img" aria-labelledby="landing-art-title landing-art-description">
       <title id="landing-art-title">A closer look at your watchlist.</title>
       <desc id="landing-art-description">An isometric comparison board with three raised stock tiles. The selected stock is marked in maroon. An illustrative comparison shows the stock up 18.7 percent and the benchmark up 22.1 percent, leaving the stock 3.4 percentage points behind.</desc>
 
@@ -68,15 +68,6 @@ export function LandingIllustration() {
       <StockTile x={149} ticker="NVDA" name="NVIDIA" selected />
       <StockTile x={270} ticker="MSFT" name="Microsoft" />
 
-      {/* A separate comparison slip makes the result readable beyond the board. */}
-      <g transform="translate(0 5)">
-        <path d="m460 346 190 12v114l-190-12z" fill="#e6e9ec" stroke="var(--color-ink)" strokeWidth="1.2" />
-        <rect x="448" y="334" width="190" height="114" rx="4" fill="var(--color-surface-raised)" stroke="var(--color-ink)" strokeWidth="1.2" />
-        <text x="464" y="359" fill="var(--color-text-secondary)" fontSize="12">vs. benchmark</text>
-        <path d="M464 371h158" stroke="var(--color-line)" />
-        <text x="461" y="412" fill="var(--color-down)" fontSize="34" fontWeight="500" letterSpacing="-1.3">−3.4<tspan fontSize="16" letterSpacing="0"> pp</tspan></text>
-        <text x="464" y="432" fill="var(--color-text-secondary)" fontSize="11">Behind the market</text>
-      </g>
     </svg>
   );
 }

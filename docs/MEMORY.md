@@ -2,7 +2,7 @@
 
 ## Current state
 
-- [[landing-hero]] — expressive marketing hero under review on `feat/landing-hero`; keep hero commits local until the user requests its single push.
+- [[landing-hero]] — merged three-tile landing design, with a registration CTA tile and detailed illustrative benchmark graph on `feat/landing-tile-details`.
 
 - [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
 

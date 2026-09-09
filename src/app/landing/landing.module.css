@@ -62,23 +62,30 @@
 }
 
 /* ---- Brand card ---------------------------------------------------------- */
-.compareCard { position: relative; display: flex; flex-direction: column; padding: 34px 34px 0; border-radius: 26px; background: var(--color-brand); color: var(--color-brand-foreground); overflow: clip; }
-.compareCard h2 { font-size: clamp(23px, 1.9vw, 30px); line-height: 1.12; letter-spacing: -.035em; font-weight: 500; }
-.cardLegend { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 12px; letter-spacing: -.01em; opacity: .82; }
-.cardLegend > span { width: 14px; height: 2.6px; border-radius: 2px; background: var(--color-brand-foreground); }
-.keyStock { flex: none; }
-.keyBenchmark { flex: none; margin-left: 12px; opacity: .4; }
-.spark { display: block; width: calc(100% + 68px); height: auto; margin: auto -34px 0; }
+.compareCard { position: relative; display: flex; flex-direction: column; padding: 30px 34px 22px; border-radius: 26px; background: var(--color-brand); color: var(--color-brand-foreground); overflow: clip; }
+.compareCard h2 { font-size: 28px; line-height: 1.12; letter-spacing: 0; font-weight: 500; }
+.compareHeading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.comparePeriod { padding-top: 4px; font-size: 11px; line-height: 1.4; }
+.comparisonMetrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 22px 0 18px; }
+.comparisonMetrics dt { display: flex; align-items: center; gap: 8px; font-size: 11px; line-height: 1.5; }
+.comparisonMetrics dd { margin-top: 5px; font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.keyStock, .keyBenchmark { width: 15px; flex: none; border-top: 2px solid var(--color-brand-foreground); }
+.keyBenchmark { border-top-style: dashed; opacity: .72; }
+.spark { display: block; flex: none; width: 100%; height: auto; aspect-ratio: 360 / 174; margin: auto 0 0; }
+.relativePerformance { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; border-top: 1px solid rgb(255 255 255 / .22); padding-top: 14px; margin-top: 16px; }
+.relativePerformance > span { font-size: 11px; line-height: 1.4; }
+.relativePerformance strong { white-space: nowrap; font-size: 23px; line-height: 1.2; font-weight: 500; font-variant-numeric: tabular-nums; }
+.relativePerformance strong > span { font-size: 12px; font-weight: 400; }
+.chartNote { margin-top: 10px; font-size: 10px; line-height: 1.4; opacity: .85; }
 
 /* ---- Ink card ------------------------------------------------------------ */
-.tickerCard { display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 30px 34px 32px; border-radius: 26px; background: var(--color-ink); color: #f5f6f8; overflow: clip; }
-.tickerCard h2 { font-size: clamp(23px, 1.9vw, 30px); line-height: 1.12; letter-spacing: -.035em; font-weight: 500; }
-.tickerRow { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
-.ticker { display: inline-flex; align-items: center; gap: 8px; padding: 10px 13px; font-size: 13px; line-height: 18px; letter-spacing: -.01em; color: #f5f6f8; background: #352f31; border-radius: 8px; }
-.ticker::before { content: ""; width: 8px; height: 8px; border: 1.4px solid #8d8388; border-radius: 2px; }
-.tickerSelected { background: var(--color-brand); color: var(--color-brand-foreground); }
-.tickerSelected::before { border-color: var(--color-brand-foreground); background: var(--color-brand-foreground); }
-.tickerMore { padding: 10px 14px; font-size: 13px; line-height: 18px; color: #c4bdb8; border: 1px solid #4a4245; border-radius: 999px; }
+.ctaCard { display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 30px 34px 26px; border-radius: 26px; background: var(--color-ink); color: #f5f6f8; transition: background 180ms ease; }
+.ctaCard h2 { font-size: 30px; line-height: 1.12; letter-spacing: 0; font-weight: 500; }
+.cardAction { display: flex; justify-content: space-between; align-items: center; gap: 18px; font-size: 13px; line-height: 1.5; }
+.cardAction svg { flex: none; transition: transform 180ms ease; }
+.ctaCard:hover { background: #363237; }
+.ctaCard:hover .cardAction svg { transform: translate(3px, -3px); }
+.ctaCard:focus-visible { outline: 3px solid var(--color-brand); outline-offset: 4px; }
 
 @media (min-width: 1700px) {
   .hero { min-height: 760px; }
@@ -90,16 +97,19 @@
   .navigation { gap: 20px; }
   .headerActions { margin-left: 0; gap: 20px; }
   .hero { grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr); min-height: 600px; gap: 12px; margin-bottom: 28px; }
-  .showcase, .compareCard, .tickerCard { border-radius: 22px; }
+  .showcase, .compareCard, .ctaCard { border-radius: 22px; }
   .showcase { padding: 44px 0 0 40px; }
   .copy { padding-right: 40px; }
   .actions { gap: 20px; font-size: 12px; }
   .primary { gap: 20px; }
   .visual { right: -13%; width: 92%; }
   .illustration { margin-bottom: -15%; }
-  .compareCard { padding: 26px 26px 0; }
-  .spark { width: calc(100% + 52px); margin-inline: -26px; }
-  .tickerCard { padding: 24px 26px 26px; gap: 16px; }
+  .compareCard { padding: 24px 26px 20px; }
+  .compareCard h2 { font-size: 24px; }
+  .comparisonMetrics { gap: 12px; margin-block: 18px 16px; }
+  .comparisonMetrics dd { font-size: 26px; }
+  .ctaCard { padding: 24px 26px; gap: 16px; }
+  .ctaCard h2 { font-size: 28px; }
 }
 
 @media (max-width: 760px) {
@@ -120,9 +130,8 @@
   .actions { margin-top: 26px; gap: 26px; font-size: 13px; }
   .visual { position: relative; right: auto; bottom: auto; width: calc(100% + 34px); margin: 30px -10px 0 0; }
   .illustration { margin-bottom: -9%; }
-  .compareCard { padding: 26px 24px 0; min-height: 300px; }
-  .spark { width: calc(100% + 48px); margin-inline: -24px; }
-  .tickerCard { padding: 26px 24px 28px; }
+  .compareCard { padding: 26px 24px 22px; }
+  .ctaCard { padding: 26px 24px; min-height: 190px; }
 }
 
 @media (max-width: 390px) {
@@ -131,7 +140,7 @@
   .headerActions { gap: 12px; font-size: 13px; }
   .headerCta { padding: 10px; font-size: 13px; }
   .headerCta > span { display: none; }
-  .showcase, .compareCard, .tickerCard { border-radius: 20px; }
+  .showcase, .compareCard, .ctaCard { border-radius: 20px; }
   .showcase { padding: 32px 0 0 20px; }
   .copy { padding-right: 20px; }
   .copy h1 { font-size: 53px; }
@@ -139,12 +148,13 @@
   .actions { gap: 20px; font-size: 12px; }
   .primary { gap: 18px; }
   .visual { width: calc(100% + 28px); margin: 26px -8px -9% 0; }
-  .compareCard { padding: 24px 20px 0; min-height: 270px; }
-  .spark { width: calc(100% + 40px); margin-inline: -20px; }
-  .tickerCard { padding: 24px 20px 26px; }
+  .compareCard { padding: 24px 20px 20px; }
+  .compareCard h2 { font-size: 23px; }
+  .comparisonMetrics dd { font-size: 25px; }
+  .ctaCard { padding: 24px 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primary > span { transition: none; }
-  .primary:hover > span { transform: none; }
+  .primary > span, .ctaCard, .cardAction svg { transition: none; }
+  .primary:hover > span, .ctaCard:hover .cardAction svg { transform: none; }
 }

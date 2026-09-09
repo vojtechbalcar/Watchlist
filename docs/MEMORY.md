@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[landing-hero]] — expressive marketing hero under review on `feat/landing-hero`; keep hero commits local until the user requests its single push.
+
 - [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
 
 - [[account-pages]] — login/register UI before database integration; previews do not authenticate.

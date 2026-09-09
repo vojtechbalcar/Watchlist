@@ -1,14 +1,14 @@
 ---
 type: decision
-updated: 2026-09-08
-status: in-review
+updated: 2026-09-09
+status: current
 ---
 
 # Landing hero
 
 Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
 
-Build only the landing hero at `/landing` on `feat/landing-hero`; keep the existing dashboard at `/` while the direction is under review. The GitHub branch was created at the existing base commit before hero implementation.
+The three-card landing hero at `/landing` was merged through PR #1 in `4dd51d7`. The dashboard remains at `/`. The tile refinements below build on that merged design on `feat/landing-tile-details`; the earlier design decisions remain as history.
 
 ## User correction
 
@@ -74,9 +74,9 @@ percent, which resolves against width — so the amount cropped stays constant a
 any viewport height. Anchoring by `top` percentage does not: on a tall viewport
 the drawing floats clear of the floor and the crop disappears.
 
-## Push exception
+## Original review workflow
 
-For this hero, the user's explicit instruction overrides the normal automatic-push rule: keep implementation commits local until the user tells us to push. Send the hero changes in one push after that instruction. Creating the remote branch at the unchanged base was authorized separately. Do not merge into `main` as part of this work.
+The original hero review required local implementation commits until the user requested one push. That review branch has now been merged through PR #1. Subsequent changes follow [[git-commit-workflow]] on their feature branch; do not merge them into `main` without a request.
 
 ## Earlier verification
 
@@ -88,3 +88,18 @@ The bento revision passes TypeScript, ESLint, and a production build. Checked in
 Chrome at 1990 × 1040, 1440 × 900, 1024 × 820 and 390 × 844; below 760px the
 three cards stack and hug their content. Still no client state and no market API
 calls.
+
+## CTA and graph detail
+
+The user requested that the small dark rectangle become a CTA and that the graph card contain more useful detail. Preserve the three-card layout and the showcase illustration.
+
+- The entire dark tile is now a native link: "Start your watchlist" with "Create an account" and an arrow. It goes to `/register`, preserving the account-first entry decision. Hover and keyboard focus identify the actionable tile without moving it.
+- The graph shows the stock's +18.7% return, the S&P 500's +22.1%, and the resulting -3.4 percentage-point gap. Both lines begin at zero and use the same scale, with percentage ticks and start/six-month/one-year labels.
+- Solid and dashed strokes distinguish the series without depending on color. The maroon remains a brand surface; the graph uses its foreground color for both series.
+- `src/lib/landing-comparison.ts` supplies the illustrative monthly returns and derived totals to both the graph and the existing illustration. The card labels them as illustrative, with no live market data or API calls.
+
+Rejected: keeping decorative ticker chips in the CTA tile, adding a button inside an otherwise inert tile, inventing live-price claims, and duplicating the displayed returns separately from the graph's data. No extra landing sections or application-style controls were added.
+
+The refinement passes TypeScript, scoped ESLint, and a Webpack production build. Playwright checked 1990x1040, 1440x900, 1024x820, 800x700, 390x844, and 320x667: no clipped graph content, overlapping graph rows, page overflow, failed requests, or browser errors. CTA keyboard activation reaches registration and hover preserves tile geometry. Chart baselines and endpoints match the displayed figures.
+
+An initial typecheck picked up stale generated routes from a different branch and the untracked nested `watchlist/` scaffold. The build regenerated the route files; TypeScript includes now target the root app's source and configuration files. The unrelated scaffold remains untouched.

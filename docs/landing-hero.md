@@ -8,6 +8,8 @@ status: current
 
 Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
 
+The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The user explicitly requires this three-card hero, including its dark CTA tile, to remain as before. Do not replace it when revising the rest of the landing page.
+
 The three-card landing hero at `/landing` was merged through PR #1 in `4dd51d7`. The dashboard remains at `/`. The tile refinements below build on that merged design on `feat/landing-tile-details`; the earlier design decisions remain as history.
 
 ## User correction

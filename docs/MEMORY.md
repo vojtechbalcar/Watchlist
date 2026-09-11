@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[explore-sector-pages]] — four-card sector rows, dedicated category pages, redesigned cards, and the correction to remove the hero and inline expansion.
+
 - [[settings-preferences]] — profile dropdown and browser-persisted display and comparison preferences.
 
 - [[landing-page-design]] — full landing-page direction and the user's correction to replace literal screenshots with minimal product illustrations.

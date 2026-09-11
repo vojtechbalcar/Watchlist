@@ -2,7 +2,7 @@
 name: watchlist-placeholder-data
 description: Current demo data sources and the boundaries to replace when Postgres and persisted watchlists are implemented.
 type: project
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 # Watchlist placeholder data
@@ -13,7 +13,7 @@ All market values and plotted histories are illustrative. No component currently
 
 - `src/lib/watchlist-data.ts` supplies dashboard indices, overview summary, and the seven-stock watchlist.
 - `src/lib/compare-data.ts` supplies per-range demo returns for NVDA, MSFT, AMZN, and the fixed S&P 500 benchmark. The comparison matrix is derived from those returns; differences are percentage points.
-- `src/lib/explore-data.ts` supplies 22 demo stocks, nine sectors, and the sector-to-index map.
+- `src/lib/explore-data.ts` supplies 48 demo stocks, nine sectors, and the sector-to-index map. The larger fixture set supports the previews and dedicated category pages in [[explore-sector-pages]].
 
 These fixtures are not a unified market snapshot. Prices, daily returns, or benchmarks may differ between fixtures. Do not present them as synchronized live market data.
 

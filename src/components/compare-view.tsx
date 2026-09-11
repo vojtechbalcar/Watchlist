@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePreferences } from "./preferences-provider";
 import { StockLogo } from "./stock-logo";
 import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
@@ -11,8 +12,10 @@ function Gap({ value }: { value: number }) {
   return <span className={value >= 0 ? "text-up" : "text-down"}>{value >= 0 ? "+" : "−"}{Math.abs(value).toFixed(2)} <small>pp</small></span>;
 }
 
-export function CompareView({ initialRange }: { initialRange: CompareRange }) {
-  const [range, setRange] = useState(initialRange);
+export function CompareView() {
+  const preferences = usePreferences();
+  const [selectedRange, setRange] = useState<CompareRange | null>(null);
+  const range = selectedRange ?? preferences.compareRange;
   const [selected, setSelected] = useState(compareSeries.map(s => s.ticker));
   const rows = compareRows(range, selected);
   const ranked = [...rows].sort((a, b) => b.returnPct - a.returnPct);

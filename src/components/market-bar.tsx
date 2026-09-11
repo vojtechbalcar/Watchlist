@@ -3,7 +3,7 @@ import type { MarketIndex } from "@/lib/watchlist-data";
 
 export function MarketBar({ indices }: { indices: MarketIndex[] }) {
   return (
-    <div className="h-marketbar border-b border-line bg-surface-sunken">
+    <div className="market-summary-bar h-marketbar border-b border-line bg-surface-sunken">
       <div className="mx-auto flex h-full max-w-(--container-page) items-center px-8">
         <span className="shrink-0 pr-8 text-base tracking-ticker text-text-faint">
           MARKETS

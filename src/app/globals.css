@@ -261,6 +261,30 @@
 }
 
 button:not(:disabled), select { cursor: pointer; }
+.market-app { min-width: 0; }
+.profile-menu { position: relative; }
+.profile-trigger { display: flex; align-items: center; gap: 7px; border-radius: 20px; color: var(--color-text-secondary); }
+.profile-avatar { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-line-avatar); background: var(--color-surface); font-size: 13px; font-weight: 500; }
+.profile-trigger:hover .profile-avatar, .profile-trigger[aria-expanded="true"] .profile-avatar { border-color: var(--color-text-faint); }
+.profile-popover { position: absolute; right: 0; top: calc(100% + 12px); z-index: 50; width: 240px; max-width: calc(100vw - 40px); padding: 7px; border: 1px solid var(--color-line); border-radius: 6px; background: var(--color-surface-raised); box-shadow: 0 8px 28px #27282a14; }
+.profile-identity { padding: 10px 10px 14px; margin-bottom: 5px; border-bottom: 1px solid var(--color-line-soft); }
+.profile-identity strong { display: block; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+.profile-identity > span { display: block; margin-top: 5px; font-size: 11px; color: var(--color-text-secondary); }
+.profile-popover nav { display: grid; gap: 2px; }
+.profile-popover nav a { display: flex; align-items: center; gap: 10px; padding: 11px 10px; border-radius: 3px; font-size: 12px; }
+.profile-popover nav a:hover, .profile-popover nav a[aria-current="page"] { background: var(--color-surface-sunken); }
+.profile-popover nav a > span { margin-left: auto; color: var(--color-text-muted); }
+.market-app[data-show-logos="false"] .stock-logo,
+.market-app[data-show-names="false"] .stock-company small,
+.market-app[data-show-gaps="false"] .gap-bar,
+.market-app[data-show-markets="false"] .market-summary-bar { display: none; }
+.market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) tbody tr { height: 52px; }
+.market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) .stock-logo { width: 30px; height: 30px; }
+.market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) .stock-logo img { width: 23px; height: 23px; }
+.market-app[data-reduced-motion="true"] *, .market-app[data-reduced-motion="true"] *::before, .market-app[data-reduced-motion="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+@media (prefers-reduced-motion: reduce) {
+  .market-app *, .market-app *::before, .market-app *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
 .header-inner { min-height: 74px; }
 .control-label { color: var(--color-text-muted); font-size: 11px; }
 .comparison-selection { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 0 22px; border-top: 1px solid var(--color-line); }
@@ -468,7 +492,7 @@ button:not(:disabled), select { cursor: pointer; }
   .header-inner { flex-wrap: wrap; gap: 0; padding-top: 16px; }
   .header-inner > a { order: 0; }
   .header-inner > div { order: 1; }
-  .header-inner nav { order: 2; width: 100%; justify-content: space-between; gap: 16px; padding: 18px 0 14px; }
+  .header-inner > nav { order: 2; width: 100%; justify-content: space-between; gap: 16px; padding: 18px 0 14px; }
   .page-shell { padding: 28px 20px 0; }
   .page-heading { align-items: flex-start; flex-direction: column; gap: 20px; margin-bottom: 26px; }
   .page-title { font-size: 30px; }

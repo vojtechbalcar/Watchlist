@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[settings-preferences]] — profile dropdown and browser-persisted display and comparison preferences.
+
 - [[landing-page-design]] — full landing-page direction and the user's correction to replace literal screenshots with minimal product illustrations.
 
 - [[landing-hero]] — merged three-tile landing design, with a registration CTA tile and detailed illustrative benchmark graph on `feat/landing-tile-details`.

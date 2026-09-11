@@ -12,7 +12,7 @@ export default function ComparePage() {
 
       <main className="page-shell">
         <div>
-          <CompareView initialRange="YTD" />
+          <CompareView />
         </div>
       </main>
     </>

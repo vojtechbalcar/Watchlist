@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
 import { profileInitials, type Preferences } from "@/lib/preferences";
-import { resetPreferences, savePreferences, usePreferences } from "./preferences-provider";
+import { resetPreferences, savePreferences, usePreferences, usePreferencesReady } from "./preferences-provider";
 
 function SettingRow({ id, title, description, children }: { id: string; title: string; description: string; children: ReactNode }) {
   return <div className="setting-row"><div className="setting-copy"><span className="setting-label" id={`${id}-label`}>{title}</span><p id={`${id}-hint`}>{description}</p></div><div className="setting-control">{children}</div></div>;
@@ -29,6 +29,7 @@ const sections = [
 
 export function SettingsView() {
   const preferences = usePreferences();
+  const ready = usePreferencesReady();
   const [status, setStatus] = useState("");
   const [failed, setFailed] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -60,6 +61,7 @@ export function SettingsView() {
 
   return <>
     <div className="page-heading settings-heading"><div><p className="eyebrow">A little more you</p><h1 className="page-title">Settings</h1><p className="settings-intro">Your view of the market. Your preferences.</p></div><span className="settings-storage"><Monitor size={14} aria-hidden="true" />Saved on this browser</span></div>
+    <fieldset className="min-w-0" disabled={!ready} aria-label="Settings preferences">
     <div className="settings-layout">
       <aside className="settings-sidebar"><nav aria-label="Settings sections">{sections.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`}><Icon size={16} aria-hidden="true" /><span>{label}</span><ChevronRight size={12} aria-hidden="true" /></a>)}</nav><p>Small adjustments.<br />A clearer perspective.</p></aside>
       <div className="settings-content">
@@ -88,7 +90,7 @@ export function SettingsView() {
 
         <section className="settings-section" id="defaults" aria-labelledby="defaults-heading">
           <div className="settings-section-heading"><span>03</span><div><h2 id="defaults-heading">Watchlist & comparison</h2><p>Start with the perspective you reach for most.</p></div></div>
-          <SelectSetting id="compare-range" title="Comparison period" description="The starting time range when you open Compare." value={preferences.compareRange} options={[["1D", "1 day"], ["1W", "1 week"], ["1M", "1 month"], ["YTD", "Year to date"], ["1Y", "1 year"]]} onChange={value => update("compareRange", value as Preferences["compareRange"])} />
+          <SelectSetting id="compare-range" title="Comparison period" description="The starting time range when you open Compare or Explore." value={preferences.compareRange} options={[["1D", "1 day"], ["1W", "1 week"], ["1M", "1 month"], ["YTD", "Year to date"], ["1Y", "1 year"]]} onChange={value => update("compareRange", value as Preferences["compareRange"])} />
           <SelectSetting id="watchlist-filter" title="Default stock filter" description="Start Dashboard and Watchlist with all stocks, or only those ahead or behind." value={preferences.watchlistFilter} options={[["All stocks", "All stocks"], ["Ahead", "Ahead of benchmark"], ["Behind", "Behind benchmark"]]} onChange={value => update("watchlistFilter", value as Preferences["watchlistFilter"])} />
           <SelectSetting id="watchlist-sort" title="Default sort" description="How stocks are ordered when you open your watchlist." value={preferences.watchlistSort} options={[["original", "Original order"], ["ticker", "Company symbol"], ["price", "Last price"], ["changePct", "Day change"], ["vsBenchmarkPct", "Benchmark difference"]]} onChange={value => update("watchlistSort", value as Preferences["watchlistSort"])} />
           <SelectSetting id="sort-direction" title="Sort direction" description={preferences.watchlistSort === "original" ? "Choose a sort above to set its direction." : "Ascending shows A–Z or lowest first; descending shows highest first."} value={preferences.sortDirection} disabled={preferences.watchlistSort === "original"} options={[["ascending", "Ascending"], ["descending", "Descending"]]} onChange={value => update("sortDirection", value as Preferences["sortDirection"])} />
@@ -109,6 +111,7 @@ export function SettingsView() {
         <div className="settings-endnote"><span>Display preferences save automatically.</span><Link href="/watchlist">Back to your watchlist <ArrowUpRight size={13} aria-hidden="true" /></Link></div>
       </div>
     </div>
+    </fieldset>
     <div className={`settings-feedback${status ? " is-visible" : ""}${failed ? " is-error" : ""}`} role="status" aria-live="polite" aria-atomic="true">{status && <>{!failed && <Check size={15} aria-hidden="true" />}<span>{status}</span><button aria-label="Dismiss message" onClick={() => setStatus("")}>×</button></>}</div>
   </>;
 }

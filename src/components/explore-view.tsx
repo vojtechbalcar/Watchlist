@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
+import { useExplorePeriod } from "./explore-period-provider";
+import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import {
   exploreUniverse,
   sectors,
@@ -23,6 +25,7 @@ export function ExploreView({
   watchlistTickers: string[];
   category?: Sector;
 }) {
+  const { range, setRange } = useExplorePeriod();
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [added, setAdded] = useState(watchlistTickers);
@@ -32,9 +35,11 @@ export function ExploreView({
   const stocks = exploreUniverse
     .filter(stock => !category || stock.sector === category)
     .filter(stock => `${stock.ticker} ${stock.name} ${stock.sector}`.toLowerCase().includes(search))
-    .filter(stock => filter === "all" || (filter === "ahead" ? stock.vsBenchmarkPct > 0 : stock.vsBenchmarkPct <= 0));
+    .map(stock => ({ ...stock, performance: explorePerformance(stock, range) }))
+    .filter(stock => filter === "all" || (stock.performance && (filter === "ahead" ? stock.performance.gap > 0 : stock.performance.gap < 0)));
 
-  if (sort === "gap") stocks.sort((a, b) => b.vsBenchmarkPct - a.vsBenchmarkPct);
+  if (sort === "gap") stocks.sort((a, b) => (b.performance?.gap ?? -Infinity) - (a.performance?.gap ?? -Infinity));
+  if (sort === "return") stocks.sort((a, b) => (b.performance?.stockReturn ?? -Infinity) - (a.performance?.stockReturn ?? -Infinity));
   if (sort === "price") stocks.sort((a, b) => b.price - a.price);
   if (sort === "day") stocks.sort((a, b) => b.changePct - a.changePct);
   if (sort === "company") stocks.sort((a, b) => a.ticker.localeCompare(b.ticker));
@@ -52,8 +57,8 @@ export function ExploreView({
     setFilter("all");
   }
 
-  function renderCard(stock: (typeof exploreUniverse)[number]) {
-    return <ExploreCard key={stock.ticker} stock={stock} added={added.includes(stock.ticker)} onToggle={() => toggleStock(stock.ticker)} />;
+  function renderCard(stock: (typeof stocks)[number]) {
+    return <ExploreCard key={stock.ticker} stock={stock} performance={stock.performance} range={range} added={added.includes(stock.ticker)} onToggle={() => toggleStock(stock.ticker)} />;
   }
 
   return (
@@ -71,6 +76,12 @@ export function ExploreView({
       </div>
 
       <section aria-label={category ? `${category} stocks` : "Browse stocks by sector"}>
+        <div className={styles.periodToolbar}>
+          <p>Stock returns against their sector benchmark</p>
+          <div className={styles.periodControl}><span id="explore-period-label">Compare over</span><div className="range-control" role="group" aria-labelledby="explore-period-label">
+            {exploreRanges.map(period => <button key={period} type="button" aria-pressed={range === period} onClick={() => setRange(period)}>{period}</button>)}
+          </div></div>
+        </div>
         <div className={styles.toolbar}>
           <label className={styles.search}>
             <Search size={16} aria-hidden="true" />
@@ -91,6 +102,7 @@ export function ExploreView({
                 <option value="default">Default order</option>
                 <option value="company">Ticker A–Z</option>
                 <option value="gap">Benchmark lead</option>
+                <option value="return">Period return</option>
                 <option value="day">Day change</option>
                 <option value="price">Highest price</option>
               </select>
@@ -103,7 +115,7 @@ export function ExploreView({
             {stocks.length} {stocks.length === 1 ? "stock" : "stocks"}{!category && ` across ${groups.length} ${groups.length === 1 ? "sector" : "sectors"}`}
             {(search || filter !== "all") && <button type="button" onClick={resetFilters}>Clear filters</button>}
           </p>
-          <span>Demo data <span aria-hidden="true">·</span> {category ? `vs. ${sectorBenchmarks[category]}` : "Daily snapshot"}</span>
+          <span>Demo data <span aria-hidden="true">·</span> {range} returns{category ? ` vs. ${sectorBenchmarks[category]}` : " vs. sector benchmarks"}</span>
         </div>
 
         {category ? (
@@ -140,7 +152,7 @@ export function ExploreView({
             <button type="button" onClick={resetFilters}>Clear filters</button>
           </div>
         )}
-        <p className={styles.footnote}>Every stock, in context. Benchmark differences are in percentage points (pp).</p>
+        <p className={styles.footnote}>Prices are the latest demo snapshot in USD. Returns and benchmark differences use {range}; differences are in percentage points (pp). Selections last while this page is open.</p>
       </section>
     </>
   );

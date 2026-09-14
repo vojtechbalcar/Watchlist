@@ -36,6 +36,11 @@ export function usePreferences() {
   return useSyncExternalStore(subscribe, getSnapshot, () => defaultPreferences);
 }
 
+/** Prevent native form edits before React can save them. */
+export function usePreferencesReady() {
+  return useSyncExternalStore(subscribe, () => true, () => false);
+}
+
 export function savePreferences(patch: Partial<Preferences>): boolean {
   try {
     const next = parsePreferences(JSON.stringify({ ...getSnapshot(), ...patch }));

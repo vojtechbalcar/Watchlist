@@ -1,24 +1,32 @@
 import { ArrowDownRight, ArrowUpRight, Check, Plus } from "lucide-react";
 import { formatPrice, formatPct } from "@/lib/format";
 import { benchmarkFor, type ExploreStock } from "@/lib/explore-data";
+import type { ExplorePerformance, ExploreRange } from "@/lib/explore-performance";
 import { StockLogo } from "./stock-logo";
 import styles from "./explore-view.module.css";
 
 export function ExploreCard({
   stock,
+  performance,
+  range,
   added,
   onToggle,
 }: {
   stock: ExploreStock;
+  performance: ExplorePerformance | null;
+  range: ExploreRange;
   added: boolean;
   onToggle: () => void;
 }) {
-  const ahead = stock.vsBenchmarkPct >= 0;
-  const gapWidth = Math.min(Math.abs(stock.vsBenchmarkPct) / 3, 1) * 50;
+  const gap = performance?.gap ?? 0;
+  const ahead = gap > 0;
+  const gapClass = gap === 0 ? styles.neutral : ahead ? styles.positive : styles.negative;
+  const gapScale = { "1D": 3, "1W": 5, "1M": 10, YTD: 30, "1Y": 50 }[range];
+  const gapWidth = Math.min(Math.abs(gap) / gapScale, 1) * 50;
   const DayArrow = stock.changePct >= 0 ? ArrowUpRight : ArrowDownRight;
 
   return (
-    <article className={styles.card} aria-labelledby={`stock-${stock.ticker}`}>
+    <article className={styles.card} aria-labelledby={`stock-${stock.ticker}`} data-ticker={stock.ticker}>
       <div className={styles.cardBody}>
         <div className={styles.cardHeader}>
           <StockLogo stock={stock} />
@@ -48,16 +56,20 @@ export function ExploreCard({
         </div>
       </div>
       <div className={styles.benchmark}>
+        <dl className={styles.periodReturns}>
+          <div><dt>{stock.ticker} <span>{range}</span></dt><dd data-return="stock">{performance ? formatPct(performance.stockReturn) : "—"}</dd></div>
+          <div><dt>{benchmarkFor(stock)} <span>{range}</span></dt><dd data-return="benchmark">{performance ? formatPct(performance.benchmarkReturn) : "—"}</dd></div>
+        </dl>
         <div className={styles.benchmarkLabel}>
-          <span>vs. <strong>{benchmarkFor(stock)}</strong></span>
-          <span className={ahead ? styles.positive : styles.negative}>
-            {ahead ? "+" : "−"}{Math.abs(stock.vsBenchmarkPct).toFixed(2)} <small>pp</small>
+          <span>{performance ? gap === 0 ? "In line with" : ahead ? "Ahead of" : "Behind" : "No data for"} <strong>{performance ? benchmarkFor(stock) : range}</strong></span>
+          <span className={gapClass} data-return="gap">
+            {performance ? <>{gap > 0 ? "+" : gap < 0 ? "−" : ""}{Math.abs(gap).toFixed(2)} <small>pp</small></> : "—"}
           </span>
         </div>
-        <div className={styles.gapTrack} aria-hidden="true">
-          <span className={ahead ? styles.positive : styles.negative} style={{ left: `${ahead ? 50 : 50 - gapWidth}%`, width: `${gapWidth}%` }} />
+        {performance && <><div className={`${styles.gapTrack} gap-bar-preference`} aria-hidden="true">
+          <span className={gapClass} style={{ left: `${ahead ? 50 : 50 - gapWidth}%`, width: `${gapWidth}%` }} />
         </div>
-        <div className={styles.gapLabels}><span>Behind</span><span>Ahead</span></div>
+        <div className={`${styles.gapLabels} gap-bar-preference`} aria-hidden="true"><span>−{gapScale} pp</span><span>+{gapScale} pp</span></div></>}
       </div>
     </article>
   );

@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[ux-completion]] — seven approved UX improvements, separate branches, and integration workflow; see [[ux-completion-plan]].
+
 - [[explore-period-comparisons]] — selected-period stock/benchmark returns on sector cards; recovery of the interrupted local draft during pull.
 
 - [[explore-sector-pages]] — four-card sector rows, dedicated category pages, redesigned cards, and the correction to remove the hero and inline expansion.

@@ -1,4 +1,3 @@
-import { SiteHeader } from "@/components/site-header";
 import { ExploreView } from "@/components/explore-view";
 import { holdings } from "@/lib/watchlist-data";
 
@@ -9,7 +8,6 @@ export const metadata = {
 export default function ExplorePage() {
   return (
     <>
-      <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" initials="JR" />
 
       <main className="page-shell">
         <div>

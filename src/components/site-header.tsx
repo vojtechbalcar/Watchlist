@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { navItems } from "@/lib/watchlist-data";
 import { ProfileMenu } from "./profile-menu";
+import { NavigationHint } from "./navigation-hint";
 
 type SiteHeaderProps = {
   active?: string;
@@ -36,6 +37,7 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
                 ].join(" ")}
               >
                 {item.label}
+                <NavigationHint />
               </Link>
             );
           })}

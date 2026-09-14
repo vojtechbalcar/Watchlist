@@ -23,7 +23,7 @@ The user approved all seven improvements in the gap review and requested a branc
 
 `feat/ux-completion` integrates each verified feature in sequence. Each feature branch starts from the current integration tip, receives its own focused commit, and is pushed before merging locally into integration. Push integration after each merge. Keep `main` unchanged until all work is reviewed and verified.
 
-- [ ] `feat/loading-states`: shared skeletons, route-specific fallbacks, persistent navigation, real pending-link feedback. Verify typecheck, lint, production build and browser loading presentation.
+- [x] `feat/loading-states`: shared skeletons, route-specific fallbacks, persistent navigation, real pending-link feedback. Verify typecheck, lint, production build and browser loading presentation.
 - [ ] `feat/error-recovery`: section boundary, route/global error recovery, 404. Verify recovery and section isolation with a throwing child, plus route responses.
 - [ ] `feat/shared-watchlist`: validated ticker store, cross-route/tab membership, catalog identity, dashboard counts. Test corrupt/blocked storage, duplicates, unknown symbols, empty lists and reloads.
 - [ ] `feat/empty-states`: first-use guidance, filter reset, empty dashboard and insufficient-history treatment. Verify empty membership and no-result searches.

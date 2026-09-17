@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[error-screens]] — custom 404 and runtime-error recovery on a separate branch.
+
 - [[explore-period-comparisons]] — selected-period stock/benchmark returns on sector cards; recovery of the interrupted local draft during pull.
 
 - [[explore-sector-pages]] — four-card sector rows, dedicated category pages, redesigned cards, and the correction to remove the hero and inline expansion.

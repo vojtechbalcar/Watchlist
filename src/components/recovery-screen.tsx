@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- Recovery links must work without the app router, including in global-error. */
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Wordmark } from "./wordmark";
 import styles from "./recovery-screen.module.css";
 
@@ -7,11 +7,12 @@ type RecoveryScreenProps = {
   label: string;
   title: string;
   description: string;
+  headingRef?: Ref<HTMLHeadingElement>;
   children: ReactNode;
 };
 
 /** Keep recovery independent of market data, browser storage, and app providers. */
-export function RecoveryScreen({ label, title, description, children }: RecoveryScreenProps) {
+export function RecoveryScreen({ label, title, description, headingRef, children }: RecoveryScreenProps) {
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
@@ -21,7 +22,7 @@ export function RecoveryScreen({ label, title, description, children }: Recovery
       <main className={styles.main}>
         <div className={styles.content}>
           <p className={styles.label}>{label}</p>
-          <h1>{title}</h1>
+          <h1 ref={headingRef} tabIndex={headingRef ? -1 : undefined}>{title}</h1>
           <p className={styles.description}>{description}</p>
           <div className={styles.actions}>{children}</div>
           <nav className={styles.navigation} aria-label="Recovery links">

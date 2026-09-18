@@ -2,6 +2,9 @@
 
 ## Current state
 
+- [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
+- [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
+
 - [[error-screens]] — custom 404 and runtime-error recovery on a separate branch.
 
 - [[explore-period-comparisons]] — selected-period stock/benchmark returns on sector cards; recovery of the interrupted local draft during pull.

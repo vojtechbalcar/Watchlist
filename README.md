@@ -8,7 +8,7 @@ Watchlist puts stock performance in context. Follow stocks, explore sectors, and
 
 This is a working UI demo. All prices, returns, and chart histories are illustrative; they do not represent a synchronized live market snapshot.
 
-Watchlist changes currently live in component state, reset on remount, and do not synchronize across pages. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
+Watchlist membership is saved in this browser and synchronized across pages and tabs. New visitors can use a three-step setup flow or explore stocks directly. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
 
 ## Pages
 
@@ -70,7 +70,7 @@ Route groups organize layouts without changing public URLs. Demo data is defined
 ## Next steps
 
 - Connect authentication and Postgres.
-- Persist watchlist membership and synchronize it across pages.
+- Sync the browser-saved watchlist to an account when authentication is connected.
 - Add a cron job to ingest market data and replace demo charts with dated price histories.
 - Calculate stock and benchmark returns over matching date ranges.
 

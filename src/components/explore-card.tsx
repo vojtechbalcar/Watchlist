@@ -10,12 +10,14 @@ export function ExploreCard({
   performance,
   range,
   added,
+  disabled = false,
   onToggle,
 }: {
   stock: ExploreStock;
   performance: ExplorePerformance | null;
   range: ExploreRange;
   added: boolean;
+  disabled?: boolean;
   onToggle: () => void;
 }) {
   const gap = performance?.gap ?? 0;
@@ -38,6 +40,7 @@ export function ExploreCard({
             type="button"
             className={styles.membership}
             onClick={onToggle}
+            disabled={disabled}
             aria-pressed={added}
             aria-label={`${added ? "Remove" : "Add"} ${stock.ticker} ${added ? "from" : "to"} watchlist`}
             title={added ? "Remove from watchlist" : "Add to watchlist"}

@@ -7,7 +7,7 @@ import { exploreUniverse, sectors, sectorDescriptions, type Sector } from "@/lib
 import { watchlistRows } from "@/lib/watchlist-catalog";
 import { compareBenchmark } from "@/lib/compare-data";
 import { formatPct, formatPrice } from "@/lib/format";
-import { emptySetupDraft, type SetupDraft } from "@/lib/watchlist-state";
+import { emptySetupDraft, withoutTicker, withTickerAt, type SetupDraft } from "@/lib/watchlist-state";
 import { completeWatchlistSetup, dismissWatchlistSetup, saveSetupDraft } from "./watchlist-store";
 import { StockLogo } from "./stock-logo";
 import styles from "./watchlist-setup.module.css";
@@ -34,6 +34,7 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
   const [query, setQuery] = useState("");
   const [error, setError] = useState<keyof typeof saveErrors | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saved" | "failed">(initialDraft ? "saved" : "idle");
+  const [pendingChip, setPendingChip] = useState<{ ticker: string; index: number } | null>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const initialRender = useRef(true);
 
@@ -44,7 +45,9 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
 
   const stocks = exploreUniverse.filter(stock => !interests.length || interests.includes(stock.sector))
     .filter(stock => `${stock.ticker} ${stock.name}`.toLowerCase().includes(query.trim().toLowerCase()));
-  const chosen = exploreUniverse.filter(stock => selected.includes(stock.ticker));
+  // A removed chip holds its place until the user undoes it, re-picks the stock, or moves on.
+  const pendingRemoval = pendingChip && !selected.includes(pendingChip.ticker) ? pendingChip : null;
+  const chosen = exploreUniverse.filter(stock => selected.includes(stock.ticker) || pendingRemoval?.ticker === stock.ticker);
   const example = watchlistRows([selected[0] ?? "MSFT"])[0];
   const benchmarkReturn = compareBenchmark.returnByRange.YTD;
   const returnPct = benchmarkReturn + example.vsBenchmarkPct;
@@ -60,7 +63,18 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     setDraft(next);
     persistDraft(next);
   }
-  function changeStep(next: SetupDraft["step"]) { updateDraft({ step: next }); }
+  function changeStep(next: SetupDraft["step"]) { setPendingChip(null); updateDraft({ step: next }); }
+  function removeChip(ticker: string) {
+    const { list, index } = withoutTicker(selected, ticker);
+    if (index < 0) return;
+    setPendingChip({ ticker, index });
+    updateDraft({ selected: list });
+  }
+  function undoChip() {
+    if (!pendingRemoval) return;
+    updateDraft({ selected: withTickerAt(selected, pendingRemoval.ticker, pendingRemoval.index) });
+    setPendingChip(null);
+  }
   function toggleInterest(sector: Sector) {
     updateDraft({ interests: interests.includes(sector) ? interests.filter(item => item !== sector) : [...interests, sector] });
   }
@@ -107,7 +121,9 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
       </div>
       <aside className={styles.aside} aria-label="Your watchlist preview">
         <p className="eyebrow">Your starting point</p><h2>{selected.length ? `${selected.length} ${selected.length === 1 ? "company" : "companies"} to watch.` : "Curiosity comes first."}</h2><p>{selected.length ? "A watchlist follows companies you’re interested in. You don’t need to own their shares." : "You don’t need to know everything about the market. Start with a company you want to understand."}</p>
-        {chosen.length > 0 ? <><div className={styles.chosen}>{chosen.map(stock => <span key={stock.ticker}>{stock.ticker}{step !== 2 && <button aria-label={`Remove ${stock.ticker} from selection`} onClick={() => toggleStock(stock.ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>+13.21%</strong></div><div><span>Market return</span><strong>+14.60%</strong></div><p className="text-down">−1.39 pp behind the market</p><small>Illustrative example · MSFT vs. S&P 500, YTD</small></div>}
+        {chosen.length > 0 ? <><div className={styles.chosen}>{chosen.map(stock => <span key={stock.ticker} data-removed={pendingRemoval?.ticker === stock.ticker || undefined}>{stock.ticker}{pendingRemoval?.ticker === stock.ticker
+          ? <button className={styles.chipUndo} aria-label={`Undo removing ${stock.ticker} from selection`} onClick={undoChip}>Undo</button>
+          : step !== 2 && <button aria-label={`Remove ${stock.ticker} from selection`} onClick={() => removeChip(stock.ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>+13.21%</strong></div><div><span>Market return</span><strong>+14.60%</strong></div><p className="text-down">−1.39 pp behind the market</p><small>Illustrative example · MSFT vs. S&P 500, YTD</small></div>}
         <div className={styles.storageNote}><span>Made for watching.</span><p>Return to setup whenever you’re ready. We save your progress in this browser when storage is available. All figures are demo data.</p></div>
       </aside>
     </div>

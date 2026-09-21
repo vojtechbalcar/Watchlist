@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { emptyWatchlist, parseWatchlist, validTickers, watchlistSummary } from "../src/lib/watchlist-state.ts";
+import { emptyWatchlist, parseWatchlist, validTickers, watchlistSummary, withoutTicker, withTickerAt } from "../src/lib/watchlist-state.ts";
 
 const available = ["AAPL", "MSFT", "NVDA"];
 
@@ -61,4 +61,27 @@ test("draft recovery filters unsupported choices and returns an empty review to 
   for (const step of [-1, 3, 1.5, "2", null]) {
     assert.equal(parseWatchlist(JSON.stringify({ setupDraft: { ...setupDraft, step, selected: ["NVDA", "NVDA"] } }), available, ["Technology"]).setupDraft.step, 0);
   }
+});
+
+test("removal reports the position it freed and restoring puts the stock back there", () => {
+  const saved = ["AAPL", "MSFT", "NVDA"];
+  assert.deepEqual(withoutTicker(saved, "MSFT"), { list: ["AAPL", "NVDA"], index: 1 });
+  assert.deepEqual(saved, ["AAPL", "MSFT", "NVDA"]);
+  assert.deepEqual(withTickerAt(["AAPL", "NVDA"], "MSFT", 1), ["AAPL", "MSFT", "NVDA"]);
+  assert.deepEqual(withTickerAt(["AAPL", "NVDA"], "MSFT", 0), ["MSFT", "AAPL", "NVDA"]);
+  assert.deepEqual(withTickerAt(["AAPL", "NVDA"], "MSFT", 2), ["AAPL", "NVDA", "MSFT"]);
+});
+
+test("removing a stock that is not saved frees no position", () => {
+  assert.deepEqual(withoutTicker(["AAPL"], "NVDA"), { list: ["AAPL"], index: -1 });
+  assert.deepEqual(withoutTicker([], "AAPL"), { list: [], index: -1 });
+});
+
+test("a restore survives a list that changed underneath it", () => {
+  // Another tab emptied the watchlist while the undo was still on screen.
+  assert.deepEqual(withTickerAt([], "MSFT", 4), ["MSFT"]);
+  assert.deepEqual(withTickerAt(["AAPL"], "MSFT", 9), ["AAPL", "MSFT"]);
+  assert.deepEqual(withTickerAt(["AAPL"], "MSFT", -3), ["MSFT", "AAPL"]);
+  // The stock came back some other way; the undo must not duplicate it.
+  assert.deepEqual(withTickerAt(["AAPL", "MSFT"], "MSFT", 0), ["AAPL", "MSFT"]);
 });

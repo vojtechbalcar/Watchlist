@@ -56,6 +56,9 @@
 .chosen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .chosen > span { display: inline-flex; align-items: center; gap: 10px; min-height: 30px; border: 1px solid var(--color-line); border-radius: 4px; padding: 5px 9px; background: var(--color-surface-raised); font-size: 11px; }
 .chosen button { display: grid; place-items: center; min-width: 20px; min-height: 20px; color: var(--color-text-secondary); }
+.chosen > span[data-removed] { border-style: dashed; background: transparent; color: var(--color-text-muted); }
+.chipUndo { font-size: 11px; color: var(--color-ink); text-decoration: underline; text-underline-offset: 3px; }
+.chipUndo:hover { opacity: .7; }
 .edit { margin-top: 8px; }
 .actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0 16px; margin-top: 24px; border-top: 1px solid var(--color-line); }
 .actions > span { margin-left: auto; font-size: 11px; color: var(--color-text-secondary); }

@@ -43,6 +43,32 @@ export function parseWatchlist(raw: string | null, available: readonly string[],
   }
 }
 
+/** Removal reports the position it freed so an undo can restore the row where it was. */
+export function withoutTicker(list: readonly string[], ticker: string): { list: string[]; index: number } {
+  const index = list.indexOf(ticker);
+  return { list: index < 0 ? [...list] : list.filter((_, position) => position !== index), index };
+}
+
+/** Restores into the list that exists now, which may have shrunk or already regained the stock. */
+export function withTickerAt(list: readonly string[], ticker: string, index: number): string[] {
+  if (list.includes(ticker)) return [...list];
+  const next = [...list];
+  next.splice(Math.max(0, Math.min(index, next.length)), 0, ticker);
+  return next;
+}
+
+/** Touching membership means setup is behind the user, as adding a stock already does. */
+export function removeTickerState(state: WatchlistState, ticker: string): { state: WatchlistState; index: number } | null {
+  const { list, index } = withoutTicker(state.tickers, ticker);
+  if (index < 0) return null;
+  return { state: { ...state, setupCompleted: true, tickers: list }, index };
+}
+
+export function restoreTickerState(state: WatchlistState, ticker: string, index: number, available: readonly string[]): WatchlistState | null {
+  if (!available.includes(ticker)) return null;
+  return { ...state, setupCompleted: true, tickers: withTickerAt(state.tickers, ticker, index) };
+}
+
 /** Completion and draft cleanup are one state transition, persisted in one write. */
 export function completeSetupState(state: WatchlistState, tickers: string[], available: readonly string[]): WatchlistState | null {
   const selected = validTickers(tickers, available);

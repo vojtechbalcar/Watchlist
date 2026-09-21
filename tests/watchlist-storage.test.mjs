@@ -4,7 +4,7 @@ import test from "node:test";
 
 register("./resolve-typescript.mjs", import.meta.url);
 const { writeWatchlistStorage } = await import("../src/lib/watchlist-storage.ts");
-const { completeSetupState, emptySetupDraft, WATCHLIST_KEY } = await import("../src/lib/watchlist-state.ts");
+const { completeSetupState, emptySetupDraft, removeTickerState, restoreTickerState, WATCHLIST_KEY } = await import("../src/lib/watchlist-state.ts");
 
 function fixture() {
   const record = { raw: JSON.stringify({ tickers: ["NVDA"], setupDismissed: true, setupCompleted: false,
@@ -59,4 +59,49 @@ test("draft edits and restarts preserve saved stocks and skip keeps the draft", 
   assert.equal(writeWatchlistStorage(storage, state => ({ ...state, setupDraft: emptySetupDraft, setupDismissed: false })), true);
   assert.deepEqual(JSON.parse(record.raw).tickers, ["NVDA"]);
   assert.deepEqual(JSON.parse(record.raw).setupDraft, emptySetupDraft);
+});
+
+test("removal and undo write through storage and keep the freed position", () => {
+  const { record, storage } = fixture();
+  record.raw = JSON.stringify({ tickers: ["AAPL", "MSFT", "NVDA"], setupDismissed: false, setupCompleted: true, setupDraft: null });
+  let freed = -1;
+  assert.equal(writeWatchlistStorage(storage, state => {
+    const result = removeTickerState(state, "MSFT");
+    if (!result) return null;
+    freed = result.index;
+    return result.state;
+  }), true);
+  assert.equal(freed, 1);
+  assert.deepEqual(JSON.parse(record.raw).tickers, ["AAPL", "NVDA"]);
+  assert.equal(writeWatchlistStorage(storage, state => restoreTickerState(state, "MSFT", freed, ["AAPL", "MSFT", "NVDA"])), true);
+  assert.deepEqual(JSON.parse(record.raw).tickers, ["AAPL", "MSFT", "NVDA"]);
+});
+
+test("a failed undo leaves the stock removed rather than claiming it came back", () => {
+  const { record, storage } = fixture();
+  record.raw = JSON.stringify({ tickers: ["AAPL"], setupDismissed: false, setupCompleted: true, setupDraft: null });
+  record.failWrite = true;
+  assert.equal(writeWatchlistStorage(storage, state => restoreTickerState(state, "MSFT", 0, ["AAPL", "MSFT"])), false);
+  assert.deepEqual(JSON.parse(record.raw).tickers, ["AAPL"]);
+  record.failWrite = false;
+  assert.equal(writeWatchlistStorage(storage, state => restoreTickerState(state, "MSFT", 0, ["AAPL", "MSFT"])), true);
+  assert.deepEqual(JSON.parse(record.raw).tickers, ["MSFT", "AAPL"]);
+});
+
+test("removal leaves the setup draft and skip state untouched", () => {
+  const { record, storage } = fixture();
+  assert.equal(writeWatchlistStorage(storage, state => removeTickerState(state, "NVDA")?.state ?? null), true);
+  const saved = JSON.parse(record.raw);
+  assert.deepEqual(saved.tickers, []);
+  assert.equal(saved.setupDismissed, true);
+  assert.deepEqual(saved.setupDraft, { version: 1, step: 2, interests: ["Technology"], selected: ["MSFT"] });
+});
+
+test("removing or restoring an unsupported stock never writes", () => {
+  const { record, storage } = fixture();
+  const before = record.raw;
+  assert.equal(writeWatchlistStorage(storage, state => removeTickerState(state, "MSFT")?.state ?? null), false);
+  assert.equal(writeWatchlistStorage(storage, state => restoreTickerState(state, "UNKNOWN", 0, ["MSFT", "NVDA"])), false);
+  assert.equal(record.writes, 0);
+  assert.equal(record.raw, before);
 });

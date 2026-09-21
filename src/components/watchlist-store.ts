@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { availableWatchlistTickers } from "@/lib/watchlist-catalog";
 import { sectors } from "@/lib/explore-data";
-import { completeSetupState, emptySetupDraft, emptyWatchlist, parseWatchlist, WATCHLIST_KEY, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
+import { completeSetupState, emptySetupDraft, emptyWatchlist, parseWatchlist, removeTickerState, restoreTickerState, WATCHLIST_KEY, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
 import { writeWatchlistStorage } from "@/lib/watchlist-storage";
 
 const changeEvent = "watchlist-stocks-change";
@@ -52,6 +52,22 @@ export function toggleWatchlistStock(ticker: string) {
     setupCompleted: true,
     tickers: state.tickers.includes(ticker) ? state.tickers.filter(item => item !== ticker) : [...state.tickers, ticker],
   }));
+}
+
+/** Reports the freed position so an undo restores the stock where the user had it. */
+export function removeWatchlistStock(ticker: string): { saved: boolean; index: number } {
+  let freed = -1;
+  const saved = writeState(state => {
+    const result = removeTickerState(state, ticker);
+    if (!result) return null;
+    freed = result.index;
+    return result.state;
+  });
+  return { saved, index: saved ? freed : -1 };
+}
+
+export function restoreWatchlistStock(ticker: string, index: number) {
+  return writeState(state => restoreTickerState(state, ticker, index, availableWatchlistTickers));
 }
 
 export function completeWatchlistSetup(tickers: string[]) {

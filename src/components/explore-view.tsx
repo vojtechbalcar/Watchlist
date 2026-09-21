@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
 import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
+import { useRemovalUndo } from "./removal-undo";
 import { usePreferencesReady } from "./preferences-provider";
 import { useExplorePeriod } from "./explore-period-provider";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
@@ -31,6 +32,7 @@ export function ExploreView({
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [saveError, setSaveError] = useState(false);
+  const undo = useRemovalUndo(added);
   const [sort, setSort] = useState("default");
 
   const search = query.trim().toLowerCase();
@@ -51,7 +53,12 @@ export function ExploreView({
     .filter(group => group.stocks.length > 0);
 
   function toggleStock(ticker: string) {
-    setSaveError(!toggleWatchlistStock(ticker));
+    // Removal goes through the undo path so the stock returns to its saved position.
+    setSaveError(!(added.includes(ticker) ? undo.remove(ticker) : toggleWatchlistStock(ticker)));
+  }
+
+  function undoRemoval() {
+    setSaveError(!undo.undo());
   }
 
   function resetFilters() {
@@ -60,7 +67,8 @@ export function ExploreView({
   }
 
   function renderCard(stock: (typeof stocks)[number]) {
-    return <ExploreCard key={stock.ticker} stock={stock} performance={stock.performance} range={range} added={added.includes(stock.ticker)} disabled={!ready} onToggle={() => toggleStock(stock.ticker)} />;
+    return <ExploreCard key={stock.ticker} stock={stock} performance={stock.performance} range={range} added={added.includes(stock.ticker)} disabled={!ready}
+      onToggle={() => toggleStock(stock.ticker)} onUndo={undo.pending?.ticker === stock.ticker ? undoRemoval : undefined} />;
   }
 
   return (

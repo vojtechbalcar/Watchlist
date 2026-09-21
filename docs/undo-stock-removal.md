@@ -52,17 +52,17 @@ new storage-failure paths for a reversal that only matters immediately.
 
 ## Implementation plan
 
-- [ ] Add failing tests for `withoutTicker`/`withTickerAt` (index returned,
+- [x] Add failing tests for `withoutTicker`/`withTickerAt` (index returned,
       clamped restore after the list shrank, no-op when already present, absent
       ticker), for the state wrappers over membership and draft selections, and
       for the store paths under a failing storage asserting nothing is written.
       Extend `src/lib/watchlist-state.ts` and `src/components/watchlist-store.ts`.
-- [ ] Add `useRemovalUndo` and wire the three surfaces: the dimmed placeholder
+- [x] Add `useRemovalUndo` and wire the three surfaces: the dimmed placeholder
       row and focus move in `src/components/watchlist-table.tsx`, the inline Undo
       in `src/components/explore-card.tsx` and its Explore owner, and the dimmed
       chip in `src/components/watchlist-setup.tsx`. Dismiss the table placeholder
       on sort, filter, and search changes.
-- [ ] Verify in Chromium: remove and undo on each surface, position preserved
+- [x] Verify in Chromium: remove and undo on each surface, position preserved
       under the original sort, placeholder dismissal on sort/filter/search, a
       second removal replacing the first, cross-tab re-add clearing the pending
       undo, failed restore and retry, keyboard focus reaching Undo, and mobile
@@ -74,4 +74,20 @@ settings/benchmark-spark edits and untracked assets.
 
 ## Verification
 
-Pending.
+All 39 Node tests pass, including the seven that originally failed against the
+position-losing removal. TypeScript and scoped ESLint pass.
+
+Chromium confirmed on the watchlist table that a removal leaves a dimmed row at
+the removed row's index, that the stored membership drops the ticker while the
+tab counts and the footer count exclude it, that Undo restores the ticker to its
+original index, and that focus moves to Undo on removal and back to the restored
+row's remove control on undo. A second removal replaces the first placeholder,
+and sorting, filtering, or searching dismisses it. With `setItem` throwing, a
+removal keeps the row and warns, and a blocked undo keeps the stock removed,
+keeps the placeholder on screen, and warns until the retry succeeds. A
+cross-tab re-add clears the pending undo instead of offering a stale restore.
+
+Explore cards return to Add with an Undo beside the membership control, and the
+setup chip stays in place, dashed, until undone; both restore the original
+index. No page overflow at 390px or 320px on the watchlist, Explore, or setup,
+and no browser errors — only the pre-existing recovery-screen preload warning.

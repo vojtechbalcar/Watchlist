@@ -446,6 +446,13 @@ button:not(:disabled), select { cursor: pointer; }
 .stock-table td { text-align: right; }
 .stock-table tbody tr { height: 72px; border-bottom: 1px solid var(--color-line-soft); }
 .stock-table tbody tr:hover { background: var(--color-surface-row-hover); }
+/* The row a removed stock leaves behind, holding its place until the undo lapses. */
+.stock-table tbody tr.removed-row { background: var(--color-remove-surface); height: 56px; }
+.stock-table tbody tr.removed-row:hover { background: var(--color-remove-surface); }
+.stock-table .removed-row td { text-align: left; width: auto; }
+.removed-note { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--color-text-secondary); }
+.removed-note button { font-size: 12px; color: var(--color-ink); text-decoration: underline; text-underline-offset: 3px; }
+.removed-note button:hover { opacity: .7; }
 .stock-company { display: flex; gap: 13px; align-items: center; }
 .stock-company strong { font-size: 13px; font-weight: 500; }
 .stock-company small { display: block; margin-top: 5px; font-size: 12px; color: var(--color-text-muted); }

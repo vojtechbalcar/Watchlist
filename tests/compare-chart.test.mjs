@@ -19,3 +19,13 @@ test("positive, negative, flat and mixed returns fit the chart with a common zer
 test("non-finite data cannot poison the chart domain", () => {
   assert.deepEqual(comparisonDomain([NaN, Infinity, -Infinity]), { min: 0, max: 4 });
 });
+
+test("resizing the plot preserves return endpoints and the shared zero baseline", () => {
+  const domain = comparisonDomain([-8.3, 31.2, 14.6]);
+  for (const plotWidth of [242, 272, 700, 902]) {
+    const points = comparisonPoints(-8.3, 2, domain, plotWidth).split(" ").map(point => point.split(",").map(Number));
+    assert.deepEqual(points[0], [8, comparisonY(0, domain)]);
+    assert.deepEqual(points.at(-1), [8 + plotWidth, comparisonY(-8.3, domain)]);
+    assert.ok(points.every(([x]) => x >= 8 && x <= 8 + plotWidth));
+  }
+});

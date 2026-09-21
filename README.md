@@ -16,7 +16,7 @@ Watchlist membership is saved in this browser and synchronized across pages and 
 | --- | --- | --- |
 | Dashboard | `/` | Market summary, illustrative performance chart with range controls, and a stock watchlist. |
 | Watchlist | `/watchlist` | Search, filter, sort, and remove demo stocks; view their performance against a benchmark. |
-| Compare | `/compare` | Compare NVDA, MSFT, and AMZN with the S&P 500 using range controls, a chart, rankings, and a comparison table. |
+| Compare | `/compare` | Choose up to three saved stocks and compare their shared period returns against the S&P 500 and each other. Includes chart, rankings, and empty states. |
 | Explore | `/explore` | Browse demo stocks by sector, search and filter results, and toggle local watchlist membership. |
 | Log in | `/login` | Email/password form with password visibility controls and a link to registration. |
 | Register | `/register` | Account form with email and password validation, plus a link back to login. |
@@ -65,7 +65,13 @@ public/            Wordmark and company logos
 docs/             Project decisions, checkpoints, and Obsidian memory notes
 ```
 
-Route groups organize layouts without changing public URLs. Demo data is defined in `src/lib/watchlist-data.ts`, `src/lib/compare-data.ts`, and `src/lib/explore-data.ts`; illustrative chart histories also live in chart components.
+Route groups organize layouts without changing public URLs. The stock catalog and period returns live in `src/lib/explore-data.ts` and `src/lib/explore-performance.ts`; Watchlist, Dashboard, and Compare share those figures through `src/lib/watchlist-catalog.ts`. The S&P 500 fixture lives in `src/lib/market-benchmark.ts`, while Explore uses sector benchmarks. `src/lib/watchlist-data.ts` retains market-summary and legacy preview fixtures. Chart paths remain illustrative.
+
+Run the data, browser-state parsing, and comparison regression tests with Node.js 22.13 or later:
+
+```bash
+node --experimental-strip-types --test tests/*.test.mjs
+```
 
 ## Next steps
 

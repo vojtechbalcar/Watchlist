@@ -8,8 +8,8 @@ metadata:
   modified: 2026-09-04T19:43:12.537Z
 ---
 
-> [!info] Historical frame — superseded 2026-09-06
-> See [[neutral-page-design]] for the current chart/sidebar/table layout. The current chart changes with the selected range using illustrative history normalized to demo returns; the static-geometry limitation below no longer describes the rendered chart. The three-stock pool, fixed benchmark, and derived percentage-point matrix remain. The table now lives in `compare-view.tsx`; `full-comparison-table.tsx` is legacy. Series colors are now ink, muted taupe, and slate.
+> [!info] Historical frame — superseded 2026-09-21
+> See [[neutral-page-design]] for the chart/sidebar/table layout and [[watchlist-comparisons]] for current data and selection behavior. Users can select any three saved stocks from the shared catalog. The chart changes with the range, includes negative returns, and uses illustrative paths; the static geometry and fixed three-stock pool below are historical. The fixed S&P 500 benchmark and derived percentage-point matrix remain. The table lives in `compare-view.tsx`; series colors are ink, muted taupe, and slate, preserved for remaining selections.
 
 The `/compare` route was built on 2026-09-04 from Figma frame
 **Dashboard – compare** (node `97:212`) in file `3bxSmnFWXAAfBGTudWLAUV`.

@@ -14,11 +14,11 @@ export function comparisonY(value: number, domain: ChartDomain): number {
   return 210 - (value - domain.min) / (domain.max - domain.min) * 190;
 }
 
-export function comparisonPoints(total: number, index: number, domain: ChartDomain): string {
+export function comparisonPoints(total: number, index: number, domain: ChartDomain, plotWidth = 902): string {
   return shape.map((value, i) => {
     const progress = i / (shape.length - 1);
     const wobble = Math.sin(i * (1.3 + index * .3)) * .045 * Math.sin(progress * Math.PI);
     const fraction = Math.min(1, Math.max(0, value + wobble));
-    return `${8 + progress * 902},${comparisonY(fraction * total, domain)}`;
+    return `${8 + progress * plotWidth},${comparisonY(fraction * total, domain)}`;
   }).join(" ");
 }

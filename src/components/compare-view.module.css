@@ -1,0 +1,19 @@
+.loading { padding: 64px 0; color: var(--color-text-muted); font-size: 14px; }
+.empty { border-block: 1px solid var(--color-line); padding: 64px 0; }
+.empty h2, .noSelection h3 { font-size: 24px; font-weight: 500; letter-spacing: -.025em; }
+.empty p, .noSelection p { max-width: 440px; margin-top: 12px; color: var(--color-text-secondary); font-size: 14px; line-height: 1.7; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-top: 28px; font-size: 13px; }
+.hint { margin: -6px 0 24px; color: var(--color-text-muted); font-size: 12px; line-height: 1.7; }
+.picker { min-width: 0; max-width: 100%; }
+.picker select { width: 220px; max-width: 100%; min-height: 36px; }
+.picker select:disabled { color: var(--color-text-muted); cursor: not-allowed; }
+.chip button { min-width: 24px; min-height: 24px; }
+.notice { margin-top: 20px; color: var(--color-text-secondary); font-size: 12px; line-height: 1.7; }
+.noSelection { padding: 56px 0; }
+.emptyPanel { border-block: 1px solid var(--color-line); padding-top: 26px; }
+.key { flex-wrap: wrap; gap: 8px 14px; }
+
+@media (max-width: 600px) {
+  .empty { padding: 40px 0; }
+  .picker { width: 100%; }
+}

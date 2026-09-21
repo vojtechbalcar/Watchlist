@@ -3,6 +3,7 @@
 ## Current state
 
 - [[resumable-setup]] — saved setup drafts, continue/restart choices, and storage failure recovery.
+- [[undo-stock-removal]] — position-preserving undo for accidental removals.
 - [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
 - [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
 

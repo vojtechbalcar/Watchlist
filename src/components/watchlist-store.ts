@@ -2,7 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 import { availableWatchlistTickers } from "@/lib/watchlist-catalog";
-import { emptyWatchlist, parseWatchlist, validTickers, WATCHLIST_KEY, type WatchlistState } from "@/lib/watchlist-state";
+import { sectors } from "@/lib/explore-data";
+import { completeSetupState, emptySetupDraft, emptyWatchlist, parseWatchlist, WATCHLIST_KEY, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
+import { writeWatchlistStorage } from "@/lib/watchlist-storage";
 
 const changeEvent = "watchlist-stocks-change";
 let cachedRaw: string | null | undefined;
@@ -13,7 +15,7 @@ function getSnapshot() {
     const raw = localStorage.getItem(WATCHLIST_KEY);
     if (raw !== cachedRaw) {
       cachedRaw = raw;
-      cachedState = parseWatchlist(raw, availableWatchlistTickers);
+      cachedState = parseWatchlist(raw, availableWatchlistTickers, sectors);
     }
   } catch { /* Browsing remains available when storage is blocked. */ }
   return cachedState;
@@ -35,9 +37,9 @@ export function useWatchlist() {
   return useSyncExternalStore(subscribe, getSnapshot, () => emptyWatchlist);
 }
 
-function writeState(update: (state: WatchlistState) => WatchlistState): boolean {
+function writeState(update: (state: WatchlistState) => WatchlistState | null): boolean {
   try {
-    localStorage.setItem(WATCHLIST_KEY, JSON.stringify(update(getSnapshot())));
+    if (!writeWatchlistStorage(localStorage, update)) return false;
     window.dispatchEvent(new Event(changeEvent));
     return true;
   } catch { return false; }
@@ -53,15 +55,17 @@ export function toggleWatchlistStock(ticker: string) {
 }
 
 export function completeWatchlistSetup(tickers: string[]) {
-  const chosen = validTickers(tickers, availableWatchlistTickers);
-  if (!chosen.length) return false;
-  return writeState(state => ({
-    tickers: [...new Set([...state.tickers, ...chosen])],
-    setupDismissed: false,
-    setupCompleted: true,
-  }));
+  return writeState(state => completeSetupState(state, tickers, availableWatchlistTickers));
 }
 
-export function dismissWatchlistSetup() {
-  return writeState(state => ({ ...state, setupDismissed: true }));
+export function saveSetupDraft(draft: SetupDraft) {
+  return writeState(state => ({ ...state, setupDraft: draft, setupDismissed: false }));
+}
+
+export function restartWatchlistSetup() {
+  return saveSetupDraft(emptySetupDraft);
+}
+
+export function dismissWatchlistSetup(draft?: SetupDraft) {
+  return writeState(state => ({ ...state, setupDismissed: true, setupDraft: draft ?? state.setupDraft }));
 }

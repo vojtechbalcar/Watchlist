@@ -24,7 +24,7 @@ Rejected: a separate draft storage key with non-atomic completion cleanup, writi
 
 ## Implementation plan
 
-- [ ] Add failing tests for draft round-tripping, compatibility, malformed drafts, invalid review steps, successful completion, and blocked reads/writes. Extend `src/lib/watchlist-state.ts`, add a storage transaction helper, and update `src/components/watchlist-store.ts`. Verify with Node tests, TypeScript, and scoped ESLint; commit and push the storage foundation.
+- [x] Add failing tests for draft round-tripping, compatibility, malformed drafts, invalid review steps, successful completion, and blocked reads/writes. Extend `src/lib/watchlist-state.ts`, add `src/lib/watchlist-storage.ts`, and update `src/components/watchlist-store.ts`. Verified all 32 Node tests, TypeScript, and scoped ESLint before committing the storage foundation.
 - [ ] Update `src/components/watchlist-setup.tsx` to initialize from a validated draft, save sector/stock/step changes, preserve local edits on failure, retry the failed action, and navigate only after successful skip. Update `watchlist-workspace.tsx` and setup styles with resume/restart choices and keyboard focus recovery.
 - [ ] Build a staged snapshot and verify refresh at each step, navigation away/back, start over, successful cleanup, existing membership, storage failure/retry for edits/skip/restart/completion, malformed storage, keyboard interaction, and mobile layout in Chromium. Update current docs, run relevant checks, review the diff, commit and push the UI integration.
 

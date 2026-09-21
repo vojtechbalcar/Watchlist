@@ -2,6 +2,7 @@
 
 ## Current state
 
+- [[resumable-setup]] — saved setup drafts, continue/restart choices, and storage failure recovery.
 - [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
 - [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
 

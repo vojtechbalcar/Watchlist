@@ -1,0 +1,59 @@
+// Price data lives here and nowhere else. Only the cron job in
+// src/app/api/cron/prices writes it, and only it calls the stock API.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Prisma 7 keeps connection URLs out of the schema; see prisma.config.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+/// A stock is measured against a benchmark, and a benchmark is an instrument
+/// the same tables describe, so both live in one table rather than two.
+enum InstrumentKind {
+  STOCK
+  BENCHMARK
+}
+
+model Instrument {
+  ticker          String         @id
+  name            String
+  kind            InstrumentKind @default(STOCK)
+  /// Null for benchmarks, which belong to no sector.
+  sector          String?
+  currency        String         @default("USD")
+  logoSrc         String?
+  /// The index or ETF this instrument's return is compared with.
+  benchmarkTicker String?
+  benchmark       Instrument?    @relation("MeasuredAgainst", fields: [benchmarkTicker], references: [ticker], onDelete: SetNull)
+  measured        Instrument[]   @relation("MeasuredAgainst")
+  closes          DailyClose[]
+  quote           Quote?
+
+  @@index([kind, sector])
+}
+
+/// One row per instrument per trading day. Every range the app offers is a
+/// lookup of two of these.
+model DailyClose {
+  ticker     String
+  date       DateTime   @db.Date
+  close      Decimal    @db.Decimal(14, 4)
+  instrument Instrument @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
+
+  @@id([ticker, date])
+  @@index([ticker, date(sort: Desc)])
+}
+
+/// The latest price and day move, replaced on each cron run.
+model Quote {
+  ticker     String     @id
+  price      Decimal    @db.Decimal(14, 4)
+  changeAbs  Decimal    @db.Decimal(14, 4)
+  changePct  Decimal    @db.Decimal(9, 4)
+  asOf       DateTime
+  instrument Instrument @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
+}

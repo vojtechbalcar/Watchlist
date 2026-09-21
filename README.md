@@ -8,7 +8,7 @@ Watchlist puts stock performance in context. Follow stocks, explore sectors, and
 
 This is a working UI demo. All prices, returns, and chart histories are illustrative; they do not represent a synchronized live market snapshot.
 
-Watchlist membership is saved in this browser and synchronized across pages and tabs. New visitors can use a three-step setup flow or explore stocks directly. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
+Watchlist membership is saved in this browser and synchronized across pages and tabs. The three-step setup saves your step, interests, and selected stocks as you go; returning visitors can continue or start over. Skipping to Explore keeps the draft, and completing setup saves the stocks and clears the draft together. Storage failures retain on-screen choices and offer a retry. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
 
 ## Pages
 

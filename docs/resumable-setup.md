@@ -1,7 +1,7 @@
 ---
 type: decision
 updated: 2026-09-21
-status: in-progress
+status: current
 ---
 
 # Resumable setup
@@ -25,7 +25,13 @@ Rejected: a separate draft storage key with non-atomic completion cleanup, writi
 ## Implementation plan
 
 - [x] Add failing tests for draft round-tripping, compatibility, malformed drafts, invalid review steps, successful completion, and blocked reads/writes. Extend `src/lib/watchlist-state.ts`, add `src/lib/watchlist-storage.ts`, and update `src/components/watchlist-store.ts`. Verified all 32 Node tests, TypeScript, and scoped ESLint before committing the storage foundation.
-- [ ] Update `src/components/watchlist-setup.tsx` to initialize from a validated draft, save sector/stock/step changes, preserve local edits on failure, retry the failed action, and navigate only after successful skip. Update `watchlist-workspace.tsx` and setup styles with resume/restart choices and keyboard focus recovery.
-- [ ] Build a staged snapshot and verify refresh at each step, navigation away/back, start over, successful cleanup, existing membership, storage failure/retry for edits/skip/restart/completion, malformed storage, keyboard interaction, and mobile layout in Chromium. Update current docs, run relevant checks, review the diff, commit and push the UI integration.
+- [x] Update `src/components/watchlist-setup.tsx` to initialize from a validated draft, save sector/stock/step changes, preserve local edits on failure, retry the failed action, and navigate only after successful skip. Update `watchlist-workspace.tsx` and setup styles with resume/restart choices and keyboard focus recovery.
+- [x] Build a staged snapshot and verify refresh at each step, navigation away/back, start over, successful cleanup, existing membership, storage failure/retry for edits/skip/restart/completion, malformed storage, keyboard interaction, and mobile layout in Chromium. Update current docs, run relevant checks, review the diff, commit and push the UI integration.
 
 Validation commands: `node --experimental-strip-types --test tests/*.test.mjs`, `pnpm typecheck`, scoped `pnpm exec eslint`, and `npm run build -- --webpack` in a clean staged snapshot. Preserve unrelated settings/benchmark-spark edits and untracked assets.
+
+## Verification
+
+All 32 Node tests pass, including the draft tests that originally failed against the component-only setup. TypeScript, scoped ESLint, and the production webpack build pass. Chromium verified immediate refresh after edits, refresh at every step, navigation away/back, resume focus, membership added independently in Explore, completion cleanup, failure and retry for draft/skip/restart/completion writes, blocked reads, cross-tab draft updates and completion, legacy records, invalid review steps, malformed storage, and browsers that deny storage entirely. Mobile layouts at 390px and 320px have no page overflow; desktop and mobile screenshots were reviewed. No browser runtime errors were observed.
+
+The initial browser harness matched both the setup error and Next's route announcer by `role=alert`; scoping alert checks to `main` resolved that test-only ambiguity. The original UI kept steps and selections only in component state, and skip ignored the persistence result. Both behaviors are now covered by the production browser checks.

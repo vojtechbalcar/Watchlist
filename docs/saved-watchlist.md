@@ -1,20 +1,20 @@
 ---
 type: decision
-updated: 2026-09-18
+updated: 2026-09-21
 status: current
 ---
 
 # Saved watchlist
 
-Related: [[settings-preferences]], [[watchlist-placeholder-data]], [[watchlist-comparisons]], [[git-commit-workflow]]
+Related: [[resumable-setup]], [[settings-preferences]], [[watchlist-placeholder-data]], [[watchlist-comparisons]], [[git-commit-workflow]]
 
 The user approved connecting Compare to their saved watchlist. The existing, uncommitted setup and membership integration is a prerequisite: the previously committed Explore and Watchlist views kept separate component state. These related draft files are verified and committed together before Compare adopts them. Unrelated assets, the nested scaffold, and the separate benchmark-spark edit are excluded.
 
-Dashboard, Watchlist, and Explore now use `watchlist.stocks.v1` through one browser store. Additions and removals propagate across routes and tabs. Only ticker membership and setup flags are saved; prices and returns remain illustrative fixtures. No stock API calls or Postgres integration are introduced.
+Dashboard, Watchlist, and Explore use `watchlist.stocks.v1` through one browser store. Additions and removals propagate across routes and tabs. Ticker membership, setup flags, and a versioned setup draft are saved; prices and returns remain illustrative fixtures. No stock API calls or Postgres integration are introduced.
 
-New visitors receive the existing three-step setup: sector interests, stock selection, and an explanation of the S&P 500 comparison. Skipping opens Explore; an empty watchlist offers setup or direct exploration. Completion and dismissal are stored separately from membership. Setup drafts do not yet survive a refresh.
+New visitors receive three-step setup: sector interests, stock selection, and an explanation of the S&P 500 comparison. Steps and selections now survive refresh and navigation through [[resumable-setup]], with Continue setup and Start over choices. Successful skip opens Explore and retains the draft. Completion merges stocks and clears the draft in one write. An empty watchlist offers setup or direct exploration; existing stocks remain visible alongside an unfinished draft's resume prompt.
 
-The dashboard averages only selected stocks with equal weights and uses the same supported periods as Explore. Explore retains sector benchmarks; Watchlist and Dashboard use the S&P 500. Damaged storage recovers to an empty list, and blocked membership writes report a failure without pretending the change was saved.
+The dashboard averages only selected stocks with equal weights and uses the same supported periods as Explore. Explore retains sector benchmarks; Watchlist and Dashboard use the S&P 500. Damaged storage recovers to an empty list. A malformed draft does not discard valid membership. Blocked reads or writes report failure and do not replace saved data using a stale fallback snapshot.
 
 Rejected: duplicating browser membership specifically for Compare, committing a Compare picker with no working way to save stocks, and including unrelated draft assets in this prerequisite.
 

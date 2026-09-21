@@ -5,6 +5,7 @@
 - [[resumable-setup]] — saved setup drafts, continue/restart choices, and storage failure recovery.
 - [[undo-stock-removal]] — position-preserving undo for accidental removals.
 - [[loading-states]] — skeletons, pending navigation, and route boundaries ready for real data.
+- [[postgres-prices]] — schema, cron, and the replacement of demo prices; blocked on credentials.
 - [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
 - [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
 

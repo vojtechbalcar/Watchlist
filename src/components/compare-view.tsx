@@ -6,7 +6,10 @@ import { usePreferences } from "./preferences-provider";
 import { StockLogo } from "./stock-logo";
 import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
-import { compareBenchmark, compareRanges, compareRows, compareSeries, type CompareRange } from "@/lib/compare-data";
+import { compareBenchmark, compareRanges, compareRows, type CompareRange } from "@/lib/compare-data";
+
+const sampleTickers = ["NVDA", "MSFT", "AMZN"];
+const sampleColors = Object.fromEntries(sampleTickers.map((ticker, index) => [ticker, index]));
 
 function Gap({ value }: { value: number }) {
   return <span className={value >= 0 ? "text-up" : "text-down"}>{value >= 0 ? "+" : "−"}{Math.abs(value).toFixed(2)} <small>pp</small></span>;
@@ -16,16 +19,16 @@ export function CompareView() {
   const preferences = usePreferences();
   const [selectedRange, setRange] = useState<CompareRange | null>(null);
   const range = selectedRange ?? preferences.compareRange;
-  const [selected, setSelected] = useState(compareSeries.map(s => s.ticker));
-  const rows = compareRows(range, selected);
+  const [selected, setSelected] = useState(sampleTickers);
+  const rows = compareRows(range, selected, sampleColors);
   const ranked = [...rows].sort((a, b) => b.returnPct - a.returnPct);
-  const available = compareSeries.filter(s => !selected.includes(s.ticker));
+  const available = sampleTickers.filter(ticker => !selected.includes(ticker));
   const beating = rows.filter(r => r.vsBenchmarkPct > 0).length;
   return <>
     <div className="page-heading"><div><p className="eyebrow">A clearer view, side by side</p><h1 className="page-title">Compare</h1></div><div className="page-actions"><Link href="/watchlist">Your watchlist &nbsp; ↗</Link><Link href="/explore" className="primary-action">Explore stocks ↗</Link></div></div>
     <div className="comparison-selection">
       <div className="selection-stocks"><span className="control-label">Stocks</span>{rows.map(row => <span key={row.series.ticker} className="selection-chip"><i style={{background: row.series.colorVar}} />{row.series.ticker}<button disabled={selected.length === 1} title={selected.length === 1 ? "Keep at least one stock to compare" : "Remove stock"} aria-label={"Remove " + row.series.ticker + " from comparison"} onClick={() => setSelected(prev => prev.filter(t => t !== row.series.ticker))}>×</button></span>)}
-        {available.length > 0 && <label className="selection-add"><span className="sr-only">Add a stock to compare</span><select value="" onChange={e => setSelected(prev => [...prev, e.target.value])}><option value="" disabled>＋ Add stock</option>{available.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}</select></label>}
+        {available.length > 0 && <label className="selection-add"><span className="sr-only">Add a stock to compare</span><select value="" onChange={e => setSelected(prev => [...prev, e.target.value])}><option value="" disabled>＋ Add stock</option>{available.map(ticker => <option key={ticker} value={ticker}>{ticker}</option>)}</select></label>}
       </div>
       <div className="selection-benchmark"><span className="control-label">Benchmark</span><span><i aria-hidden="true">┄</i> {compareBenchmark.label}</span></div>
     </div>

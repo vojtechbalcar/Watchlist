@@ -1,6 +1,6 @@
 import { Search, Plus, Check, ArrowUpRight } from "lucide-react";
 import { holdings, overview } from "@/lib/watchlist-data";
-import { compareSeries, compareBenchmark } from "@/lib/compare-data";
+import { compareRows, compareBenchmark } from "@/lib/compare-data";
 import { landingComparison } from "@/lib/landing-comparison";
 import { formatPct } from "@/lib/format";
 import styles from "./landing-app-tour.module.css";
@@ -8,6 +8,7 @@ import styles from "./landing-app-tour.module.css";
 export type PreviewPage = "dashboard" | "watchlist" | "compare" | "explore";
 
 const sampleStocks = ["NVDA", "AAPL", "MSFT"].map((ticker) => holdings.find((stock) => stock.ticker === ticker)!);
+const sampleComparison = compareRows("YTD", ["NVDA", "MSFT"]);
 // The two illustrations share one YTD benchmark so switching views stays coherent.
 const overviewBenchmark = compareBenchmark.returnByRange.YTD;
 const overviewGap = Math.round((overview.watchlistPct - overviewBenchmark) * 100) / 100;
@@ -45,7 +46,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
         <div className={styles.seriesLegend}><span><i />NVDA</span><span><i />MSFT</span><span><i />S&amp;P 500</span></div>
         <MiniChart compare />
         <div className={styles.compareReturns}>
-          {compareSeries.slice(0, 2).map((stock) => <div key={stock.ticker}><span>{stock.ticker}</span><strong>{formatPct(stock.returnByRange.YTD, 1)}</strong></div>)}
+          {sampleComparison.map((row) => <div key={row.series.ticker}><span>{row.series.ticker}</span><strong>{formatPct(row.returnPct, 1)}</strong></div>)}
           <div><span>S&amp;P 500</span><strong>{formatPct(compareBenchmark.returnByRange.YTD, 1)}</strong></div>
         </div>
       </>}
@@ -68,7 +69,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
 
 function MiniChart({ compare = false }: { compare?: boolean }) {
   const totals = compare
-    ? [compareSeries[0].returnByRange.YTD, compareSeries[1].returnByRange.YTD, compareBenchmark.returnByRange.YTD]
+    ? [...sampleComparison.map(row => row.returnPct), compareBenchmark.returnByRange.YTD]
     : [overview.watchlistPct, overviewBenchmark];
   const max = compare ? 45 : 18;
   const paths = totals.map((total, index) => {

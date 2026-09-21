@@ -439,6 +439,15 @@ button:not(:disabled), select { cursor: pointer; }
 .stock-search { display: flex; align-items: center; gap: 9px; background: white; border: 1px solid var(--color-line); border-radius: 4px; width: 220px; padding: 8px 11px; margin-bottom: 8px; color: var(--color-text-muted); }
 .stock-search input { width: 100%; min-width: 0; font-size: 11px; outline: none; }
 .stock-search:focus-within { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+/* The clicked nav link reports itself busy until its route takes over. */
+.nav-label { position: relative; display: inline-block; }
+.nav-label[data-pending]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 2px; background: var(--color-brand); animation: nav-pending 900ms ease-in-out infinite; }
+@keyframes nav-pending { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+/* Loading stand-ins. The shimmer stops under the reduced-motion preference below. */
+.skeleton { display: block; max-width: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--color-surface-sunken) 25%, var(--color-line) 37%, var(--color-surface-sunken) 63%); background-size: 400% 100%; animation: skeleton-sweep 1.5s ease-in-out infinite; }
+@keyframes skeleton-sweep { from { background-position: 100% 50%; } to { background-position: 0 50%; } }
+.stock-table thead th .skeleton, .stock-table td .skeleton { display: inline-block; }
+.stock-search .skeleton { width: 100%; }
 .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .stock-table th { font-weight: 400; text-align: right; }
 .stock-table thead th { color: var(--color-text-muted); font-size: 10px; height: 46px; border-bottom: 1px solid var(--color-line); }

@@ -1,4 +1,3 @@
-.loading { padding: 64px 0; color: var(--color-text-muted); font-size: 14px; }
 .empty { border-block: 1px solid var(--color-line); padding: 64px 0; }
 .empty h2, .noSelection h3 { font-size: 24px; font-weight: 500; letter-spacing: -.025em; }
 .empty p, .noSelection p { max-width: 440px; margin-top: 12px; color: var(--color-text-secondary); font-size: 14px; line-height: 1.7; }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { usePreferences, usePreferencesReady } from "./preferences-provider";
+import { CompareBodySkeleton } from "./skeletons";
 import { useWatchlist } from "./watchlist-store";
 import { StockLogo } from "./stock-logo";
 import { CompareChart } from "./compare-chart";
@@ -26,7 +27,7 @@ export function CompareView() {
       <div><p className="eyebrow">A clearer view, side by side</p><h1 className="page-title">Compare</h1></div>
       <div className="page-actions"><Link href="/watchlist">Your watchlist &nbsp; ↗</Link><Link href="/explore" className="primary-action">Explore stocks ↗</Link></div>
     </div>
-    {!ready ? <p className={styles.loading} role="status">Loading your saved stocks…</p> :
+    {!ready ? <CompareBodySkeleton /> :
       watchlist.tickers.length === 0 ? <section className={styles.empty} aria-label="No saved stocks">
         <h2>Start with a few stocks.</h2>
         <p>Save companies to your watchlist, then compare their returns with each other and the S&P 500.</p>

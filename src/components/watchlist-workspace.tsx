@@ -10,12 +10,15 @@ import { watchlistRows } from "@/lib/watchlist-catalog";
 import { WatchlistSetup } from "./watchlist-setup";
 import { WatchlistTable } from "./watchlist-table";
 import { OverviewCard } from "./overview-card";
+import { OverviewCardSkeleton, PageHeadingSkeleton, WatchlistTableSkeleton } from "./skeletons";
 import styles from "./watchlist-setup.module.css";
 
 export function WatchlistWorkspace({ dashboard = false }: { dashboard?: boolean }) {
   const state = useWatchlist();
   const ready = usePreferencesReady();
-  if (!ready) return <div className={styles.loading} role="status">Loading your watchlist…</div>;
+  if (!ready) return dashboard
+    ? <><PageHeadingSkeleton /><OverviewCardSkeleton /><div className="mt-10"><WatchlistTableSkeleton compact /></div></>
+    : <WatchlistTableSkeleton />;
   return <ReadyWorkspace state={state} dashboard={dashboard} />;
 }
 

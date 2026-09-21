@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Wordmark } from "./wordmark";
 import { navItems } from "@/lib/watchlist-data";
 import { ProfileMenu } from "./profile-menu";
+import { NavLink } from "./nav-link";
 
 type SiteHeaderProps = {
   active?: string;
@@ -24,10 +25,10 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
           {navItems.map((item) => {
             const isActive = item.label === active;
             return (
-              <Link
+              <NavLink
                 key={item.label}
                 href={item.href}
-                aria-current={isActive ? "page" : undefined}
+                active={isActive}
                 className={[
                   "relative shrink-0 py-1 text-lg transition-colors",
                   isActive
@@ -36,7 +37,7 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
                 ].join(" ")}
               >
                 {item.label}
-              </Link>
+              </NavLink>
             );
           })}
         </nav>

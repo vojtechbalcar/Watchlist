@@ -31,6 +31,10 @@ otherwise. Skeletons say nothing to a screen reader, so each boundary keeps a
 
 Every market route gets a `loading.tsx` that renders the page header, so the
 shell stays put during a navigation and only the content area changes. The
+dashboard moved into a `(dashboard)` route group for this: a `loading.tsx`
+beside it in `(market)` would wrap every sibling route too, and each of them
+painted the dashboard's skeleton before its own. The group leaves the URL alone
+and gives the dashboard a boundary that reaches nothing else. The
 header renders its nav through a client `NavLink` that reads Next's
 `useLinkStatus`; the clicked link marks itself busy immediately, which is the
 only feedback available in the moment before the route changes.
@@ -48,16 +52,16 @@ data exists, which would revisit every one of these surfaces in the next item.
 
 ## Implementation plan
 
-- [ ] Add the `Skeleton` primitive and its reduced-motion-aware styles, then the
+- [x] Add the `Skeleton` primitive and its reduced-motion-aware styles, then the
       per-surface skeletons in `src/components/skeletons.tsx`, each matching the
       real component's dimensions.
-- [ ] Add `NavLink` with `useLinkStatus` and use it in `src/components/site-header.tsx`.
-- [ ] Add `loading.tsx` for the dashboard, watchlist, compare, explore,
+- [x] Add `NavLink` with `useLinkStatus` and use it in `src/components/site-header.tsx`.
+- [x] Add `loading.tsx` for the dashboard, watchlist, compare, explore,
       explore/[sector], and settings routes, and wrap each page's content in a
       Suspense boundary with the matching fallback.
-- [ ] Replace the hydration text gates in `watchlist-workspace.tsx` and
+- [x] Replace the hydration text gates in `watchlist-workspace.tsx` and
       `compare-view.tsx` with the skeletons, keeping an announced status line.
-- [ ] Verify in Chromium: skeletons appear under throttling, the clicked nav link
+- [x] Verify in Chromium: skeletons appear under throttling, the clicked nav link
       reports busy, no layout shift when content replaces a skeleton, reduced
       motion stops the shimmer, and mobile layout at 390px and 320px. Update the
       docs, review the diff, commit and push.
@@ -68,4 +72,20 @@ settings/benchmark-spark edits and untracked assets.
 
 ## Verification
 
-Pending.
+All 39 Node tests, TypeScript, and scoped ESLint pass.
+
+Chromium with scripting disabled confirmed each route serves its own skeleton —
+the right header link marked current, the market bar only on the dashboard, and
+a named status line per boundary. Before the `(dashboard)` route group, every
+route served the dashboard skeleton instead; that is what the group fixes.
+Cumulative layout shift stays near zero when content replaces a skeleton
+(0.0009 watchlist, 0 dashboard and Explore, 0.0168 Compare). A throttled
+navigation showed the clicked nav link marked `aria-busy` with its brand
+underline until the new route rendered. Reduced motion resolves the skeleton's
+animation to `none`. No page overflow at 390px or 320px on any route.
+
+Fixed-width skeletons were the recurring mistake: a 320px intro line, a
+340-wide chart caption, and toolbar blocks each pushed a page wider than the
+real content ever does, because text shrinks and a fixed block does not. The
+skeletons in constrained columns now use percentage widths, and the market bar
+clips like the real one.

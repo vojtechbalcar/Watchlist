@@ -2,6 +2,15 @@
 
 ## Current state
 
+- [[resumable-setup]] — saved setup drafts, continue/restart choices, and storage failure recovery.
+- [[undo-stock-removal]] — position-preserving undo for accidental removals.
+- [[loading-states]] — skeletons, pending navigation, and route boundaries ready for real data.
+- [[postgres-prices]] — schema, cron, and the replacement of demo prices; blocked on credentials.
+- [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
+- [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
+
+- [[error-screens]] — custom 404 and runtime-error recovery on a separate branch.
+
 - [[explore-period-comparisons]] — selected-period stock/benchmark returns on sector cards; recovery of the interrupted local draft during pull.
 
 - [[explore-sector-pages]] — four-card sector rows, dedicated category pages, redesigned cards, and the correction to remove the hero and inline expansion.

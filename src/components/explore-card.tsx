@@ -10,13 +10,18 @@ export function ExploreCard({
   performance,
   range,
   added,
+  disabled = false,
   onToggle,
+  onUndo,
 }: {
   stock: ExploreStock;
   performance: ExplorePerformance | null;
   range: ExploreRange;
   added: boolean;
+  disabled?: boolean;
   onToggle: () => void;
+  /** Present only while this card's removal is still reversible. */
+  onUndo?: () => void;
 }) {
   const gap = performance?.gap ?? 0;
   const ahead = gap > 0;
@@ -38,12 +43,14 @@ export function ExploreCard({
             type="button"
             className={styles.membership}
             onClick={onToggle}
+            disabled={disabled}
             aria-pressed={added}
             aria-label={`${added ? "Remove" : "Add"} ${stock.ticker} ${added ? "from" : "to"} watchlist`}
             title={added ? "Remove from watchlist" : "Add to watchlist"}
           >
             {added ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
           </button>
+          {onUndo && <button type="button" className={styles.undo} onClick={onUndo} aria-label={`Undo removing ${stock.ticker} from watchlist`}>Undo</button>}
         </div>
         <div className={styles.quote}>
           <p className={styles.price}><span>$</span>{formatPrice(stock.price)}</p>

@@ -4,6 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
+import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
+import { useRemovalUndo } from "./removal-undo";
+import { usePreferencesReady } from "./preferences-provider";
 import { useExplorePeriod } from "./explore-period-provider";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import {
@@ -19,16 +22,17 @@ import styles from "./explore-view.module.css";
 const PREVIEW_COUNT = 4;
 
 export function ExploreView({
-  watchlistTickers,
   category,
 }: {
-  watchlistTickers: string[];
   category?: Sector;
 }) {
   const { range, setRange } = useExplorePeriod();
+  const { tickers: added } = useWatchlist();
+  const ready = usePreferencesReady();
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
-  const [added, setAdded] = useState(watchlistTickers);
+  const [saveError, setSaveError] = useState(false);
+  const undo = useRemovalUndo(added);
   const [sort, setSort] = useState("default");
 
   const search = query.trim().toLowerCase();
@@ -49,7 +53,12 @@ export function ExploreView({
     .filter(group => group.stocks.length > 0);
 
   function toggleStock(ticker: string) {
-    setAdded(previous => previous.includes(ticker) ? previous.filter(item => item !== ticker) : [...previous, ticker]);
+    // Removal goes through the undo path so the stock returns to its saved position.
+    setSaveError(!(added.includes(ticker) ? undo.remove(ticker) : toggleWatchlistStock(ticker)));
+  }
+
+  function undoRemoval() {
+    setSaveError(!undo.undo());
   }
 
   function resetFilters() {
@@ -58,7 +67,8 @@ export function ExploreView({
   }
 
   function renderCard(stock: (typeof stocks)[number]) {
-    return <ExploreCard key={stock.ticker} stock={stock} performance={stock.performance} range={range} added={added.includes(stock.ticker)} onToggle={() => toggleStock(stock.ticker)} />;
+    return <ExploreCard key={stock.ticker} stock={stock} performance={stock.performance} range={range} added={added.includes(stock.ticker)} disabled={!ready}
+      onToggle={() => toggleStock(stock.ticker)} onUndo={undo.pending?.ticker === stock.ticker ? undoRemoval : undefined} />;
   }
 
   return (
@@ -76,6 +86,7 @@ export function ExploreView({
       </div>
 
       <section aria-label={category ? `${category} stocks` : "Browse stocks by sector"}>
+        {saveError && <p role="alert" className="mb-4 text-xs text-text-secondary">Your browser couldn’t save that change. Allow site storage and try again.</p>}
         <div className={styles.periodToolbar}>
           <p>Stock returns against their sector benchmark</p>
           <div className={styles.periodControl}><span id="explore-period-label">Compare over</span><div className="range-control" role="group" aria-labelledby="explore-period-label">
@@ -152,7 +163,7 @@ export function ExploreView({
             <button type="button" onClick={resetFilters}>Clear filters</button>
           </div>
         )}
-        <p className={styles.footnote}>Prices are the latest demo snapshot in USD. Returns and benchmark differences use {range}; differences are in percentage points (pp). Selections last while this page is open.</p>
+        <p className={styles.footnote}>Prices are the latest demo snapshot in USD. Returns and benchmark differences use {range}; differences are in percentage points (pp). Your watchlist is saved in this browser.</p>
       </section>
     </>
   );

@@ -8,7 +8,7 @@ Watchlist puts stock performance in context. Follow stocks, explore sectors, and
 
 This is a working UI demo. All prices, returns, and chart histories are illustrative; they do not represent a synchronized live market snapshot.
 
-Watchlist changes currently live in component state, reset on remount, and do not synchronize across pages. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
+Watchlist membership is saved in this browser and synchronized across pages and tabs. The three-step setup saves your step, interests, and selected stocks as you go; returning visitors can continue or start over. Skipping to Explore keeps the draft, and completing setup saves the stocks and clears the draft together. Storage failures retain on-screen choices and offer a retry. Login and registration are UI previews with form validation; they do not create accounts or authenticate users. No database or stock API setup is required to run the demo.
 
 ## Pages
 
@@ -16,7 +16,7 @@ Watchlist changes currently live in component state, reset on remount, and do no
 | --- | --- | --- |
 | Dashboard | `/` | Market summary, illustrative performance chart with range controls, and a stock watchlist. |
 | Watchlist | `/watchlist` | Search, filter, sort, and remove demo stocks; view their performance against a benchmark. |
-| Compare | `/compare` | Compare NVDA, MSFT, and AMZN with the S&P 500 using range controls, a chart, rankings, and a comparison table. |
+| Compare | `/compare` | Choose up to three saved stocks and compare their shared period returns against the S&P 500 and each other. Includes chart, rankings, and empty states. |
 | Explore | `/explore` | Browse demo stocks by sector, search and filter results, and toggle local watchlist membership. |
 | Log in | `/login` | Email/password form with password visibility controls and a link to registration. |
 | Register | `/register` | Account form with email and password validation, plus a link back to login. |
@@ -65,12 +65,18 @@ public/            Wordmark and company logos
 docs/             Project decisions, checkpoints, and Obsidian memory notes
 ```
 
-Route groups organize layouts without changing public URLs. Demo data is defined in `src/lib/watchlist-data.ts`, `src/lib/compare-data.ts`, and `src/lib/explore-data.ts`; illustrative chart histories also live in chart components.
+Route groups organize layouts without changing public URLs. The stock catalog and period returns live in `src/lib/explore-data.ts` and `src/lib/explore-performance.ts`; Watchlist, Dashboard, and Compare share those figures through `src/lib/watchlist-catalog.ts`. The S&P 500 fixture lives in `src/lib/market-benchmark.ts`, while Explore uses sector benchmarks. `src/lib/watchlist-data.ts` retains market-summary and legacy preview fixtures. Chart paths remain illustrative.
+
+Run the data, browser-state parsing, and comparison regression tests with Node.js 22.13 or later:
+
+```bash
+node --experimental-strip-types --test tests/*.test.mjs
+```
 
 ## Next steps
 
 - Connect authentication and Postgres.
-- Persist watchlist membership and synchronize it across pages.
+- Sync the browser-saved watchlist to an account when authentication is connected.
 - Add a cron job to ingest market data and replace demo charts with dated price histories.
 - Calculate stock and benchmark returns over matching date ranges.
 

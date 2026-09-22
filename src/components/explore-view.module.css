@@ -54,6 +54,9 @@
 .membership { display: inline-grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border: 1px solid var(--color-line); border-radius: 50%; color: var(--color-text-secondary); cursor: pointer; transition: background 150ms, border-color 150ms; }
 .membership:hover { border-color: var(--color-brand); background: var(--color-surface); color: var(--color-brand); }
 .membership[aria-pressed="true"] { color: var(--color-brand); border-color: color-mix(in srgb, var(--color-brand) 18%, var(--color-line)); background: color-mix(in srgb, var(--color-brand) 6%, var(--color-surface-raised)); }
+/* Offered beside the membership control while a removal is still reversible. */
+.undo { flex-shrink: 0; font-size: 11px; color: var(--color-ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.undo:hover { opacity: .7; }
 .quote { margin-top: 28px; }
 .price { font-size: clamp(27px, 2.3vw, 32px); font-weight: 500; line-height: 1.1; letter-spacing: -.045em; white-space: nowrap; }
 .price > span { padding-right: 2px; color: var(--color-text-secondary); font-weight: 400; }

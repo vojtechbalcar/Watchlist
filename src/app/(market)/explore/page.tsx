@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { ExploreView } from "@/components/explore-view";
-import { holdings } from "@/lib/watchlist-data";
+import { ExploreViewSkeleton } from "@/components/skeletons";
 
 export const metadata = {
   title: "Explore",
@@ -13,8 +14,7 @@ export default function ExplorePage() {
 
       <main className="page-shell">
         <div>
-          {/* What is already on the watchlist decides which cards show a check. */}
-          <ExploreView watchlistTickers={holdings.map((holding) => holding.ticker)} />
+          <Suspense fallback={<ExploreViewSkeleton />}><ExploreView /></Suspense>
         </div>
       </main>
     </>

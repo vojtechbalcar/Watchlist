@@ -1,5 +1,9 @@
-import "dotenv/config";
+// `vercel env pull` writes .env.local, which dotenv does not read by default.
+import { config as loadEnv } from "dotenv";
 import { defineConfig, env } from "prisma/config";
+
+loadEnv({ path: ".env.local" });
+loadEnv();
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

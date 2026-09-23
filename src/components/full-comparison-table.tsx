@@ -1,27 +1,6 @@
-import Image from "next/image";
+import { StockLogo } from "./stock-logo";
 import { formatPct, directionOf } from "@/lib/format";
 import type { CompareRow } from "@/lib/compare-data";
-import type { Holding } from "@/lib/watchlist-data";
-
-function LogoTile({ holding }: { holding: Holding }) {
-  return (
-    <span className="grid size-[51px] shrink-0 place-items-center overflow-clip rounded-logo bg-black">
-      {holding.logoSrc ? (
-        <Image
-          src={holding.logoSrc}
-          alt=""
-          width={40}
-          height={28}
-          className="h-[28px] w-[40px] object-contain"
-        />
-      ) : (
-        <span className="font-data text-base font-semibold text-surface-raised">
-          {holding.ticker.slice(0, 2)}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function Gap({ value }: { value: number | null }) {
   if (value === null) {
@@ -108,7 +87,7 @@ export function FullComparisonTable({
                     className="block size-[14px] shrink-0 rounded-full"
                     style={{ backgroundColor: row.series.colorVar }}
                   />
-                  <LogoTile holding={row.holding} />
+                  <StockLogo stock={row.holding} />
                   <span className="min-w-0">
                     <span className="block font-data text-ticker font-semibold tracking-tight text-ink">
                       {row.holding.ticker}

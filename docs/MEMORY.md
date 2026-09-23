@@ -2,6 +2,7 @@
 
 ## Current state
 
+- [[explore-stock-details]] — clickable Explore cards, overview-style stock comparisons, shared black SVG symbols, and removal of the demo footer.
 - [[resumable-setup]] — saved setup drafts, continue/restart choices, and storage failure recovery.
 - [[undo-stock-removal]] — position-preserving undo for accidental removals.
 - [[loading-states]] — skeletons, pending navigation, and route boundaries ready for real data.

@@ -33,6 +33,7 @@
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
 
 .card {
+  position: relative;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-line);
@@ -42,12 +43,13 @@
   transition: border-color 180ms ease-out;
 }
 .card:hover, .card:focus-within { border-color: #bfc3c8; }
+.detailLink::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.detailLink:focus-visible { outline: none; }
+.card:has(.detailLink:focus-visible) { outline: 2px solid var(--color-brand); outline-offset: 4px; }
+.card .membership, .card .undo { position: relative; z-index: 2; }
 .cardBody { padding: 22px 20px 20px; }
 .cardHeader { display: flex; align-items: center; gap: 11px; }
 .cardHeader :global(.stock-logo) { width: 38px; height: 38px; border-radius: 9px; font-size: 24px; }
-/* The supplied Microsoft asset includes a wordmark; crop to its colored mark. */
-.cardHeader :global(.stock-logo[data-ticker="MSFT"]) { background-image: url("/logos/msft.png"); background-size: 181px 94px; background-position: calc(50% + 58px) center; background-repeat: no-repeat; }
-.cardHeader :global(.stock-logo[data-ticker="MSFT"] img) { visibility: hidden; }
 .company { min-width: 0; flex: 1; }
 .company h3 { font-size: 15px; font-weight: 500; letter-spacing: -.01em; }
 .company p { margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 1.5; color: var(--color-text-secondary); }
@@ -91,7 +93,6 @@
 .empty h2 { font-size: 18px; font-weight: 500; }
 .empty p { margin-top: 10px; font-size: 13px; color: var(--color-text-secondary); }
 .empty button { min-height: 44px; margin-top: 12px; font-size: 12px; }
-.footnote { margin-top: 32px; font-size: 11px; line-height: 1.6; color: var(--color-text-secondary); }
 
 @media (max-width: 1100px) {
   .filters { gap: 16px; }

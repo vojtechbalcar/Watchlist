@@ -1,9 +1,10 @@
 import Image from "next/image";
-import type { Holding } from "@/lib/watchlist-data";
+import { Building2 } from "lucide-react";
+import { stockLogoSrc } from "@/lib/stock-logos";
 
-export function StockLogo({ stock }: { stock: Pick<Holding, "ticker" | "logoSrc"> }) {
+export function StockLogo({ stock }: { stock: { ticker: string } }) {
+  const src = stockLogoSrc(stock.ticker);
   return <span className="stock-logo" data-ticker={stock.ticker} aria-hidden="true">
-    {stock.logoSrc ? <Image src={stock.logoSrc} alt="" width={28} height={28} /> :
-      stock.ticker === "META" ? "m" : stock.ticker === "GOOGL" ? "G" : stock.ticker.slice(0, 1)}
+    {src ? <Image src={src} alt="" width={28} height={28} /> : <Building2 size={24} strokeWidth={1.5} />}
   </span>;
 }

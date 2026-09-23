@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, Check, Plus } from "lucide-react";
 import { formatPrice, formatPct } from "@/lib/format";
 import { benchmarkFor, type ExploreStock } from "@/lib/explore-data";
@@ -36,7 +37,7 @@ export function ExploreCard({
         <div className={styles.cardHeader}>
           <StockLogo stock={stock} />
           <div className={styles.company}>
-            <h3 id={`stock-${stock.ticker}`}>{stock.ticker}</h3>
+            <h3 id={`stock-${stock.ticker}`}><Link className={styles.detailLink} href={`/explore/stocks/${stock.ticker}`} aria-label={`View ${stock.name} (${stock.ticker}) details`}>{stock.ticker}</Link></h3>
             <p title={stock.name}>{stock.name}</p>
           </div>
           <button

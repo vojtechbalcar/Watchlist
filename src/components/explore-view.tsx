@@ -163,7 +163,6 @@ export function ExploreView({
             <button type="button" onClick={resetFilters}>Clear filters</button>
           </div>
         )}
-        <p className={styles.footnote}>Prices are the latest demo snapshot in USD. Returns and benchmark differences use {range}; differences are in percentage points (pp). Your watchlist is saved in this browser.</p>
       </section>
     </>
   );

@@ -28,6 +28,9 @@ The chart shows paired bars for the available period totals, with the selected p
 
 ## Company symbols
 
+> [!info] Updated 2026-09-23
+> [[stock-table-navigation]] expands this initial icon set to all 48 Explore companies and adds detail links throughout the stock tables.
+
 `stock-logo.tsx` resolves a ticker through `stock-logos.ts` to a locally cached black SVG. The same component serves Explore, details, overview, watchlist, setup, and comparison components. The cache includes 24 real brand marks (23 current Explore companies plus Tesla from the older catalog). Assets and their source names are documented in `public/logos/symbols/README.md`.
 
 Symbol-only versions are preferred; AMD’s original arrow is cropped from its combined source. Some brands only have wordmarks in this collection. Unavailable marks use a neutral building outline rather than fabricated brand initials. Adding a reviewed SVG and registering its ticker extends coverage without a render-time third-party dependency.

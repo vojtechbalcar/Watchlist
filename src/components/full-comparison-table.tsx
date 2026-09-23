@@ -1,4 +1,4 @@
-import { StockLogo } from "./stock-logo";
+import { StockLink } from "./stock-link";
 import { formatPct, directionOf } from "@/lib/format";
 import type { CompareRow } from "@/lib/compare-data";
 
@@ -87,15 +87,7 @@ export function FullComparisonTable({
                     className="block size-[14px] shrink-0 rounded-full"
                     style={{ backgroundColor: row.series.colorVar }}
                   />
-                  <StockLogo stock={row.holding} />
-                  <span className="min-w-0">
-                    <span className="block font-data text-ticker font-semibold tracking-tight text-ink">
-                      {row.holding.ticker}
-                    </span>
-                    <span className="block truncate font-data text-sm font-light tracking-tight text-text-secondary">
-                      {row.holding.name}
-                    </span>
-                  </span>
+                  <StockLink stock={row.holding} />
                 </span>
               </th>
 

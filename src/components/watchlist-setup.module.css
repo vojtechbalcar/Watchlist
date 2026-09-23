@@ -47,7 +47,6 @@
 .stockPicker { position: relative; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 10px; max-height: 410px; overflow-y: auto; padding: 4px; margin: 14px -4px 0; scrollbar-width: thin; }
 .stockOption { min-width: 0; display: flex; align-items: center; gap: 10px; border: 1px solid var(--color-line); padding: 14px 12px; border-radius: 5px; background: var(--color-surface-raised); cursor: pointer; }
 .stockOption :global(.stock-logo) { width: 30px; height: 30px; font-size: 20px; }
-.stockOption :global(.stock-logo img) { width: 22px; height: 22px; }
 .stockName { min-width: 0; }
 .stockName > strong { display: block; font-size: 12px; font-weight: 500; }
 .stockName > small { display: block; max-width: 130px; margin-top: 4px; font-size: 10px; color: var(--color-text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }

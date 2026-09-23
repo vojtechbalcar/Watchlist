@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { usePreferences, usePreferencesReady } from "./preferences-provider";
 import { CompareBodySkeleton } from "./skeletons";
 import { useWatchlist } from "./watchlist-store";
-import { StockLogo } from "./stock-logo";
+import { StockLink } from "./stock-link";
 import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
 import { exploreUniverse } from "@/lib/explore-data";
@@ -118,8 +118,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           <div className="comparison-ranking">
             <div className="aside-heading"><h3>Performance ranking</h3><span className="period-tag">{range}</span></div>
             {ranked.map((row, i) => <div className="ranking-row" key={row.series.ticker}>
-              <span className="rank-number">{String(i + 1).padStart(2, "0")}</span><StockLogo stock={row.holding} />
-              <div><strong>{row.series.ticker}</strong><small>{row.holding.name}</small></div><span>{formatPct(row.returnPct)}</span>
+              <span className="rank-number">{String(i + 1).padStart(2, "0")}</span><StockLink stock={row.holding} /><span>{formatPct(row.returnPct)}</span>
             </div>)}
           </div>
         </aside>
@@ -130,7 +129,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           <caption className="sr-only">Returns and differences between selected stocks, in percentage points</caption>
           <thead><tr><th scope="col">Company</th><th scope="col">Return</th><th scope="col">vs. {compareBenchmark.label}</th>{rows.map(row => <th scope="col" key={row.series.ticker}>vs. {row.series.ticker}</th>)}</tr></thead>
           <tbody>{rows.map(row => <tr key={row.series.ticker}>
-            <th scope="row"><span className="stock-company"><StockLogo stock={row.holding} /><span><strong>{row.series.ticker}</strong><small>{row.holding.name}</small></span></span></th>
+            <th scope="row"><StockLink stock={row.holding} /></th>
             <td>{formatPct(row.returnPct)}</td><td><Gap value={row.vsBenchmarkPct} /></td>
             {rows.map(peer => <td key={peer.series.ticker}>{row.vsPeers[peer.series.ticker] === null ? <span className="text-text-faint" aria-label="Same stock">—</span> : <Gap value={row.vsPeers[peer.series.ticker]!} />}</td>)}
           </tr>)}</tbody>

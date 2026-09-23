@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePreferences } from "./preferences-provider";
 import { useRemovalUndo } from "./removal-undo";
 import type { Preferences } from "@/lib/preferences";
-import { StockLogo } from "./stock-logo";
+import { StockLink } from "./stock-link";
 import { formatPrice, formatPct } from "@/lib/format";
 import type { Holding, WatchlistSummary } from "@/lib/watchlist-data";
 
@@ -77,7 +77,7 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
               <td colSpan={compact ? 4 : 5}><span className="removed-note"><span role="status">{h.ticker} removed from your watchlist</span><button ref={undoButton} onClick={undoRemoval}>Undo</button></span></td>
             </tr>
           : <tr key={h.ticker}>
-          <th scope="row"><span className="stock-company"><StockLogo stock={h} /><span><strong>{h.ticker}</strong><small>{h.name}</small></span></span></th>
+          <th scope="row"><StockLink stock={h} /></th>
           <td>{formatPrice(h.price)}</td>
           <td className={h.changePct >= 0 ? "text-up" : "text-down"}>{formatPct(h.changePct)}<small>{h.changeAbs >= 0 ? "+" : "−"}{formatPrice(Math.abs(h.changeAbs))}</small></td>
           <td className={h.vsBenchmarkPct >= 0 ? "text-up" : "text-down"}><span className="benchmark-cell"><span>{h.vsBenchmarkPct >= 0 ? "+" : "−"}{Math.abs(h.vsBenchmarkPct).toFixed(2)} <small>pp</small></span><span className="gap-bar" aria-hidden="true"><i style={{width: Math.min(Math.abs(h.vsBenchmarkPct) / 2.5 * 50, 50) + "%", left: h.vsBenchmarkPct >= 0 ? "50%" : undefined, right: h.vsBenchmarkPct < 0 ? "50%" : undefined}} /></span></span></td>

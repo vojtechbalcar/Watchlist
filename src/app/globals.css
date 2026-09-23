@@ -280,7 +280,6 @@ button:not(:disabled), select { cursor: pointer; }
 .market-app[data-show-markets="false"] .market-summary-bar { display: none; }
 .market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) tbody tr { height: 52px; }
 .market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) .stock-logo { width: 30px; height: 30px; }
-.market-app[data-density="compact"] :is(.stock-table, .comparison-table, .discovery-table) .stock-logo img { width: 23px; height: 23px; }
 .market-app[data-reduced-motion="true"] *, .market-app[data-reduced-motion="true"] *::before, .market-app[data-reduced-motion="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 @media (prefers-reduced-motion: reduce) {
   .market-app *, .market-app *::before, .market-app *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
@@ -308,7 +307,6 @@ button:not(:disabled), select { cursor: pointer; }
 .ranking-row { display: flex; align-items: center; gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--color-line-soft); font-size: 12px; }
 .ranking-row:last-child { border-bottom: 0; padding-bottom: 0; }
 .ranking-row .stock-logo { width: 30px; height: 30px; }
-.ranking-row .stock-logo img { width: 23px; height: 23px; }
 .rank-number { font-size: 10px; color: var(--color-text-faint); }
 .ranking-row strong { font-weight: 500; }
 .ranking-row small { display: block; font-size: 10px; color: var(--color-text-muted); margin-top: 4px; }
@@ -422,8 +420,11 @@ button:not(:disabled), select { cursor: pointer; }
 .mover-row small { display: block; color: var(--color-text-muted); font-size: 10px; margin-top: 4px; }
 .mover-row > strong { margin-left: auto; font-weight: 500; }
 .chart-caption { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--color-line-soft); padding: 20px 0; margin-top: 18px; font-size: 11px; color: var(--color-text-muted); }
-.stock-logo { display: inline-grid; width: 40px; height: 40px; place-items: center; flex-shrink: 0; border: 1px solid var(--color-line); border-radius: 6px; background: white; color: #000; overflow: hidden; }
-.stock-logo img { width: 28px; height: 28px; object-fit: contain; filter: brightness(0); }
+.stock-logo { --logo-size: 64%; display: inline-grid; width: 40px; height: 40px; place-items: center; flex-shrink: 0; border: 1px solid var(--color-line-soft); border-radius: 9px; background: var(--color-surface-raised); color: #000; overflow: hidden; }
+.stock-logo[data-fit="compact"] { --logo-size: 56%; }
+.stock-logo[data-fit="wide"] { --logo-size: 78%; }
+.stock-logo img { width: var(--logo-size); height: var(--logo-size); object-fit: contain; filter: brightness(0); }
+.stock-logo > svg { width: 56%; height: 56%; }
 .mover .stock-logo { width: 34px; height: 34px; font-size: 22px; }
 .stock-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; border-bottom: 1px solid var(--color-line); }
 .stock-tabs { display: flex; gap: 26px; }
@@ -461,6 +462,15 @@ button:not(:disabled), select { cursor: pointer; }
 .stock-company { display: flex; gap: 13px; align-items: center; }
 .stock-company strong { font-size: 13px; font-weight: 500; }
 .stock-company small { display: block; margin-top: 5px; font-size: 12px; color: var(--color-text-muted); }
+.stock-detail-link { width: fit-content; max-width: 100%; min-height: 44px; border-radius: 5px; }
+.stock-link-name { min-width: 0; }
+.stock-link-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stock-link-arrow { flex-shrink: 0; color: var(--color-text-muted); opacity: .55; transition: transform 160ms ease-out, opacity 160ms ease-out; }
+.stock-detail-link:hover .stock-link-arrow, .stock-detail-link:focus-visible .stock-link-arrow { opacity: 1; transform: translate(1px, -1px); color: var(--color-ink); }
+.stock-detail-link:hover strong, .stock-detail-link:focus-visible strong { text-decoration: underline; text-underline-offset: 4px; }
+.ranking-row .stock-detail-link { min-width: 0; flex: 1; gap: 9px; }
+.ranking-row .stock-link-name small { font-size: 10px; }
+.ranking-row .stock-link-arrow { margin-left: auto; }
 .stock-table td small { display: block; margin-top: 5px; font-size: 10px; opacity: .85; }
 .stock-table td:nth-child(2) { width: 13%; font-weight: 500; }
 .stock-table td:nth-child(3) { width: 19%; }

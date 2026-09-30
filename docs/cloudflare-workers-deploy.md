@@ -8,7 +8,7 @@ status: current
 
 Related: [[account-pages]], [[prisma-build-without-database]], [[postgres-prices]]
 
-The repo deploys through Cloudflare Workers Builds: build command `pnpm run build` (`next build`), deploy command `npx wrangler deploy`. The Worker runs the Next.js app through the OpenNext Cloudflare adapter.
+The repo deploys through Cloudflare Workers Builds: build command `pnpm run build`, deploy command `npx wrangler deploy`. `build` runs `opennextjs-cloudflare build`, which runs `next build` itself (set as `buildCommand` in `open-next.config.ts` so it doesn't call `pnpm run build` back); `build:next` is the plain Next build. The Worker runs the Next.js app through the OpenNext Cloudflare adapter.
 
 ## Symptom
 
@@ -29,7 +29,7 @@ After [[account-pages]] added Auth.js and the first runtime Prisma queries, the 
 
 ## Fix
 
-- Commit `wrangler.jsonc` (`nodejs_compat`, assets, and a `build.command` of `opennextjs-cloudflare build --skipNextBuild`, so the dashboard's `next build` output becomes the Worker without building twice) plus `open-next.config.ts`. Next.js went from 16.3.4 to 16.3.7 because OpenNext 1.20 requires ≥16.3.6.
+- Commit `wrangler.jsonc` (`nodejs_compat`, assets) and `open-next.config.ts`, and make `pnpm run build` produce `.open-next`. Next.js went from 16.3.4 to 16.3.7 because OpenNext 1.20 requires ≥16.3.6.
 - `serverExternalPackages: ["@prisma/client", ".prisma/client", "pg", "pg-cloudflare"]` in `next.config.ts`, so OpenNext resolves their `workerd` builds.
 - Split Auth.js: `src/auth.config.ts` holds the database-free settings and the `authorized` gate; `src/proxy.ts` builds from it alone; `src/auth.ts` adds the Credentials provider.
 - Switch the Prisma generator to `prisma-client-js` with its default output. Its package has a `workerd` entry that imports the query compiler as a real `.wasm` module. Import from `@prisma/client`.
@@ -37,6 +37,12 @@ After [[account-pages]] added Auth.js and the first runtime Prisma queries, the 
 - `trustHost: true`: off Vercel, Auth.js otherwise rejects the host.
 
 Rejected: `runtime = "workerd"` on the new generator. It loads the wasm with `import("./…wasm?module")`, which Next can't compile, so it would break `next dev` and the Node build. Also rejected: Edge-runtime middleware (deprecated) and dropping the proxy (the market layout can't build `callbackUrl` without the path).
+
+## Follow-up: "Could not find compiled Open Next config"
+
+The next deploy failed in the deploy step. Once `open-next.config.ts` exists, `wrangler deploy` skips its own build and hands off to `opennextjs-cloudflare deploy`, which needs `.open-next` from the build step. My first attempt put the OpenNext build in a Wrangler `build.command` (`--skipNextBuild`), which never ran on that path. `--skipNextBuild` also can't reuse a plain `next build`: OpenNext enables standalone output when it runs the Next build itself, and without that the build is missing files like `middleware.js.nft.json`. Note that `wrangler deploy --dry-run` skips the hand-off; test that step with `OPEN_NEXT_DEPLOY=true opennextjs-cloudflare deploy --dry-run`.
+
+The Worker upload is about 3.9 MB gzipped (the Next server bundle plus Prisma's query-compiler wasm). That is over the Workers Free limit of 3 MB and within the Paid limit of 10 MB.
 
 ## Tried first
 

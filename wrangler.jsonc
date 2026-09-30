@@ -8,10 +8,7 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // The Cloudflare build step only runs `next build`; this turns its output into the worker.
-  "build": {
-    "command": "pnpm opennextjs-cloudflare build --skipNextBuild"
-  },
+  // `pnpm run build` produces .open-next; `wrangler deploy` hands off to `opennextjs-cloudflare deploy`.
   "observability": {
     "enabled": true
   }

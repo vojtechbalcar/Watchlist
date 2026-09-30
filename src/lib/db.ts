@@ -1,9 +1,21 @@
 import { cache } from "react";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaPostgresAdapter } from "@prisma/adapter-ppg";
 import { PrismaClient } from "@prisma/client";
 
 /**
- * One client per request. Cloudflare Workers can't reuse a connection across
- * requests, so there is no process-wide pool; `maxUses: 1` keeps pg from trying.
+ * Prisma Postgres over HTTP rather than a TCP socket. A deployed Worker cannot
+ * open the raw connection `@prisma/adapter-pg` needs — workerd refuses it with
+ * "cannot connect to the specified address" — even though the same code
+ * connects from `wrangler dev` and `next start`, which use the host's network.
+ * The connection string is unchanged: this driver sends it as a credential
+ * instead of dialling it. `prisma/seed.ts` and migrations keep the pg adapter,
+ * since they run in Node where TCP works.
+ *
+ * Still one client per request: Workers cannot reuse one across requests.
  */
-export const getDb = cache(() => new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL, maxUses: 1 }) }));
+export const getDb = cache(() => {
+  const connectionString = process.env.DATABASE_URL;
+  // Without this the driver fails later, inside a query, as an opaque error.
+  if (!connectionString) throw new Error("DATABASE_URL is not set");
+  return new PrismaClient({ adapter: new PrismaPostgresAdapter({ connectionString }) });
+});

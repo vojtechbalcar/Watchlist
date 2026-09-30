@@ -44,4 +44,5 @@ These notes retain the original Figma rationale. Their current-status callouts l
 
 ## Troubleshooting
 
+- [[prisma-build-without-database]] — client generation during installation must not require database credentials.
 - [[mcp-config-leading-space-gotcha]] — configuration filename issue and sensitive settings handling.

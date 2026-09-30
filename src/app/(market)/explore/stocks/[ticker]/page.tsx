@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function StockPage({ params }: Props) {
   const stock = findStock((await params).ticker);
   return <>
-    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" initials="JR" />
+    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" />
     <main className="page-shell"><StockDetail stock={stock} /></main>
   </>;
 }

@@ -7,7 +7,7 @@ import { marketIndices } from "@/lib/watchlist-data";
 
 export default function DashboardPage() {
   return <>
-    <SiteHeader active="Dashboard" asOf="Aug 25 · 15:58 ET" initials="JR" />
+    <SiteHeader active="Dashboard" asOf="Aug 25 · 15:58 ET" />
     {/* Boundaries shaped for the Postgres reads that replace the demo snapshot. */}
     <Suspense fallback={<MarketBarSkeleton />}><MarketBar indices={marketIndices} /></Suspense>
     <main className="page-shell">

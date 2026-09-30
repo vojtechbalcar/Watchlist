@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-09-11
+updated: 2026-09-30
 status: current
 ---
 
@@ -21,6 +21,26 @@ Default sorting and filters apply when views open; in-page controls can override
 The comparison period also supplies the initial range for Explore and its category pages; see [[explore-period-comparisons]].
 
 Controls stay disabled until React has hydrated the form. Native selects otherwise appear editable even when the JavaScript that saves them has not loaded. A browser check using an unapproved development origin reproduced that misleading state; the readiness guard prevents those unsaved edits. Tests must use the server's advertised localhost origin.
+
+## Profile initials (2026-09-30)
+
+The user corrected the avatar initials. The rule is the **first and second**
+name's initials; a single name contributes only its own first letter. The old
+code took the first and *last* word, so "Alex Taylor Morgan" rendered `AM`
+instead of `AT`.
+
+The more visible half of the correction was the source of the name. Every
+market page passed `SiteHeader` a hardcoded `initials="JR"`, and
+`profileInitials` used it as its fallback, so a signed-in visitor who had not
+set a display name saw another person's initials — demo data outliving the demo
+(see [[watchlist-placeholder-data]]). `profileName` now resolves the display
+name, then the account name, then the email, and both the header avatar and the
+Settings avatar draw from it. An email has no second word, so it yields one
+letter. The `initials` prop is gone from `SiteHeader` and `ProfileMenu`.
+
+Rejected: keeping a literal fallback of any kind. With accounts real
+([[account-pages]]), there is always a name or an email to draw from, and an
+invented placeholder misrepresents whose account is open.
 
 ## Verification
 

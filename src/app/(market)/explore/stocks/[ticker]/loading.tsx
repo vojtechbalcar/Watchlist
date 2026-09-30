@@ -3,7 +3,7 @@ import { LoadingStatus, OverviewCardSkeleton, PageHeadingSkeleton } from "@/comp
 
 export default function StockLoading() {
   return <>
-    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" initials="JR" />
+    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" />
     <main className="page-shell"><LoadingStatus>Loading stock details…</LoadingStatus><PageHeadingSkeleton actions={1} /><OverviewCardSkeleton /></main>
   </>;
 }

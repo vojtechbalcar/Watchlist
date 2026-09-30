@@ -4,7 +4,7 @@ import "./settings.css";
 
 export default function SettingsLoading() {
   return <>
-    <SiteHeader active="Settings" asOf="Aug 25 · 15:58 ET" initials="JR" />
+    <SiteHeader active="Settings" asOf="Aug 25 · 15:58 ET" />
     <main className="page-shell settings-page"><SettingsViewSkeleton /></main>
   </>;
 }

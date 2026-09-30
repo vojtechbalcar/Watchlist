@@ -46,7 +46,22 @@ export function parsePreferences(raw: string | null): Preferences {
   }
 }
 
-export function profileInitials(name: string, fallback = "JR") {
+/**
+ * The first and second name's initials. A single name contributes only its own
+ * first letter, and any name past the second is ignored. Splitting by code
+ * point keeps accented letters whole.
+ */
+export function profileInitials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
-  return words.length ? (Array.from(words[0])[0] + (words.length > 1 ? Array.from(words[words.length - 1])[0] : "")).toLocaleUpperCase() : fallback;
+  if (!words.length) return "";
+  const firstLetter = (word: string) => Array.from(word)[0] ?? "";
+  return (firstLetter(words[0]) + (words.length > 1 ? firstLetter(words[1]) : "")).toLocaleUpperCase();
+}
+
+/**
+ * The name the avatar draws its initials from. The display name is this
+ * browser's choice; without one, the signed-in account speaks for itself.
+ */
+export function profileName(displayName: string, account: { name: string | null; email: string }) {
+  return displayName.trim() || account.name?.trim() || account.email;
 }

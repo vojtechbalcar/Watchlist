@@ -38,8 +38,8 @@
 .settings-account { display: flex; align-items: center; gap: 32px; background: var(--color-surface-sunken); border-radius: 4px; padding: 18px 20px; }
 .settings-account strong, .settings-note strong, .settings-reset strong { font-size: 12px; font-weight: 500; }
 .settings-account p, .settings-note p, .settings-reset p { margin-top: 6px; color: var(--color-text-secondary); font-size: 11px; line-height: 1.8; }
-.settings-account a { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; font-size: 11px; }
-.settings-account a:hover, .settings-endnote a:hover { color: var(--color-brand); }
+.settings-account a, .settings-account button { display: inline-flex; cursor: pointer; align-items: center; gap: 6px; flex-shrink: 0; font-size: 11px; }
+.settings-account a:hover, .settings-account button:hover, .settings-endnote a:hover { color: var(--color-brand); }
 .settings-note { padding-top: 23px; max-width: 580px; }
 .settings-reset { padding: 20px; margin-top: 12px; border: 1px solid var(--color-line); border-radius: 4px; }
 .settings-reset > div:last-child { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }

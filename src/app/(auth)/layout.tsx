@@ -5,8 +5,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="auth-shell">
       <header className="auth-header">
-        <Link href="/" aria-label="Watchlist home"><Wordmark className="h-auto w-[122px]" /></Link>
-        <Link href="/" className="auth-demo-link">Explore the demo <span aria-hidden="true">↗</span></Link>
+        <Link href="/landing" aria-label="Watchlist home"><Wordmark className="h-auto w-[122px]" /></Link>
+        <Link href="/landing" className="auth-demo-link">About watchlist <span aria-hidden="true">↗</span></Link>
       </header>
       <main className="auth-main">
         <div className="auth-intro">

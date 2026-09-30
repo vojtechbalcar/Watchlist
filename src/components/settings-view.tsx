@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
 import { profileInitials, type Preferences } from "@/lib/preferences";
+import { useAccount } from "./account-provider";
+import { logout } from "@/app/(auth)/actions";
 import { resetPreferences, savePreferences, usePreferences, usePreferencesReady } from "./preferences-provider";
 
 function SettingRow({ id, title, description, children }: { id: string; title: string; description: string; children: ReactNode }) {
@@ -28,6 +30,7 @@ const sections = [
 ];
 
 export function SettingsView() {
+  const account = useAccount();
   const preferences = usePreferences();
   const ready = usePreferencesReady();
   const [status, setStatus] = useState("");
@@ -75,7 +78,7 @@ export function SettingsView() {
             <span className="profile-avatar settings-avatar" aria-hidden="true">{profileInitials(preferences.displayName)}</span>
             <div className="settings-name"><label htmlFor="display-name">Display name</label><div><input id="display-name" name="displayName" autoComplete="nickname" maxLength={60} defaultValue={preferences.displayName} placeholder="Your name" aria-describedby="display-name-hint" /><button type="submit" className="settings-button">Save name</button></div><p id="display-name-hint">Used for your profile initials. Visible only in this browser.</p></div>
           </form>
-          <div className="settings-account"><div><strong>You’re exploring the demo</strong><p>Accounts aren’t connected yet. Email, password, two-factor authentication, and account deletion will be available when accounts launch.</p></div><Link href="/login">Account preview <ArrowUpRight size={14} aria-hidden="true" /></Link></div>
+          <div className="settings-account"><div><strong>Signed in as {account.email}</strong><p>Your account signs you in on any device. Preferences and your watchlist are still saved in this browser for now.</p></div><form action={logout}><button type="submit">Log out <ArrowUpRight size={14} aria-hidden="true" /></button></form></div>
         </section>
 
         <section className="settings-section" id="appearance" aria-labelledby="appearance-heading">

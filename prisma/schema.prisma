@@ -57,3 +57,15 @@ model Quote {
   asOf       DateTime
   instrument Instrument @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
 }
+
+/// An account. Auth.js signs people in with email and password and keeps the
+/// session in a signed cookie, so this is the only auth table.
+model User {
+  id           String   @id @default(cuid())
+  /// Stored lowercased, so sign-in is case-insensitive.
+  email        String   @unique
+  name         String?
+  /// scrypt, as `salt:hash` in hex.
+  passwordHash String
+  createdAt    DateTime @default(now())
+}

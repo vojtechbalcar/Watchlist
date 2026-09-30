@@ -44,7 +44,6 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
 
         <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-6">
           <span className="hidden text-sm font-medium text-text-muted md:inline">{asOf}</span>
-          <Link href="/login" className="text-xs text-text-secondary hover:text-brand">Log in</Link>
           <ProfileMenu initials={initials} />
         </div>
       </div>

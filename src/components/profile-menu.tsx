@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Settings, LogIn } from "lucide-react";
+import { ChevronDown, Settings, LogOut } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePreferences } from "./preferences-provider";
+import { useAccount } from "./account-provider";
+import { logout } from "@/app/(auth)/actions";
 import { profileInitials } from "@/lib/preferences";
 
 export function ProfileMenu({ initials }: { initials: string }) {
   const settings = usePreferences();
+  const account = useAccount();
   const [open, setOpen] = useState(false);
   const wrapper = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -42,10 +45,10 @@ export function ProfileMenu({ initials }: { initials: string }) {
       <ChevronDown size={12} aria-hidden="true" />
     </button>
     {open && <div className="profile-popover" id={id}>
-      <div className="profile-identity"><strong>{settings.displayName || "Demo profile"}</strong><span>Preferences on this browser</span></div>
+      <div className="profile-identity"><strong>{settings.displayName || account.name || account.email}</strong><span>{account.email}</span></div>
       <nav aria-label="Profile">
         <Link href="/settings" aria-current={pathname === "/settings" ? "page" : undefined} onClick={() => setOpen(false)}><Settings size={16} aria-hidden="true" />Settings<span aria-hidden="true">↗</span></Link>
-        <Link href="/login" onClick={() => setOpen(false)}><LogIn size={16} aria-hidden="true" />Log in</Link>
+        <form action={logout}><button type="submit"><LogOut size={16} aria-hidden="true" />Log out</button></form>
       </nav>
     </div>}
   </div>;

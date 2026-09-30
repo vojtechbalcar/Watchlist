@@ -44,5 +44,6 @@ These notes retain the original Figma rationale. Their current-status callouts l
 
 ## Troubleshooting
 
+- [[cloudflare-workers-deploy]] — OpenNext on Workers: pg's workerd export, DB-free proxy, wasm-safe Prisma generator, per-request client.
 - [[prisma-build-without-database]] — client generation during installation must not require database credentials.
 - [[mcp-config-leading-space-gotcha]] — configuration filename issue and sensitive settings handling.

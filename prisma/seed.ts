@@ -4,7 +4,7 @@
  */
 import { config as loadEnv } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaClient } from "@prisma/client";
 import { exploreUniverse, sectorBenchmarks, type Sector } from "../src/lib/explore-data.ts";
 
 loadEnv({ path: ".env.local" });

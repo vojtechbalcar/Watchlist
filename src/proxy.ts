@@ -1,4 +1,8 @@
-export { auth as proxy } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
+
+// Built from the database-free config only; see src/auth.config.ts.
+export default NextAuth(authConfig).auth;
 
 export const config = {
   // API routes authenticate themselves (Auth.js, and the cron job's CRON_SECRET).

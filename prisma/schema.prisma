@@ -1,9 +1,12 @@
 // Price data lives here and nowhere else. Only the cron job in
 // src/app/api/cron/prices writes it, and only it calls the stock API.
 
+// The classic generator, with its default output in node_modules: its package
+// has a `workerd` entry that loads the query compiler as a real .wasm module,
+// which Cloudflare Workers require. The newer `prisma-client` generator only
+// offers that through a `.wasm?module` import Next.js can't compile.
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 // Prisma 7 keeps connection URLs out of the schema; see prisma.config.ts.

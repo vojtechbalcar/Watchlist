@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,6 +20,7 @@ test("Prisma generates the client without database credentials at install time",
 
   const env = { ...process.env };
   delete env.DATABASE_URL;
+  env.NO_COLOR = "1";
   const result = spawnSync(process.execPath, [join(root, "node_modules/prisma/build/index.js"), "generate"], {
     cwd: fixture,
     env,
@@ -29,5 +30,5 @@ test("Prisma generates the client without database credentials at install time",
 
   assert.ifError(result.error);
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
-  assert.ok(existsSync(join(fixture, "src/generated/prisma/client.ts")));
+  assert.match(result.stdout, /Generated Prisma Client/);
 });

@@ -58,3 +58,8 @@ next-env.d.ts
 # prisma generated client
 /src/generated
 .env*.local
+
+# cloudflare
+.open-next
+.wrangler
+.dev.vars*

@@ -16,7 +16,7 @@ The user prioritized simple login and registration pages before the database and
 
 Accounts are real now. Auth.js (`next-auth` v5 beta) with the Credentials provider signs people in by email and password; the session is a signed JWT cookie (`AUTH_SECRET`), so `User` is the only auth table. Passwords are hashed with Node's built-in scrypt as `salt:hash` hex — no bcrypt/argon2 dependency. Emails are stored lowercased so sign-in is case-insensitive.
 
-Access: `/landing`, `/login`, and `/register` are public. Every market page needs a session. `src/proxy.ts` is the optimistic gate (bare `/` goes to `/landing`, other pages go to `/login?callbackUrl=…`, signed-in visitors skip the account pages); the `(market)` layout checks `auth()` again as the real guarantee and provides the account to client components. `callbackUrl` is reduced to a path before redirecting so it can't send people off-site.
+Access: `/landing`, `/login`, and `/register` are public. Every market page needs a session. `src/proxy.ts` is the optimistic gate, built from the database-free `src/auth.config.ts` (see [[cloudflare-workers-deploy]]) (bare `/` goes to `/landing`, other pages go to `/login?callbackUrl=…`, signed-in visitors skip the account pages); the `(market)` layout checks `auth()` again as the real guarantee and provides the account to client components. `callbackUrl` is reduced to a path before redirecting so it can't send people off-site.
 
 Registration validates email and 8+ character passwords on the server, rejects existing emails, then signs in immediately. Log out lives in the profile menu and Settings and returns to `/landing`.
 

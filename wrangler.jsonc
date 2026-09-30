@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "watchlist",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-26",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // The Cloudflare build step only runs `next build`; this turns its output into the worker.
+  "build": {
+    "command": "pnpm opennextjs-cloudflare build --skipNextBuild"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

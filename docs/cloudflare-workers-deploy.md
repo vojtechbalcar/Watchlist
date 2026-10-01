@@ -1,6 +1,6 @@
 ---
 type: troubleshooting
-updated: 2026-09-30
+updated: 2026-10-01
 status: current
 ---
 
@@ -54,6 +54,18 @@ The Worker upload is about 3.9 MB gzipped (the Next server bundle plus Prisma's 
 `wrangler dev` over plain http doesn't send `x-forwarded-proto`, and Auth.js then assumes `https` in the proxy and looks for the `__Secure-` session cookie, while the route handler sets the unprefixed one. Signed-in requests look signed out. Put `AUTH_URL=http://localhost:8787` in `.dev.vars`. Production is https on both sides, so it needs no `AUTH_URL`.
 
 The Worker needs `DATABASE_URL` and `AUTH_SECRET` set as Cloudflare secrets.
+
+## Follow-up: production login fails with CallbackRouteError (2026-10-01)
+
+**Symptom.** `POST /login` on usewatchlist.dev logged `[auth][error] CallbackRouteError` plus a bare minified stack; the form showed "We couldn't sign you in". Local `wrangler dev` logins worked.
+
+**Cause.** `authorize()` threw because the deployed Worker has no `DATABASE_URL`. With no connection string `pg` dials localhost, which workerd reports as `proxy request failed, cannot connect to the specified address`; Auth.js wraps any throw in `authorize` as `CallbackRouteError`. It never showed up locally because **OpenNext bakes `.env*` files, including `.env.local`, into `.open-next/cloudflare/next-env.mjs` at build time.** Every local build therefore carried the database URL, even with it removed from `.dev.vars`. Cloudflare's git build has no `.env.local`, so production depends on the Worker's own secrets.
+
+**Fix.** `getDb()` now throws `DATABASE_URL is not set` instead of falling through to localhost. Set the secret on the Worker the logs actually name, which is **`gowatchlist`**, not the `watchlist` in `wrangler.jsonc`: Dashboard → Workers → gowatchlist → Settings → Variables and Secrets, or `npx wrangler secret put DATABASE_URL --name gowatchlist`. Use the direct `postgres://…@db.prisma.io` URL, not `PRISMA_DATABASE_URL` (Accelerate), which `pg` can't use. `AUTH_SECRET` belongs there too.
+
+**Tried first.** Mapping `worker.js:81374` from the production stack onto a local `wrangler deploy --dry-run` bundle: the lines don't match the deployed build. Running `wrangler dev` without `DATABASE_URL` in `.dev.vars` didn't reproduce the failure either, because of the baked `.env.local`. It reproduced only after rebuilding with `.env.local` moved aside.
+
+**To reproduce production locally:** move `.env.local` aside, run `opennextjs-cloudflare build`, then `wrangler dev`.
 
 ## Verification
 

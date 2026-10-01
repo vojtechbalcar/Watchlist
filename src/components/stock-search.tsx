@@ -11,12 +11,14 @@ import styles from "./stock-search.module.css";
 
 const DEBOUNCE_MS = 250;
 
+const stockHref = (ticker: string) => `/explore/stocks/${encodeURIComponent(ticker)}`;
+
 type Answer = { query: string; results: SearchResult[]; failed: boolean };
 
 /**
  * Searches every NASDAQ and NYSE stock through /api/search and lists matches
- * under the field. Tracked stocks link to their detail page; others show
- * their price only, fetched when searched.
+ * under the field. Each opens its stock page; untracked stocks' pages fetch
+ * their price when opened.
  */
 export function StockSearch({ className }: { className?: string }) {
   const router = useRouter();
@@ -71,10 +73,10 @@ export function StockSearch({ className }: { className?: string }) {
       event.preventDefault();
       const step = event.key === "ArrowDown" ? 1 : -1;
       setActive(current => (current + step + results.length) % results.length);
-    } else if (event.key === "Enter" && results[active]?.tracked) {
+    } else if (event.key === "Enter" && results[active]) {
       event.preventDefault();
       setOpen(false);
-      router.push(`/explore/stocks/${results[active].ticker}`);
+      router.push(stockHref(results[active].ticker));
     }
   }
 
@@ -108,9 +110,7 @@ export function StockSearch({ className }: { className?: string }) {
           <ul id={listId} role="listbox" aria-label="Matching stocks" aria-busy={!settled}>
             {results.map((stock, index) => (
               <li key={stock.ticker} id={optionId(index)} role="option" aria-selected={index === active} className={styles.option} onPointerEnter={() => setActive(index)}>
-                {stock.tracked
-                  ? <Link href={`/explore/stocks/${stock.ticker}`} className={styles.row} tabIndex={-1} onClick={() => setOpen(false)}><Row stock={stock} /></Link>
-                  : <div className={styles.row}><Row stock={stock} /></div>}
+                <Link href={stockHref(stock.ticker)} className={styles.row} tabIndex={-1} onClick={() => setOpen(false)}><Row stock={stock} /></Link>
               </li>
             ))}
           </ul>

@@ -1,7 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
-import { reserveCredits } from "@/lib/api-budget";
-import { isPriceFresh, normalizeQuery, rankCandidates, type SearchResult } from "@/lib/search-ranking";
-import { fetchLogo, fetchQuotes, isTwelveDataConfigured } from "@/lib/twelve-data";
+import { refreshListingLogos, refreshListingPrices } from "@/lib/listing-refresh";
+import { normalizeQuery, rankCandidates, type SearchResult } from "@/lib/search-ranking";
 
 /** Candidates fetched before ranking; enough that good matches aren't cut off by the database's order. */
 const CANDIDATES = 60;
@@ -9,8 +8,7 @@ const CANDIDATES = 60;
 /**
  * Finds stocks by ticker or name. Tracked stocks carry the price job's quote.
  * Others get a live price, reused for 15 minutes, and a logo the first time
- * they're found, as far as the search credit budget allows. Prices come
- * before logos; whatever doesn't fit shows without.
+ * they're found, as far as the search credit budget allows.
  */
 export async function searchStocks(db: PrismaClient, rawQuery: string | null, now = new Date()): Promise<SearchResult[]> {
   const query = normalizeQuery(rawQuery);
@@ -20,7 +18,7 @@ export async function searchStocks(db: PrismaClient, rawQuery: string | null, no
 
   // The tracked set is a few dozen rows, so it is read whole, in parallel with the listing match.
   const [listings, instruments] = await Promise.all([
-    db.listing.findMany({ where: { OR: [{ symbol: matches }, { name: nameMatches }] }, take: CANDIDATES }),
+    db.listing.findMany({ where: { OR: [{ symbol: matches }, { name: nameMatches }] }, omit: { closes: true }, take: CANDIDATES }),
     db.instrument.findMany({ where: { kind: "STOCK" }, include: { quote: true } }),
   ]);
   const tracked = new Map(instruments.map(instrument => [instrument.ticker, instrument]));
@@ -34,31 +32,9 @@ export async function searchStocks(db: PrismaClient, rawQuery: string | null, no
   const top = rankCandidates(query, candidates);
   const untracked = top.filter(candidate => !candidate.tracked).map(candidate => listed.get(candidate.symbol)!);
 
-  if (isTwelveDataConfigured() && untracked.length) {
-    const stale = untracked.filter(listing => !isPriceFresh(listing.priceFetchedAt, now)).map(listing => listing.symbol);
-    try {
-      const symbols = stale.slice(0, await reserveCredits(db, "search", stale.length, now));
-      await Promise.all((await fetchQuotes(symbols)).map(quote => {
-        const data = { price: quote.price, changeAbs: quote.changeAbs, changePct: quote.changePct, priceFetchedAt: now };
-        Object.assign(listed.get(quote.symbol)!, data);
-        return db.listing.update({ where: { symbol: quote.symbol }, data });
-      }));
-    } catch (error) {
-      console.error("[search] quotes", error);
-    }
-
-    const unchecked = untracked.filter(listing => !listing.logoCheckedAt).map(listing => listing.symbol);
-    const logoSymbols = unchecked.slice(0, await reserveCredits(db, "search", unchecked.length, now));
-    await Promise.all(logoSymbols.map(async symbol => {
-      try {
-        const data = { logoUrl: await fetchLogo(symbol), logoCheckedAt: now };
-        await db.listing.update({ where: { symbol }, data });
-        Object.assign(listed.get(symbol)!, data);
-      } catch (error) {
-        console.error("[search] logo", symbol, error);
-      }
-    }));
-  }
+  // Prices before logos, so a short budget goes where it matters.
+  await refreshListingPrices(db, untracked, now);
+  await refreshListingLogos(db, untracked, now);
 
   return top.map(candidate => {
     const instrument = tracked.get(candidate.symbol);

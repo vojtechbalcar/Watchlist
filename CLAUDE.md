@@ -8,9 +8,9 @@ or just moving with it?
 - Typecheck: `pnpm typecheck`
 
 ## Hard rules
-- Pages and client components read price data from Postgres only. Only the scheduled
-  price job and `/api/search` call the stock API, both through `src/lib/twelve-data.ts`
-  and its credit budget.
+- Client components read price data from Postgres only, through the server. Only the
+  scheduled price job and on-demand lookups (`/api/search` and an untracked stock's
+  page) call the stock API, all through `src/lib/twelve-data.ts` and its credit budget.
 - Maroon is brand only, never gains or losses. Green/red are market direction only.
 - The word is "watchlist", never "portfolio".
 

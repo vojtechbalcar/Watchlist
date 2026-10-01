@@ -71,19 +71,24 @@ model Quote {
 /// daily. Tracked instruments appear here too. Their prices come from Quote;
 /// the price columns here cache what search fetched for everything else.
 model Listing {
-  symbol         String    @id
-  name           String
-  exchange       String
-  type           String
-  currency       String    @default("USD")
+  symbol          String    @id
+  name            String
+  exchange        String
+  type            String
+  currency        String    @default("USD")
   /// Null until search first asks for it; see logoCheckedAt.
-  logoUrl        String?
+  logoUrl         String?
   /// Set once the logo was requested, even when Twelve Data had none.
-  logoCheckedAt  DateTime?
-  price          Decimal?  @db.Decimal(14, 4)
-  changeAbs      Decimal?  @db.Decimal(14, 4)
-  changePct      Decimal?  @db.Decimal(9, 4)
-  priceFetchedAt DateTime?
+  logoCheckedAt   DateTime?
+  price           Decimal?  @db.Decimal(14, 4)
+  changeAbs       Decimal?  @db.Decimal(14, 4)
+  changePct       Decimal?  @db.Decimal(9, 4)
+  priceFetchedAt  DateTime?
+  /// About a year of daily closes as [["YYYY-MM-DD", close], …], oldest first,
+  /// fetched when someone opens the stock's page. Tracked instruments use
+  /// DailyClose instead.
+  closes          Json?
+  closesFetchedAt DateTime?
 }
 
 /// Twelve Data credits spent, per UTC minute ("m:2026-10-01T14:05") and per

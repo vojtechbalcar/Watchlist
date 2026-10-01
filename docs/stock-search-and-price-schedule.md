@@ -76,6 +76,31 @@ which leaves over 200 for search.
 - `src/components/stock-search.tsx`: the combobox on Explore and the sector
   pages. Search no longer filters the cards.
 
+## Pages for untracked stocks (2026-10-01)
+
+The user pointed out that untracked rows in the dropdown did nothing when
+clicked. Every row now opens `/explore/stocks/[ticker]`. A tracked ticker gets
+the existing detail page. Any other listed ticker gets `ListingDetailView`:
+- the live price, through the same 15-minute cache as search;
+- the logo;
+- returns for 1D/1W/1M/YTD/1Y against the S&P 500 (SPY). Untracked stocks
+  have no sector, so the whole market is their benchmark.
+
+The stock's year of daily closes is cached as JSON on its `Listing` row
+(`closes`, `closesFetchedAt`) and refetched once per settled session, so the
+first view costs up to 3 credits and later views nothing. A separate closes
+table for untracked stocks was rejected; nothing queries those closes except
+that one page. Returns come from `src/lib/period-returns.ts`, which the
+tracked pages can use once they move off the demo data. The S&P column fills
+in once the price job has stored SPY's closes.
+
+`src/lib/listing-refresh.ts` holds the on-demand refreshes for both search and
+this page. All of them spend the "search" budget (8 a minute, 800 a day), which
+now covers every on-demand lookup.
+
+Not there yet: the untracked page has no chart and no "Add to watchlist"
+button, because the watchlist still only knows the 48 demo stocks.
+
 ## Setup the Worker needs
 
 Secrets on the **gowatchlist** Worker (see [[cloudflare-workers-deploy]] for
@@ -103,7 +128,5 @@ stocks' stored prices only.
 - Explore cards, the watchlist, and Compare still read the demo snapshot.
   Switching their reads to the stored quotes and closes is the next step from
   [[postgres-prices]].
-- Untracked stocks in the dropdown have no detail page yet, so they aren't
-  links.
 - Market holidays aren't modelled. The job still refreshes quotes on a
   holiday, which wastes credits but doesn't break anything.

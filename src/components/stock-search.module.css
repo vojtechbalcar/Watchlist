@@ -4,7 +4,6 @@
 .option { border-radius: 6px; }
 .option[aria-selected="true"] { background: var(--color-surface-row-hover); }
 .row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; color: var(--color-ink); }
-a.row { cursor: pointer; }
 .row :global(.stock-logo) { width: 34px; height: 34px; }
 .identity { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
 .identity strong { font-size: 13px; font-weight: 500; }

@@ -1,7 +1,7 @@
 ---
 type: decision
 updated: 2026-10-01
-status: in-progress
+status: current
 ---
 
 # Stock search and the price schedule
@@ -61,6 +61,42 @@ most 6 credits, in this order:
 
 That is about 570 credits on a trading day for the 58 tracked instruments,
 which leaves over 200 for search.
+
+## How it fits together
+
+- `src/lib/twelve-data.ts`: the only caller of the API, with pure parsers.
+- `src/lib/api-budget.ts`: the `ApiUsage` ledger and per-caller limits.
+- `src/lib/price-schedule.ts`: market clock (New York time, EDT/EST) and what is due.
+- `src/lib/price-job.ts`, behind `/api/cron/prices` (`CRON_SECRET` bearer).
+- `custom-worker.ts`: wraps `.open-next/worker.js` and adds `scheduled()`,
+  which calls the route. `wrangler.jsonc` points `main` at it and sets the
+  `*/5 * * * *` trigger. The pattern follows OpenNext's custom-worker how-to.
+- `src/lib/stock-search.ts`, behind `/api/search?q=` (signed-in only, since a
+  search can spend credits), ranked by `src/lib/search-ranking.ts`.
+- `src/components/stock-search.tsx`: the combobox on Explore and the sector
+  pages. Search no longer filters the cards.
+
+## Setup the Worker needs
+
+Secrets on the **gowatchlist** Worker (see [[cloudflare-workers-deploy]] for
+why the name matters): `TWELVE_DATA_API_KEY` (a free key from twelvedata.com)
+and `CRON_SECRET` (any long random string). Without the key the job fails
+every run with `TWELVE_DATA_API_KEY is not set`, and search shows tracked
+stocks' stored prices only.
+
+## Verification (2026-10-01)
+
+- 62 unit tests: parsers against real response shapes, budget arithmetic,
+  the market clock across EDT and EST, due-lists, and ranking.
+- The symbol sync ran against the real database: 6,392 listings in about 17
+  seconds, and all 48 tracked stocks are among them.
+- Local workerd: `/__scheduled` ran the Cron Trigger → custom worker → route →
+  job chain. Both routes return 401 without credentials.
+- Browser, desktop and 390px wide: the dropdown lists AAPL with its stored
+  price; untracked matches show exchange and "—". Arrow keys and Enter open a
+  tracked stock's page.
+- Not verified: live batch prices and logos. The public demo key only serves
+  single symbols, so those paths need the real key.
 
 ## Open
 

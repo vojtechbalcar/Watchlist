@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
+import { StockSearch } from "./stock-search";
 import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
 import { useRemovalUndo } from "./removal-undo";
 import { usePreferencesReady } from "./preferences-provider";
@@ -30,15 +31,12 @@ export function ExploreView({
   const { tickers: added } = useWatchlist();
   const ready = usePreferencesReady();
   const [filter, setFilter] = useState("all");
-  const [query, setQuery] = useState("");
   const [saveError, setSaveError] = useState(false);
   const undo = useRemovalUndo(added);
   const [sort, setSort] = useState("default");
 
-  const search = query.trim().toLowerCase();
   const stocks = exploreUniverse
     .filter(stock => !category || stock.sector === category)
-    .filter(stock => `${stock.ticker} ${stock.name} ${stock.sector}`.toLowerCase().includes(search))
     .map(stock => ({ ...stock, performance: explorePerformance(stock, range) }))
     .filter(stock => filter === "all" || (stock.performance && (filter === "ahead" ? stock.performance.gap > 0 : stock.performance.gap < 0)));
 
@@ -62,7 +60,6 @@ export function ExploreView({
   }
 
   function resetFilters() {
-    setQuery("");
     setFilter("all");
   }
 
@@ -94,10 +91,7 @@ export function ExploreView({
           </div></div>
         </div>
         <div className={styles.toolbar}>
-          <label className={styles.search}>
-            <Search size={16} aria-hidden="true" />
-            <input type="search" aria-label="Search stocks" placeholder={category ? `Search ${category.toLowerCase()} stocks` : "Search companies, tickers, or sectors"} value={query} onChange={event => setQuery(event.target.value)} />
-          </label>
+          <StockSearch className={styles.search} />
           <div className={styles.filters}>
             <label className={styles.select}>
               <span>Performance</span>
@@ -124,7 +118,7 @@ export function ExploreView({
         <div className={styles.results}>
           <p role="status">
             {stocks.length} {stocks.length === 1 ? "stock" : "stocks"}{!category && ` across ${groups.length} ${groups.length === 1 ? "sector" : "sectors"}`}
-            {(search || filter !== "all") && <button type="button" onClick={resetFilters}>Clear filters</button>}
+            {filter !== "all" && <button type="button" onClick={resetFilters}>Clear filters</button>}
           </p>
           <span>Demo data <span aria-hidden="true">·</span> {range} returns{category ? ` vs. ${sectorBenchmarks[category]}` : " vs. sector benchmarks"}</span>
         </div>
@@ -159,7 +153,7 @@ export function ExploreView({
         {stocks.length === 0 && (
           <div className={styles.empty}>
             <h2>No stocks found</h2>
-            <p>Try another company or ticker, or clear your filters.</p>
+            <p>No stocks here match this filter.</p>
             <button type="button" onClick={resetFilters}>Clear filters</button>
           </div>
         )}

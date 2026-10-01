@@ -53,7 +53,7 @@ The Worker upload is about 3.9 MB gzipped (the Next server bundle plus Prisma's 
 
 `wrangler dev` over plain http doesn't send `x-forwarded-proto`, and Auth.js then assumes `https` in the proxy and looks for the `__Secure-` session cookie, while the route handler sets the unprefixed one. Signed-in requests look signed out. Put `AUTH_URL=http://localhost:8787` in `.dev.vars`. Production is https on both sides, so it needs no `AUTH_URL`.
 
-The Worker needs `DATABASE_URL` and `AUTH_SECRET` set as Cloudflare secrets.
+The Worker needs `DATABASE_URL`, `AUTH_SECRET`, `TWELVE_DATA_API_KEY`, and `CRON_SECRET` set as Cloudflare secrets. Since [[stock-search-and-price-schedule]], `main` is `custom-worker.ts`, which wraps `.open-next/worker.js` to add the Cron Trigger. Test the trigger locally with `wrangler dev --test-scheduled` and `curl 'http://localhost:8787/__scheduled?cron=*/5+*+*+*+*'`.
 
 ## Production runtime failures (2026-09-30)
 

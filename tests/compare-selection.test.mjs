@@ -5,6 +5,9 @@ import test from "node:test";
 register("./resolve-typescript.mjs", import.meta.url);
 const { initialComparison, reconcileComparison, addComparisonStock } = await import("../src/lib/compare-selection.ts");
 const { compareRows } = await import("../src/lib/compare-data.ts");
+const { marketView } = await import("../src/lib/market-view.ts");
+// Colors don't depend on prices, so an empty market is enough.
+const market = marketView({ builtAt: "", asOf: null, instruments: {} });
 
 test("initial comparison takes at most three unique saved stocks in saved order", () => {
   assert.deepEqual(initialComparison([]), []);
@@ -28,7 +31,7 @@ test("removing or replacing a stock preserves the other series' colors across pe
   assert.deepEqual(replaced, [initial[0], initial[2], { ticker: "NVDA", colorSlot: 1 }]);
   const slots = Object.fromEntries(replaced.map(item => [item.ticker, item.colorSlot]));
   for (const range of ["1D", "YTD", "1Y"]) {
-    const rows = compareRows(range, replaced.map(item => item.ticker), slots);
+    const rows = compareRows(market.stocks, range, replaced.map(item => item.ticker), market.benchmark.returnByRange, slots);
     assert.equal(new Set(rows.map(row => row.series.colorVar)).size, 3);
     assert.equal(rows.find(row => row.series.ticker === "MSFT").series.colorVar, "var(--color-series-3)");
   }

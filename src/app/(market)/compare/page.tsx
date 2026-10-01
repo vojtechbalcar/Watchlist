@@ -10,7 +10,7 @@ export const metadata = {
 export default function ComparePage() {
   return (
     <>
-      <SiteHeader active="Compare" asOf="Aug 25 · 15:58 ET" />
+      <SiteHeader active="Compare" />
 
       <main className="page-shell">
         <div>

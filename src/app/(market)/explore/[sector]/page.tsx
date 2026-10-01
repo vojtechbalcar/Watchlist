@@ -24,7 +24,7 @@ export default async function SectorPage({ params }: Props) {
 
   return (
     <>
-      <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" />
+      <SiteHeader active="Explore" />
       <main className="page-shell">
         <Suspense fallback={<ExploreViewSkeleton />}><ExploreView key={category} category={category} /></Suspense>
       </main>

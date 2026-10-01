@@ -1,49 +1,38 @@
 import assert from "node:assert/strict";
+import { register } from "node:module";
 import test from "node:test";
-import { exploreUniverse, sectors } from "../src/lib/explore-data.ts";
-import { explorePerformance, exploreRanges, sectorReturns } from "../src/lib/explore-performance.ts";
 
-test("every stock has valid returns for every selectable period", () => {
-  for (const stock of exploreUniverse) {
-    for (const range of exploreRanges) {
-      const result = explorePerformance(stock, range);
-      assert.ok(result, `${stock.ticker} missing ${range}`);
-      assert.ok(Number.isFinite(result.stockReturn));
-      assert.ok(Number.isFinite(result.benchmarkReturn));
-      assert.equal(result.gap, Number((result.stockReturn - result.benchmarkReturn).toFixed(2)));
-    }
-  }
+register("./resolve-typescript.mjs", import.meta.url);
+const { explorePerformance, exploreRanges } = await import("../src/lib/explore-performance.ts");
+const { marketView } = await import("../src/lib/market-view.ts");
+const { trackedStocks, sectorBenchmarks, benchmarkTicker } = await import("../src/lib/explore-data.ts");
+
+const all = (value) => Object.fromEntries(exploreRanges.map(range => [range, value]));
+const figures = (ytd) => ({ price: 100, changeAbs: 1, changePct: 1, asOf: null, returns: { ...all(ytd), "1D": 1 } });
+
+test("each stock is measured against its own sector's benchmark", () => {
+  const instruments = { NVDA: figures(30), SOXX: figures(25), QQQ: figures(10), SPY: figures(12) };
+  const market = marketView({ builtAt: "", asOf: null, instruments });
+  const nvda = explorePerformance(market.stock("NVDA"), "YTD");
+  assert.deepEqual(nvda, { stockReturn: 30, benchmarkReturn: 25, gap: 5 });
+  assert.equal(benchmarkTicker(sectorBenchmarks.Semiconductors), "SOXX");
+  assert.equal(benchmarkTicker(sectorBenchmarks.Technology), "QQQ");
 });
 
-test("stocks in the same sector share a benchmark for each period", () => {
-  for (const sector of sectors) {
-    for (const range of exploreRanges) {
-      const baselines = exploreUniverse.filter(stock => stock.sector === sector)
-        .map(stock => explorePerformance(stock, range).benchmarkReturn);
-      assert.deepEqual([...new Set(baselines)], [sectorReturns[sector][range]]);
-    }
-  }
+test("a missing stock or benchmark return means no comparison, not a zero", () => {
+  const market = marketView({ builtAt: "", asOf: null, instruments: { MSFT: figures(13), XOM: figures(5) } });
+  assert.equal(explorePerformance(market.stock("MSFT"), "YTD"), null); // no QQQ
+  assert.equal(explorePerformance(market.stock("AAPL"), "YTD"), null); // no AAPL
 });
 
-test("changing period changes performance without changing the snapshot price", () => {
-  const apple = exploreUniverse.find(stock => stock.ticker === "AAPL");
-  const before = JSON.stringify(apple);
-  assert.deepEqual(explorePerformance(apple, "1D"), { stockReturn: 2.44, benchmarkReturn: 0.62, gap: 1.82 });
-  assert.deepEqual(explorePerformance(apple, "1M"), { stockReturn: 1.8, benchmarkReturn: 2.65, gap: -0.85 });
-  assert.equal(JSON.stringify(apple), before);
+test("every tracked stock appears in the market view, priced or not", () => {
+  const market = marketView({ builtAt: "", asOf: null, instruments: {} });
+  assert.equal(market.stocks.length, trackedStocks.length);
+  assert.ok(market.stocks.every(stock => stock.price === null && stock.returns.YTD === null));
+  assert.deepEqual(market.indices.map(index => index.ticker), ["SPY", "QQQ", "DIA", "IWM"]);
 });
 
-test("negative returns can beat a benchmark and equal returns have a zero gap", () => {
-  const exxon = exploreUniverse.find(stock => stock.ticker === "XOM");
-  const result = explorePerformance(exxon, "1M");
-  assert.ok(result.stockReturn < 0);
-  assert.ok(result.gap > 0);
-  const pfizer = exploreUniverse.find(stock => stock.ticker === "PFE");
-  assert.equal(explorePerformance(pfizer, "1M").gap, 0);
-});
-
-test("a stock without period data is unavailable, never fabricated", () => {
-  const unknown = { ...exploreUniverse[0], ticker: "NEW" };
-  assert.equal(explorePerformance(unknown, "1Y"), null);
-  assert.equal(explorePerformance(unknown, "1D").stockReturn, unknown.changePct);
+test("gaps are rounded to hundredths of a point", () => {
+  const market = marketView({ builtAt: "", asOf: null, instruments: { CAT: figures(10.123), XLI: figures(4.1) } });
+  assert.equal(explorePerformance(market.stock("CAT"), "YTD").gap, 6.02);
 });

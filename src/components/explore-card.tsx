@@ -29,7 +29,7 @@ export function ExploreCard({
   const gapClass = gap === 0 ? styles.neutral : ahead ? styles.positive : styles.negative;
   const gapScale = { "1D": 3, "1W": 5, "1M": 10, YTD: 30, "1Y": 50 }[range];
   const gapWidth = Math.min(Math.abs(gap) / gapScale, 1) * 50;
-  const DayArrow = stock.changePct >= 0 ? ArrowUpRight : ArrowDownRight;
+  const DayArrow = (stock.changePct ?? 0) >= 0 ? ArrowUpRight : ArrowDownRight;
 
   return (
     <article className={styles.card} aria-labelledby={`stock-${stock.ticker}`} data-ticker={stock.ticker}>
@@ -54,12 +54,14 @@ export function ExploreCard({
           {onUndo && <button type="button" className={styles.undo} onClick={onUndo} aria-label={`Undo removing ${stock.ticker} from watchlist`}>Undo</button>}
         </div>
         <div className={styles.quote}>
-          <p className={styles.price}><span>$</span>{formatPrice(stock.price)}</p>
+          <p className={styles.price}>{stock.price === null ? "—" : <><span>$</span>{formatPrice(stock.price)}</>}</p>
           <div className={styles.dayChange}>
-            <span className={stock.changePct >= 0 ? styles.positive : styles.negative}>
-              <DayArrow size={14} aria-hidden="true" />{formatPct(stock.changePct)}
-            </span>
-            <span>today</span>
+            {stock.changePct === null ? <span>No price yet</span> : <>
+              <span className={stock.changePct >= 0 ? styles.positive : styles.negative}>
+                <DayArrow size={14} aria-hidden="true" />{formatPct(stock.changePct)}
+              </span>
+              <span>today</span>
+            </>}
           </div>
         </div>
       </div>

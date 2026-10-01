@@ -10,7 +10,7 @@ export const metadata = {
 export default function ExplorePage() {
   return (
     <>
-      <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" />
+      <SiteHeader active="Explore" />
 
       <main className="page-shell">
         <div>

@@ -3,7 +3,7 @@ import { WatchlistTableSkeleton } from "@/components/skeletons";
 
 export default function WatchlistLoading() {
   return <>
-    <SiteHeader active="Watchlist" asOf="Aug 25 · 15:58 ET" />
+    <SiteHeader active="Watchlist" />
     <main className="page-shell"><WatchlistTableSkeleton /></main>
   </>;
 }

@@ -8,7 +8,7 @@
 - [[undo-stock-removal]] — position-preserving undo for accidental removals.
 - [[loading-states]] — skeletons, pending navigation, and route boundaries ready for real data.
 - [[stock-search-and-price-schedule]] — Twelve Data budget, scheduled refresh of tracked stocks, live-priced search dropdown.
-- [[postgres-prices]] — schema, cron, and the replacement of demo prices; blocked on credentials.
+- [[postgres-prices]] — schema, price snapshot, and real prices and charts on every signed-in page.
 - [[watchlist-comparisons]] — consistent return data and comparison selection from saved stocks.
 - [[saved-watchlist]] — shared browser membership and the existing setup flow, verified as Compare's prerequisite.
 

@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
 import { StockSearch } from "./stock-search";
+import { formatAsOf, useMarket } from "./market-provider";
 import { SectorStockList } from "./sector-stock-list";
 import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
 import { useRemovalUndo } from "./removal-undo";
@@ -12,7 +13,6 @@ import { usePreferencesReady } from "./preferences-provider";
 import { useExplorePeriod } from "./explore-period-provider";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import {
-  exploreUniverse,
   sectors,
   sectorBenchmarks,
   sectorDescriptions,
@@ -28,6 +28,7 @@ export function ExploreView({
 }: {
   category?: Sector;
 }) {
+  const market = useMarket();
   const { range, setRange } = useExplorePeriod();
   const { tickers: added } = useWatchlist();
   const ready = usePreferencesReady();
@@ -36,15 +37,15 @@ export function ExploreView({
   const undo = useRemovalUndo(added);
   const [sort, setSort] = useState("default");
 
-  const stocks = exploreUniverse
+  const stocks = market.stocks
     .filter(stock => !category || stock.sector === category)
     .map(stock => ({ ...stock, performance: explorePerformance(stock, range) }))
     .filter(stock => filter === "all" || (stock.performance && (filter === "ahead" ? stock.performance.gap > 0 : stock.performance.gap < 0)));
 
   if (sort === "gap") stocks.sort((a, b) => (b.performance?.gap ?? -Infinity) - (a.performance?.gap ?? -Infinity));
   if (sort === "return") stocks.sort((a, b) => (b.performance?.stockReturn ?? -Infinity) - (a.performance?.stockReturn ?? -Infinity));
-  if (sort === "price") stocks.sort((a, b) => b.price - a.price);
-  if (sort === "day") stocks.sort((a, b) => b.changePct - a.changePct);
+  if (sort === "price") stocks.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
+  if (sort === "day") stocks.sort((a, b) => (b.changePct ?? -Infinity) - (a.changePct ?? -Infinity));
   if (sort === "company") stocks.sort((a, b) => a.ticker.localeCompare(b.ticker));
 
   const groups = sectors
@@ -121,7 +122,7 @@ export function ExploreView({
             {stocks.length} {stocks.length === 1 ? "stock" : "stocks"}{!category && ` across ${groups.length} ${groups.length === 1 ? "sector" : "sectors"}`}
             {filter !== "all" && <button type="button" onClick={resetFilters}>Clear filters</button>}
           </p>
-          <span>Demo data <span aria-hidden="true">·</span> {range} returns{category ? ` vs. ${sectorBenchmarks[category]}` : " vs. sector benchmarks"}</span>
+          <span>{market.asOf ? `As of ${formatAsOf(market.asOf)}` : "No prices yet"} <span aria-hidden="true">·</span> {range} returns{category ? ` vs. ${sectorBenchmarks[category]}` : " vs. sector benchmarks"}</span>
         </div>
 
         {category ? (

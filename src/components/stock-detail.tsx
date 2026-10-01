@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowUpRight, Check, Plus } from "lucide-react";
-import { benchmarkFor, sectorSlug, type ExploreStock } from "@/lib/explore-data";
+import { benchmarkFor, sectorSlug, type TrackedStock } from "@/lib/explore-data";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import { formatPct, formatPrice } from "@/lib/format";
 import { StockLogo } from "./stock-logo";
@@ -12,6 +12,7 @@ import { useExplorePeriod } from "./explore-period-provider";
 import { usePreferencesReady } from "./preferences-provider";
 import { toggleWatchlistStock, useWatchlist } from "./watchlist-store";
 import { useRemovalUndo } from "./removal-undo";
+import { formatAsOf, useMarket } from "./market-provider";
 import styles from "./stock-detail.module.css";
 
 function direction(value: number) {
@@ -22,7 +23,9 @@ function gapLabel(value: number) {
   return `${value > 0 ? "+" : value < 0 ? "−" : ""}${Math.abs(value).toFixed(2)}`;
 }
 
-export function StockDetail({ stock }: { stock: ExploreStock }) {
+export function StockDetail({ stock: identity }: { stock: TrackedStock }) {
+  const market = useMarket();
+  const stock = market.stock(identity.ticker)!;
   const { range, setRange } = useExplorePeriod();
   const { tickers } = useWatchlist();
   const ready = usePreferencesReady();
@@ -49,7 +52,9 @@ export function StockDetail({ stock }: { stock: ExploreStock }) {
       </button>{undo.pending?.ticker === stock.ticker && <button className={styles.undo} onClick={() => setSaveError(!undo.undo())}>Undo removal</button>}</div>
     </header>
     {saveError && <p role="alert" className={styles.message}>Your browser couldn’t save that change. Allow site storage and try again.</p>}
-    <div className={styles.quote}><strong>${formatPrice(stock.price)}</strong><span className={direction(stock.changePct)}>{formatPct(stock.changePct)}</span><span>today · {stock.currency}</span></div>
+    <div className={styles.quote}>{stock.price === null
+      ? <><strong>—</strong><span>No price yet. The price job adds one within the hour.</span></>
+      : <><strong>${formatPrice(stock.price)}</strong>{stock.changePct !== null && <span className={direction(stock.changePct)}>{formatPct(stock.changePct)}</span>}<span>today · {stock.currency}{market.asOf && ` · as of ${formatAsOf(market.asOf)}`}</span></>}</div>
 
     <section className={`overview-panel ${styles.panel}`} aria-label={`${stock.ticker} performance`}>
       <div className="overview-main">

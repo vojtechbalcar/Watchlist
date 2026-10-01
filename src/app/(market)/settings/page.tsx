@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function SettingsPage() {
   return <>
-    <SiteHeader active="Settings" asOf="Aug 25 · 15:58 ET" />
+    <SiteHeader active="Settings" />
     <main className="page-shell settings-page"><Suspense fallback={<SettingsViewSkeleton />}><SettingsView /></Suspense></main>
   </>;
 }

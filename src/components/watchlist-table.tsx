@@ -28,14 +28,18 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
   const sort = selectedSort?.key ?? (preferences.watchlistSort === "original" ? null : preferences.watchlistSort);
   const ascending = selectedSort?.ascending ?? (preferences.sortDirection === "ascending");
   const live = holdings;
-  const ahead = live.filter(h => h.vsBenchmarkPct > 0).length;
+  const ahead = live.filter(h => (h.vsBenchmarkPct ?? 0) > 0).length;
   const rows = useMemo(() => {
     const result = holdings
-      .filter(h => filter === "All stocks" || (filter === "Ahead" ? h.vsBenchmarkPct > 0 : h.vsBenchmarkPct <= 0))
+      // A stock without a comparison yet is neither ahead nor behind.
+      .filter(h => filter === "All stocks" || (h.vsBenchmarkPct !== null && (filter === "Ahead" ? h.vsBenchmarkPct > 0 : h.vsBenchmarkPct <= 0)))
       .filter(h => (h.ticker + " " + h.name).toLowerCase().includes(query.trim().toLowerCase()));
     if (sort) result.sort((a, b) => {
-      const delta = sort === "ticker" ? a.ticker.localeCompare(b.ticker) : Number(a[sort]) - Number(b[sort]);
-      return ascending ? delta : -delta;
+      if (sort === "ticker") return ascending ? a.ticker.localeCompare(b.ticker) : b.ticker.localeCompare(a.ticker);
+      // Rows without the figure go last in either direction.
+      const [x, y] = [a[sort], b[sort]];
+      if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
+      return ascending ? x - y : y - x;
     });
     return result;
   }, [holdings, filter, query, sort, ascending]);
@@ -64,7 +68,7 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
       <div className="page-heading"><div><p className="eyebrow">YOUR STOCKS, IN PERSPECTIVE</p><h1 className="page-title">Watchlist</h1><p className="mt-3 text-sm text-text-muted">{live.length} stocks · {ahead} ahead of {benchmarkLabel}</p></div><Link href="/explore" className="primary-action">＋ Add stocks</Link></div>}
     <div className="stock-toolbar">
       <div className="stock-tabs" role="tablist" aria-label="Filter stocks">
-        {(["All stocks", "Ahead", "Behind"] as const).map((tab, i) => <button key={tab} role="tab" aria-selected={filter === tab} onClick={() => { dismissUndo(); setFilter(tab); }}>{tab}<span>{[live.length, ahead, live.length - ahead][i]}</span></button>)}
+        {(["All stocks", "Ahead", "Behind"] as const).map((tab, i) => <button key={tab} role="tab" aria-selected={filter === tab} onClick={() => { dismissUndo(); setFilter(tab); }}>{tab}<span>{[live.length, ahead, live.filter(h => h.vsBenchmarkPct !== null && h.vsBenchmarkPct <= 0).length][i]}</span></button>)}
       </div>
       <label className="stock-search"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" /><path d="m13 13 5 5" stroke="currentColor" /></svg><input aria-label="Search stocks" type="search" placeholder="Search stocks" value={query} onChange={e => { dismissUndo(); setQuery(e.target.value); }} /></label>
     </div>
@@ -78,9 +82,11 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
             </tr>
           : <tr key={h.ticker}>
           <th scope="row"><StockLink stock={h} /></th>
-          <td>{formatPrice(h.price)}</td>
-          <td className={h.changePct >= 0 ? "text-up" : "text-down"}>{formatPct(h.changePct)}<small>{h.changeAbs >= 0 ? "+" : "−"}{formatPrice(Math.abs(h.changeAbs))}</small></td>
-          <td className={h.vsBenchmarkPct >= 0 ? "text-up" : "text-down"}><span className="benchmark-cell"><span>{h.vsBenchmarkPct >= 0 ? "+" : "−"}{Math.abs(h.vsBenchmarkPct).toFixed(2)} <small>pp</small></span><span className="gap-bar" aria-hidden="true"><i style={{width: Math.min(Math.abs(h.vsBenchmarkPct) / 2.5 * 50, 50) + "%", left: h.vsBenchmarkPct >= 0 ? "50%" : undefined, right: h.vsBenchmarkPct < 0 ? "50%" : undefined}} /></span></span></td>
+          <td>{h.price === null ? "—" : formatPrice(h.price)}</td>
+          {h.changePct === null ? <td className="text-text-muted">—</td>
+            : <td className={h.changePct >= 0 ? "text-up" : "text-down"}>{formatPct(h.changePct)}{h.changeAbs !== null && <small>{h.changeAbs >= 0 ? "+" : "−"}{formatPrice(Math.abs(h.changeAbs))}</small>}</td>}
+          {h.vsBenchmarkPct === null ? <td className="text-text-muted">—</td>
+            : <td className={h.vsBenchmarkPct >= 0 ? "text-up" : "text-down"}><span className="benchmark-cell"><span>{h.vsBenchmarkPct >= 0 ? "+" : "−"}{Math.abs(h.vsBenchmarkPct).toFixed(2)} <small>pp</small></span><span className="gap-bar" aria-hidden="true"><i style={{width: Math.min(Math.abs(h.vsBenchmarkPct) / 2.5 * 50, 50) + "%", left: h.vsBenchmarkPct >= 0 ? "50%" : undefined, right: h.vsBenchmarkPct < 0 ? "50%" : undefined}} /></span></span></td>}
           {!compact && <td className="pl-4"><button className="text-text-faint hover:text-ink p-2" data-remove={h.ticker} aria-label={"Remove " + h.ticker + " from watchlist"} onClick={() => removeStock(h, rows.indexOf(h))}>×</button></td>}
         </tr>)}
         {rows.length === 0 && !removed && <tr><td colSpan={compact ? 4 : 5} className="!text-center text-text-muted">{live.length === 0 ? "Your watchlist is empty. Explore stocks to get started." : "No stocks match your filters."}</td></tr>}

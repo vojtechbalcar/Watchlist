@@ -5,30 +5,20 @@
 import { config as loadEnv } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { exploreUniverse, sectorBenchmarks, type Sector } from "../src/lib/explore-data.ts";
+import { benchmarkTicker, marketIndexLabels, sectorBenchmarks, trackedStocks, type Sector } from "../src/lib/explore-data.ts";
 
 loadEnv({ path: ".env.local" });
 loadEnv();
 
-/**
- * The app labels benchmarks the way a reader recognises them, but a price API
- * needs a tradeable symbol. Most sector labels are already the ETF's ticker;
- * these two are not.
- */
-const benchmarkSymbols: Record<string, { ticker: string; name: string }> = {
-  NASDAQ: { ticker: "QQQ", name: "NASDAQ" },
-  "S&P 500": { ticker: "SPY", name: "S&P 500" },
-};
-
 function benchmark(label: string) {
-  return benchmarkSymbols[label] ?? { ticker: label, name: label };
+  return { ticker: benchmarkTicker(label), name: label };
 }
 
 async function main() {
   const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
   const prisma = new PrismaClient({ adapter });
 
-  const labels = [...new Set([...Object.values(sectorBenchmarks), "S&P 500"])];
+  const labels = [...new Set([...Object.values(sectorBenchmarks), ...marketIndexLabels])];
   for (const label of labels) {
     const { ticker, name } = benchmark(label);
     await prisma.instrument.upsert({
@@ -38,15 +28,15 @@ async function main() {
     });
   }
 
-  for (const stock of exploreUniverse) {
-    const benchmarkTicker = benchmark(sectorBenchmarks[stock.sector as Sector]).ticker;
+  for (const stock of trackedStocks) {
+    const measuredAgainst = benchmark(sectorBenchmarks[stock.sector as Sector]).ticker;
     const identity = {
       name: stock.name,
       kind: "STOCK" as const,
       sector: stock.sector,
       currency: stock.currency,
       logoSrc: stock.logoSrc,
-      benchmarkTicker,
+      benchmarkTicker: measuredAgainst,
     };
     await prisma.instrument.upsert({
       where: { ticker: stock.ticker },

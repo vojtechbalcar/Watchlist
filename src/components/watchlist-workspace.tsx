@@ -10,6 +10,7 @@ import { watchlistRows } from "@/lib/watchlist-catalog";
 import { WatchlistSetup } from "./watchlist-setup";
 import { WatchlistTable } from "./watchlist-table";
 import { OverviewCard } from "./overview-card";
+import { useMarket } from "./market-provider";
 import { OverviewCardSkeleton, PageHeadingSkeleton, WatchlistTableSkeleton } from "./skeletons";
 import styles from "./watchlist-setup.module.css";
 
@@ -28,7 +29,8 @@ function ReadyWorkspace({ state, dashboard }: { state: WatchlistState; dashboard
   const [focusSetup, setFocusSetup] = useState(false);
   const [restartError, setRestartError] = useState(false);
   const [created, setCreated] = useState(false);
-  const rows = watchlistRows(state.tickers);
+  const market = useMarket();
+  const rows = watchlistRows(market.stocks, state.tickers, "YTD", market.benchmark.returnByRange);
 
   // A successful completion in another tab closes an older editor too.
   if (editing && rows.length && !state.setupDraft) setEditing(false);
@@ -77,6 +79,6 @@ function ReadyWorkspace({ state, dashboard }: { state: WatchlistState; dashboard
       <div className="page-heading"><div><p className="eyebrow">Your market at a glance</p><h1 className="page-title">Overview</h1></div><div className="page-actions"><Link href="/compare">Compare stocks &nbsp; ↗</Link><Link href="/explore" className="primary-action">＋ Add stocks</Link></div></div>
       <OverviewCard holdings={rows} />
     </>}
-    <div className={dashboard ? "mt-10" : undefined}><WatchlistTable holdings={rows} benchmarkLabel="S&P 500" compact={dashboard} initialFilter={created ? "All stocks" : undefined} /></div>
+    <div className={dashboard ? "mt-10" : undefined}><WatchlistTable holdings={rows} benchmarkLabel={market.benchmark.label} compact={dashboard} initialFilter={created ? "All stocks" : undefined} /></div>
   </>;
 }

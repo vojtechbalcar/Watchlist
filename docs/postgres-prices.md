@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-09-21
+updated: 2026-10-01
 status: current
 ---
 
@@ -88,3 +88,41 @@ a client component, which the project's hard rules forbid outright.
 ## Verification
 
 Pending.
+
+## Real prices on every page (2026-10-01)
+
+Done. With the Twelve Data key set, the price job stores closes and quotes
+(see [[stock-search-and-price-schedule]]), and the signed-in pages no longer
+read the demo snapshot.
+
+- **One snapshot per page view.** After any run that stored closes or quotes,
+  `src/lib/market-build.ts` computes every tracked instrument's price, day
+  change, and 1D–1Y returns into the `market` Snapshot row (about 9 KB). The
+  `(market)` layout reads that one row and passes it down through
+  `MarketProvider`. Pages use `useMarket()`; nothing reads 23,000 closes per
+  request.
+- **Returns end at the live price.** The latest quote replaces or extends
+  today's close (`withLivePrice`), so YTD during market hours runs to now. 1D
+  uses the exchange's own day change.
+- **Charts draw real lines.** The overview and Compare charts were made-up
+  curves scaled to fixed endpoints, with hardcoded dates. Now they draw
+  cumulative-return lines from the `market-series` snapshot: at most 60 points
+  per instrument and period, about 125 KB, loaded once per page by
+  `/api/market/series`. Lines are aligned on the S&P 500's trading days
+  (`src/lib/chart-series.ts`), and the overview line is the equal-weight
+  average of the watchlist's stocks.
+- **Honest gaps.** `ExploreStock` and `Holding` figures are nullable. A stock
+  without data shows "—", keeps its row, and is left out of averages and
+  ahead/behind counts instead of counting as zero.
+- **The catalog is identity only.** `trackedStocks` in `explore-data.ts` holds
+  ticker, name, sector, and logo; the seed creates Instrument rows from it.
+- **Market bar.** S&P 500, NASDAQ, Dow Jones, and Russell 2000 are shown
+  through their ETFs (SPY, QQQ, DIA, IWM), with the ETF price labelled as
+  such. DIA and IWM were added as benchmarks by a data migration.
+- **The landing page stays illustrative.** Its tour uses `landing-demo.ts`,
+  the old fixtures kept for the signed-out marketing illustration.
+
+Checked against real data: AAPL YTD +22.50% matches the untracked-page
+computation from its own closes. SOXX YTD +88.8% looked wrong, so its
+closes were checked for an unadjusted split. There is none; the only large
+daily move is the 2025-04-09 rally, which NVDA and QQQ show too.

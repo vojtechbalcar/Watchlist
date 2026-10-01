@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Search, X } from "lucide-react";
-import { exploreUniverse, sectors, sectorDescriptions, type Sector } from "@/lib/explore-data";
+import { sectors, sectorDescriptions, type Sector } from "@/lib/explore-data";
 import { watchlistRows } from "@/lib/watchlist-catalog";
-import { compareBenchmark } from "@/lib/compare-data";
+import { formatAsOf, useMarket } from "./market-provider";
 import { formatPct, formatPrice } from "@/lib/format";
 import { emptySetupDraft, withoutTicker, withTickerAt, type SetupDraft } from "@/lib/watchlist-state";
 import { completeWatchlistSetup, dismissWatchlistSetup, saveSetupDraft } from "./watchlist-store";
@@ -43,14 +43,15 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     title.current?.focus();
   }, [step, focusOnMount]);
 
-  const stocks = exploreUniverse.filter(stock => !interests.length || interests.includes(stock.sector))
+  const market = useMarket();
+  const stocks = market.stocks.filter(stock => !interests.length || interests.includes(stock.sector))
     .filter(stock => `${stock.ticker} ${stock.name}`.toLowerCase().includes(query.trim().toLowerCase()));
   // A removed chip holds its place until the user undoes it, re-picks the stock, or moves on.
   const pendingRemoval = pendingChip && !selected.includes(pendingChip.ticker) ? pendingChip : null;
-  const chosen = exploreUniverse.filter(stock => selected.includes(stock.ticker) || pendingRemoval?.ticker === stock.ticker);
-  const example = watchlistRows([selected[0] ?? "MSFT"])[0];
-  const benchmarkReturn = compareBenchmark.returnByRange.YTD;
-  const returnPct = benchmarkReturn + example.vsBenchmarkPct;
+  const chosen = market.stocks.filter(stock => selected.includes(stock.ticker) || pendingRemoval?.ticker === stock.ticker);
+  const example = watchlistRows(market.stocks, [selected[0] ?? "MSFT"], "YTD", market.benchmark.returnByRange)[0];
+  const benchmarkReturn = market.benchmark.returnByRange.YTD;
+  const returnPct = example.returnPct;
   const gap = example.vsBenchmarkPct;
 
   function persistDraft(next: SetupDraft) {
@@ -104,14 +105,14 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
 
         {step === 1 && <>
           <div className={styles.stockToolbar}><label className={styles.search}><Search size={15} aria-hidden="true" /><input type="search" aria-label="Search stocks for your watchlist" placeholder="Search a company or symbol" value={query} onChange={event => setQuery(event.target.value)} /></label><span>{interests.length ? `${interests.length} ${interests.length === 1 ? "sector" : "sectors"}` : "All sectors"}{interests.length > 0 && <button onClick={() => updateDraft({ interests: [] })}>Browse all</button>}</span></div>
-          <fieldset className={styles.stockPicker}><legend className="sr-only">Choose stocks for your watchlist</legend>{stocks.map(stock => <label key={stock.ticker} className={styles.stockOption} data-selected={selected.includes(stock.ticker)}><input type="checkbox" className="sr-only" aria-label={`${stock.ticker} · ${stock.name}`} checked={selected.includes(stock.ticker)} onChange={() => toggleStock(stock.ticker)} /><StockLogo stock={stock} /><span className={styles.stockName}><strong>{stock.ticker}</strong><small>{stock.name}</small></span><span className={styles.stockPrice}>${formatPrice(stock.price)}</span><span className={styles.checkBox} aria-hidden="true">{selected.includes(stock.ticker) && <Check size={12} />}</span></label>)}</fieldset>
+          <fieldset className={styles.stockPicker}><legend className="sr-only">Choose stocks for your watchlist</legend>{stocks.map(stock => <label key={stock.ticker} className={styles.stockOption} data-selected={selected.includes(stock.ticker)}><input type="checkbox" className="sr-only" aria-label={`${stock.ticker} · ${stock.name}`} checked={selected.includes(stock.ticker)} onChange={() => toggleStock(stock.ticker)} /><StockLogo stock={stock} /><span className={styles.stockName}><strong>{stock.ticker}</strong><small>{stock.name}</small></span><span className={styles.stockPrice}>{stock.price === null ? "—" : `$${formatPrice(stock.price)}`}</span><span className={styles.checkBox} aria-hidden="true">{selected.includes(stock.ticker) && <Check size={12} />}</span></label>)}</fieldset>
           {stocks.length === 0 && <div className={styles.noResults}><p>No companies match this search.</p><button onClick={() => { setQuery(""); updateDraft({ interests: [] }); }}>Browse all stocks</button></div>}
-          <p className={styles.snapshot}>Illustrative stock prices · USD · Aug 25 snapshot</p>
+          <p className={styles.snapshot}>{market.asOf ? `Prices in USD · as of ${formatAsOf(market.asOf)}` : "Prices in USD · not loaded yet"}</p>
         </>}
 
         {step === 2 && <div className={styles.review}>
           <div className={styles.benchmarkIntro}><span className={styles.benchmarkMark}>S&P</span><div><h3>S&P 500</h3><p>Your watchlist’s broad-market reference. It gives each stock’s return something to measure up to.</p></div><span className="period-tag">YTD</span></div>
-          <div className={styles.comparison}><div className={styles.comparisonHeading}><span>One of your stocks, in context</span><span>Year to date</span></div><div className={styles.exampleStock}><StockLogo stock={example} /><span><strong>{example.ticker}</strong><small>{example.name}</small></span></div><dl><div><dt>{example.ticker} return</dt><dd>{formatPct(returnPct)}</dd></div><div><dt>S&P 500 return</dt><dd>{formatPct(benchmarkReturn)}</dd></div><div><dt>Difference</dt><dd className={gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap > 0 ? "+" : gap < 0 ? "−" : ""}{Math.abs(gap).toFixed(2)} <small>pp</small></dd></div></dl><p>{gap === 0 ? `${example.ticker} is in line with the S&P 500.` : `${example.ticker} is ${Math.abs(gap).toFixed(2)} percentage points ${gap > 0 ? "ahead of" : "behind"} the S&P 500.`} That’s the context a price alone can’t give you.</p></div>
+          <div className={styles.comparison}><div className={styles.comparisonHeading}><span>One of your stocks, in context</span><span>Year to date</span></div><div className={styles.exampleStock}><StockLogo stock={example} /><span><strong>{example.ticker}</strong><small>{example.name}</small></span></div><dl><div><dt>{example.ticker} return</dt><dd>{returnPct === null ? "—" : formatPct(returnPct)}</dd></div><div><dt>S&P 500 return</dt><dd>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</dd></div><div><dt>Difference</dt><dd className={gap === null ? undefined : gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === null ? "—" : <>{gap > 0 ? "+" : gap < 0 ? "−" : ""}{Math.abs(gap).toFixed(2)} <small>pp</small></>}</dd></div></dl><p>{gap === null ? `${example.ticker}’s comparison appears once its prices are in.` : gap === 0 ? `${example.ticker} is in line with the S&P 500.` : `${example.ticker} is ${Math.abs(gap).toFixed(2)} percentage points ${gap > 0 ? "ahead of" : "behind"} the S&P 500.`} That’s the context a price alone can’t give you.</p></div>
           <p className={styles.reviewNote}>Your watchlist starts with year-to-date comparisons. In Explore, each company is compared with its own sector benchmark. You can choose other periods there.</p>
         </div>}
 
@@ -123,8 +124,8 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
         <p className="eyebrow">Your starting point</p><h2>{selected.length ? `${selected.length} ${selected.length === 1 ? "company" : "companies"} to watch.` : "Curiosity comes first."}</h2><p>{selected.length ? "A watchlist follows companies you’re interested in. You don’t need to own their shares." : "You don’t need to know everything about the market. Start with a company you want to understand."}</p>
         {chosen.length > 0 ? <><div className={styles.chosen}>{chosen.map(stock => <span key={stock.ticker} data-removed={pendingRemoval?.ticker === stock.ticker || undefined}>{stock.ticker}{pendingRemoval?.ticker === stock.ticker
           ? <button className={styles.chipUndo} aria-label={`Undo removing ${stock.ticker} from selection`} onClick={undoChip}>Undo</button>
-          : step !== 2 && <button aria-label={`Remove ${stock.ticker} from selection`} onClick={() => removeChip(stock.ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>+13.21%</strong></div><div><span>Market return</span><strong>+14.60%</strong></div><p className="text-down">−1.39 pp behind the market</p><small>Illustrative example · MSFT vs. S&P 500, YTD</small></div>}
-        <div className={styles.storageNote}><span>Made for watching.</span><p>Return to setup whenever you’re ready. We save your progress in this browser when storage is available. All figures are demo data.</p></div>
+          : step !== 2 && <button aria-label={`Remove ${stock.ticker} from selection`} onClick={() => removeChip(stock.ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>{returnPct === null ? "—" : formatPct(returnPct)}</strong></div><div><span>Market return</span><strong>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</strong></div>{gap !== null && <p className={gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === 0 ? "In line with the market" : `${gap > 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)} pp ${gap > 0 ? "ahead of" : "behind"} the market`}</p>}<small>For example · {example.ticker} vs. S&P 500, YTD</small></div>}
+        <div className={styles.storageNote}><span>Made for watching.</span><p>Return to setup whenever you’re ready. We save your progress in this browser when storage is available.</p></div>
       </aside>
     </div>
     <p className="sr-only" role="status" aria-live="polite">{selected.length} stocks selected.</p>

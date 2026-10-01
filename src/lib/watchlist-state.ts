@@ -81,13 +81,18 @@ export function completeSetupState(state: WatchlistState, tickers: string[], ava
   };
 }
 
-export function watchlistSummary(rows: Holding[], benchmarkReturn: number) {
-  const leadPct = rows.length ? rows.reduce((sum, row) => sum + row.vsBenchmarkPct, 0) / rows.length : 0;
+/**
+ * Equal-weight figures for the overview. Stocks without a return yet are left
+ * out of the average and the counts rather than counted as zero.
+ */
+export function watchlistSummary(rows: (Holding & { returnPct: number | null })[], benchmarkReturn: number | null) {
+  const priced = rows.filter(row => row.returnPct !== null && row.vsBenchmarkPct !== null);
+  const average = (values: number[]) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
   return {
-    total: rows.length,
-    beating: rows.filter(row => row.vsBenchmarkPct > 0).length,
-    behind: rows.filter(row => row.vsBenchmarkPct < 0).length,
-    leadPct,
-    watchlistPct: rows.length ? benchmarkReturn + leadPct : 0,
+    total: priced.length,
+    beating: priced.filter(row => row.vsBenchmarkPct! > 0).length,
+    behind: priced.filter(row => row.vsBenchmarkPct! < 0).length,
+    leadPct: average(priced.map(row => row.vsBenchmarkPct!)),
+    watchlistPct: benchmarkReturn === null ? null : average(priced.map(row => row.returnPct!)),
   };
 }

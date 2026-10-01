@@ -8,12 +8,13 @@ import { useWatchlist } from "./watchlist-store";
 import { StockLink } from "./stock-link";
 import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
-import { exploreUniverse } from "@/lib/explore-data";
-import { compareBenchmark, compareColors, compareRanges, compareRows, type CompareRange } from "@/lib/compare-data";
+import { compareColors, compareRanges, compareRows, type CompareRange } from "@/lib/compare-data";
+import { useMarket } from "./market-provider";
 import { addComparisonStock, comparisonLimit, initialComparison, reconcileComparison } from "@/lib/compare-selection";
 import styles from "./compare-view.module.css";
 
-function Gap({ value }: { value: number }) {
+function Gap({ value }: { value: number | null }) {
+  if (value === null) return <span className="text-text-faint">—</span>;
   return <span className={value > 0 ? "text-up" : value < 0 ? "text-down" : "text-text-secondary"}>
     {value > 0 ? "+" : value < 0 ? "−" : ""}{Math.abs(value).toFixed(2)} <small>pp</small>
   </span>;
@@ -37,6 +38,8 @@ export function CompareView() {
 }
 
 function SavedComparison({ tickers }: { tickers: string[] }) {
+  const market = useMarket();
+  const compareBenchmark = market.benchmark;
   const preferences = usePreferences();
   const [selectedRange, setRange] = useState<CompareRange | null>(null);
   const range = selectedRange ?? preferences.compareRange;
@@ -48,13 +51,15 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
 
   const selected = active.map(item => item.ticker);
   const slots = Object.fromEntries(active.map(item => [item.ticker, item.colorSlot]));
-  const rows = compareRows(range, selected, slots);
+  // Stocks without a return for this period sit out, and the notice below names them.
+  const rows = compareRows(market.stocks, range, selected, compareBenchmark.returnByRange, slots).filter((row): row is typeof row & { returnPct: number } => row.returnPct !== null);
   const ranked = [...rows].sort((a, b) => b.returnPct - a.returnPct);
-  const available = exploreUniverse.filter(stock => tickers.includes(stock.ticker) && !selected.includes(stock.ticker));
+  const available = market.stocks.filter(stock => tickers.includes(stock.ticker) && !selected.includes(stock.ticker));
   const unavailable = selected.filter(ticker => !rows.some(row => row.series.ticker === ticker));
-  const beating = rows.filter(row => row.vsBenchmarkPct > 0).length;
-  const behind = rows.filter(row => row.vsBenchmarkPct < 0).length;
+  const beating = rows.filter(row => (row.vsBenchmarkPct ?? 0) > 0).length;
+  const behind = rows.filter(row => (row.vsBenchmarkPct ?? 0) < 0).length;
   const neutral = rows.length - beating - behind;
+  const benchmarkReturn = compareBenchmark.returnByRange[range];
   const full = active.length >= comparisonLimit;
 
   function removeStock(ticker: string) {
@@ -106,13 +111,13 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
             <dd>{formatPct(row.returnPct)}</dd><small><Gap value={row.vsBenchmarkPct} /> vs. market</small>
           </div>)}</dl>
           <CompareChart rows={rows} benchmarkLabel={compareBenchmark.label} range={range} />
-          <div className="chart-caption"><span><span className="text-chart-benchmark">┄</span> {compareBenchmark.label} <span className="ml-2">{formatPct(compareBenchmark.returnByRange[range])}</span></span><span>Illustrative returns · {range}</span></div>
+          <div className="chart-caption"><span><span className="text-chart-benchmark">┄</span> {compareBenchmark.label} <span className="ml-2">{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</span></span><span>Daily closes · {range}</span></div>
         </div>
         <aside className="overview-aside compare-aside">
           <div>
             <div className="aside-heading"><h3>Beating the benchmark</h3><span className="period-tag">{range}</span></div>
             <div className="beating-count"><strong>{beating}</strong><span>/ {rows.length}</span><small>stocks ahead</small></div>
-            <div className="beating-bars" aria-hidden="true">{rows.map(row => <i key={row.series.ticker} style={{ background: row.vsBenchmarkPct > 0 ? "var(--color-up)" : row.vsBenchmarkPct < 0 ? "var(--color-down)" : "var(--color-text-faint)" }} />)}</div>
+            <div className="beating-bars" aria-hidden="true">{rows.map(row => <i key={row.series.ticker} style={{ background: (row.vsBenchmarkPct ?? 0) > 0 ? "var(--color-up)" : (row.vsBenchmarkPct ?? 0) < 0 ? "var(--color-down)" : "var(--color-text-faint)" }} />)}</div>
             <div className={`beating-key ${styles.key}`}><span>• {beating} ahead</span><span>• {behind} behind</span>{neutral > 0 && <span>• {neutral} in line</span>}</div>
           </div>
           <div className="comparison-ranking">
@@ -131,7 +136,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           <tbody>{rows.map(row => <tr key={row.series.ticker}>
             <th scope="row"><StockLink stock={row.holding} /></th>
             <td>{formatPct(row.returnPct)}</td><td><Gap value={row.vsBenchmarkPct} /></td>
-            {rows.map(peer => <td key={peer.series.ticker}>{row.vsPeers[peer.series.ticker] === null ? <span className="text-text-faint" aria-label="Same stock">—</span> : <Gap value={row.vsPeers[peer.series.ticker]!} />}</td>)}
+            {rows.map(peer => <td key={peer.series.ticker}>{peer.series.ticker === row.series.ticker ? <span className="text-text-faint" aria-label="Same stock">—</span> : <Gap value={row.vsPeers[peer.series.ticker]} />}</td>)}
           </tr>)}</tbody>
         </table></div>
         <div className="stock-table-footer"><span>Compared with {compareBenchmark.label}</span><span>Differences in percentage points</span></div>

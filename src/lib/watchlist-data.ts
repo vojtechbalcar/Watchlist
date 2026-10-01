@@ -1,20 +1,15 @@
 import type { Direction } from "./format";
 
-export type MarketIndex = {
-  label: string;
-  value: string;
-  changePct: number;
-};
-
+/** A watchlist row. Figures are null until the price job has data for the stock. */
 export type Holding = {
   ticker: string;
   name: string;
-  price: number;
+  price: number | null;
   currency: string;
-  changeAbs: number;
-  changePct: number;
+  changeAbs: number | null;
+  changePct: number | null;
   /** Lead (+) or lag (-) against the benchmark over the selected range. */
-  vsBenchmarkPct: number;
+  vsBenchmarkPct: number | null;
   logoSrc: string | null;
 };
 
@@ -44,20 +39,11 @@ export type OverviewSummary = {
 };
 
 /* ---------------------------------------------------------------------------
- * PLACEHOLDER DATA.
+ * ILLUSTRATIONS FOR THE LANDING PAGE ONLY.
  *
- * Per CLAUDE.md, price data must come from Postgres and only the cron job may
- * call the stock API. Nothing here touches a data source yet — this module is
- * the single seam to replace once the schema exists, so no component needs to
- * change when it does.
+ * `overview` and `holdings` are fixed example figures for the signed-out
+ * product tour. Signed-in pages read the market snapshot instead.
  * ------------------------------------------------------------------------- */
-
-export const marketIndices: MarketIndex[] = [
-  { label: "S&P 500", value: "5,594.22", changePct: 2.31 },
-  { label: "NASDAQ", value: "19,842.10", changePct: 1.98 },
-  { label: "DOW", value: "41,280.40", changePct: 0.4 },
-  { label: "RUSSELL", value: "2,284.59", changePct: -1.2 },
-];
 
 export const overview: OverviewSummary = {
   benchmarkLabel: "S&P 500",

@@ -182,8 +182,5 @@ stocks' stored prices only.
 
 ## Open
 
-- Explore cards, the watchlist, and Compare still read the demo snapshot.
-  Switching their reads to the stored quotes and closes is the next step from
-  [[postgres-prices]].
 - Market holidays aren't modelled. The job still refreshes quotes on a
   holiday, which wastes credits but doesn't break anything.

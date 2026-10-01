@@ -32,6 +32,6 @@ export function StockReturnChart({ stock, range }: { stock: ExploreStock; range:
         </g>;
       })}
     </svg>
-    <figcaption className="chart-caption"><span>Returns by period · {stock.currency}</span><span>Sample returns</span></figcaption>
+    <figcaption className="chart-caption"><span>Returns by period · {stock.currency}</span><span>From stored daily closes</span></figcaption>
   </figure>;
 }

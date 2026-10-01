@@ -3,7 +3,7 @@ import { MarketBarSkeleton, OverviewCardSkeleton, PageHeadingSkeleton, Watchlist
 
 export default function DashboardLoading() {
   return <>
-    <SiteHeader active="Dashboard" asOf="Aug 25 · 15:58 ET" />
+    <SiteHeader active="Dashboard" />
     <MarketBarSkeleton />
     <main className="page-shell">
       <PageHeadingSkeleton />

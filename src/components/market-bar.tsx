@@ -1,7 +1,11 @@
-import { formatPct, directionOf } from "@/lib/format";
-import type { MarketIndex } from "@/lib/watchlist-data";
+"use client";
 
-export function MarketBar({ indices }: { indices: MarketIndex[] }) {
+import { formatPct, formatPrice, directionOf } from "@/lib/format";
+import { useMarket } from "./market-provider";
+
+/** The broad market at a glance, through the ETFs that track each index. */
+export function MarketBar() {
+  const { indices } = useMarket();
   return (
     <div className="market-summary-bar h-marketbar border-b border-line bg-surface-sunken">
       <div className="mx-auto flex h-full max-w-(--container-page) items-center px-8">
@@ -11,7 +15,7 @@ export function MarketBar({ indices }: { indices: MarketIndex[] }) {
 
         <dl className="flex h-[28px] min-w-0 flex-1 items-center justify-between overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {indices.map((index) => {
-            const direction = directionOf(index.changePct);
+            const direction = index.changePct === null ? null : directionOf(index.changePct);
             return (
               <div
                 key={index.label}
@@ -20,16 +24,16 @@ export function MarketBar({ indices }: { indices: MarketIndex[] }) {
                 <dt className="font-data text-base font-semibold tracking-ticker text-text-ticker">
                   {index.label}
                 </dt>
-                <dd className="font-data text-base tracking-ticker text-text-numeric">
-                  {index.value}
+                <dd className="font-data text-base tracking-ticker text-text-numeric" title={`Through the ${index.ticker} ETF`}>
+                  {index.price === null ? "—" : `${index.ticker} ${formatPrice(index.price)}`}
                 </dd>
                 <dd
                   className={[
                     "font-data text-base font-semibold tracking-ticker",
-                    direction === "up" ? "text-up" : "text-down",
+                    direction === null ? "text-text-muted" : direction === "up" ? "text-up" : "text-down",
                   ].join(" ")}
                 >
-                  {formatPct(index.changePct)}
+                  {index.changePct === null ? "—" : formatPct(index.changePct)}
                 </dd>
               </div>
             );

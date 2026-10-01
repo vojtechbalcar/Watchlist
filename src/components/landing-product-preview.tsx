@@ -1,6 +1,7 @@
 import { Search, Plus, Check, ArrowUpRight } from "lucide-react";
 import { holdings, overview } from "@/lib/watchlist-data";
-import { compareRows, compareBenchmark } from "@/lib/compare-data";
+import { compareRows } from "@/lib/compare-data";
+import { landingBenchmark as compareBenchmark, landingStocks } from "@/lib/landing-demo";
 import { landingComparison } from "@/lib/landing-comparison";
 import { formatPct } from "@/lib/format";
 import styles from "./landing-app-tour.module.css";
@@ -8,10 +9,12 @@ import styles from "./landing-app-tour.module.css";
 export type PreviewPage = "dashboard" | "watchlist" | "compare" | "explore";
 
 const sampleStocks = ["NVDA", "AAPL", "MSFT"].map((ticker) => holdings.find((stock) => stock.ticker === ticker)!);
-const sampleComparison = compareRows("YTD", ["NVDA", "MSFT"]);
+const sampleComparison = compareRows(landingStocks, "YTD", ["NVDA", "MSFT"], compareBenchmark.returnByRange);
 // The two illustrations share one YTD benchmark so switching views stays coherent.
 const overviewBenchmark = compareBenchmark.returnByRange.YTD;
 const overviewGap = Math.round((overview.watchlistPct - overviewBenchmark) * 100) / 100;
+// The tour's fixtures always have figures; the types allow gaps because live rows can.
+const gapOf = (stock: { vsBenchmarkPct: number | null }) => stock.vsBenchmarkPct ?? 0;
 const signedGap = (value: number) => `${value < 0 ? "−" : "+"}${Math.abs(value).toFixed(2)}`;
 
 /** Deliberately simplified product illustrations, using the existing demo values. */
@@ -35,7 +38,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
           {sampleStocks.map((stock, index) => <div className={styles.stockRow} key={stock.ticker}>
             <span className={`${styles.stockMonogram} ${index === 0 ? styles.selectedMonogram : ""}`}>{stock.ticker.slice(0, 1)}</span>
             <span className={styles.stockName}><strong>{stock.ticker}</strong><small>{stock.name.replace(/ (Corp|Inc\.).*$/, "")}</small></span>
-            <span className={stock.vsBenchmarkPct >= 0 ? styles.up : styles.down}>{signedGap(stock.vsBenchmarkPct)} <small>pp</small><small className={styles.gapLabel}>{stock.vsBenchmarkPct >= 0 ? "Ahead" : "Behind"}</small></span>
+            <span className={gapOf(stock) >= 0 ? styles.up : styles.down}>{signedGap(gapOf(stock))} <small>pp</small><small className={styles.gapLabel}>{gapOf(stock) >= 0 ? "Ahead" : "Behind"}</small></span>
           </div>)}
         </div>
         <div className={styles.previewBottom}><span>More than a price change.</span><ArrowUpRight size={16} /></div>
@@ -46,7 +49,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
         <div className={styles.seriesLegend}><span><i />NVDA</span><span><i />MSFT</span><span><i />S&amp;P 500</span></div>
         <MiniChart compare />
         <div className={styles.compareReturns}>
-          {sampleComparison.map((row) => <div key={row.series.ticker}><span>{row.series.ticker}</span><strong>{formatPct(row.returnPct, 1)}</strong></div>)}
+          {sampleComparison.map((row) => <div key={row.series.ticker}><span>{row.series.ticker}</span><strong>{formatPct(row.returnPct ?? 0, 1)}</strong></div>)}
           <div><span>S&amp;P 500</span><strong>{formatPct(compareBenchmark.returnByRange.YTD, 1)}</strong></div>
         </div>
       </>}
@@ -69,7 +72,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
 
 function MiniChart({ compare = false }: { compare?: boolean }) {
   const totals = compare
-    ? [...sampleComparison.map(row => row.returnPct), compareBenchmark.returnByRange.YTD]
+    ? [...sampleComparison.map(row => row.returnPct ?? 0), compareBenchmark.returnByRange.YTD]
     : [overview.watchlistPct, overviewBenchmark];
   const max = compare ? 45 : 18;
   const paths = totals.map((total, index) => {

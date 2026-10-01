@@ -14,12 +14,12 @@ function shift(ymd: string, { days = 0, months = 0, years = 0 }) {
 }
 
 /**
- * Percent return from the period's starting close to the close on `end` (or
- * the latest before it). The start is the last close on or before the date the
- * period reaches back to: the previous session for 1D, the last close of the
- * prior year for YTD. Null when the history doesn't reach that far.
+ * The closes a period spans, from its starting close to the close on `end`
+ * (or the latest before it). The start is the last close on or before the date
+ * the period reaches back to: the previous session for 1D, the last close of
+ * the prior year for YTD. Null when the history doesn't reach that far.
  */
-export function periodReturn(closes: DatedClose[], period: Period, end?: string): number | null {
+export function periodWindow(closes: DatedClose[], period: Period, end?: string): DatedClose[] | null {
   const upTo = end ? closes.filter(row => row.date <= end) : closes;
   const last = upTo.at(-1);
   if (!last) return null;
@@ -31,9 +31,15 @@ export function periodReturn(closes: DatedClose[], period: Period, end?: string)
     "1Y": shift(last.date, { years: -1 }),
   }[period];
   const earlier = upTo.slice(0, -1);
-  const start = startDate === null ? earlier.at(-1) : earlier.filter(row => row.date <= startDate).at(-1);
-  if (!start || start.close === 0) return null;
-  return (last.close / start.close - 1) * 100;
+  const startAt = startDate === null ? earlier.length - 1 : earlier.findLastIndex(row => row.date <= startDate);
+  if (startAt < 0 || upTo[startAt].close === 0) return null;
+  return upTo.slice(startAt);
+}
+
+/** Percent return over the period; see periodWindow. */
+export function periodReturn(closes: DatedClose[], period: Period, end?: string): number | null {
+  const window = periodWindow(closes, period, end);
+  return window ? (window.at(-1)!.close / window[0].close - 1) * 100 : null;
 }
 
 /** Stored as [["YYYY-MM-DD", close], …]; anything malformed is dropped. */

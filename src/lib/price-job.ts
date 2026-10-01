@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { pruneUsage, reserveCredits } from "@/lib/api-budget";
 import { classifySectors, syncCiks } from "@/lib/sector-job";
 import { rebuildDirectory } from "@/lib/stock-directory";
+import { buildMarket } from "@/lib/market-build";
 import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, latestSettledSession, quotesDue, symbolSyncDue, type TrackedState } from "@/lib/price-schedule";
 import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured } from "@/lib/twelve-data";
 
@@ -79,5 +80,7 @@ export async function runPriceJob(db: PrismaClient, now = new Date()) {
     report.quotes.push(quote.symbol);
   }
 
+  // Every page reads the market from one stored snapshot; refresh it whenever its inputs moved.
+  if (report.closes.length || report.quotes.length) await buildMarket(db, now);
   return report;
 }

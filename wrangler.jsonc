@@ -1,12 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "watchlist",
-  "main": ".open-next/worker.js",
+  "main": "custom-worker.ts",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  // The price job; see src/lib/price-job.ts.
+  "triggers": {
+    "crons": ["*/5 * * * *"]
   },
   // `pnpm run build` produces .open-next; `wrangler deploy` hands off to `opennextjs-cloudflare deploy`.
   "observability": {

@@ -3,7 +3,7 @@ import { ExploreViewSkeleton } from "@/components/skeletons";
 
 export default function SectorLoading() {
   return <>
-    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" initials="JR" />
+    <SiteHeader active="Explore" asOf="Aug 25 · 15:58 ET" />
     <main className="page-shell"><div><ExploreViewSkeleton /></div></main>
   </>;
 }

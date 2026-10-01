@@ -55,17 +55,78 @@ The Worker upload is about 3.9 MB gzipped (the Next server bundle plus Prisma's 
 
 The Worker needs `DATABASE_URL` and `AUTH_SECRET` set as Cloudflare secrets.
 
-## Follow-up: production login fails with CallbackRouteError (2026-10-01)
+## Production runtime failures (2026-09-30)
 
-**Symptom.** `POST /login` on usewatchlist.dev logged `[auth][error] CallbackRouteError` plus a bare minified stack; the form showed "We couldn't sign you in". Local `wrangler dev` logins worked.
+Both appeared only in the deployed Worker. Everything in the verification
+section below had passed, because all of it ran somewhere the deployed Worker
+is not.
 
-**Cause.** `authorize()` threw because the deployed Worker has no `DATABASE_URL`. With no connection string `pg` dials localhost, which workerd reports as `proxy request failed, cannot connect to the specified address`; Auth.js wraps any throw in `authorize` as `CallbackRouteError`. It never showed up locally because **OpenNext bakes `.env*` files, including `.env.local`, into `.open-next/cloudflare/next-env.mjs` at build time.** Every local build therefore carried the database URL, even with it removed from `.dev.vars`. Cloudflare's git build has no `.env.local`, so production depends on the Worker's own secrets.
+### Login redirected to a 500 with no message
 
-**Fix.** `getDb()` now throws `DATABASE_URL is not set` instead of falling through to localhost. Set the secret on the Worker the logs actually name, which is **`gowatchlist`**, not the `watchlist` in `wrangler.jsonc`: Dashboard → Workers → gowatchlist → Settings → Variables and Secrets, or `npx wrangler secret put DATABASE_URL --name gowatchlist`. Use the direct `postgres://…@db.prisma.io` URL, not `PRISMA_DATABASE_URL` (Accelerate), which `pg` can't use. `AUTH_SECRET` belongs there too.
+`POST /login` answered with `x-action-redirect:
+…/api/auth/callback/credentials?` — the bare callback URL, trailing `?` and no
+query — and the browser's GET of it returned 500.
 
-**Tried first.** Mapping `worker.js:81374` from the production stack onto a local `wrangler deploy --dry-run` bundle: the lines don't match the deployed build. Running `wrangler dev` without `DATABASE_URL` in `.dev.vars` didn't reproduce the failure either, because of the baked `.env.local`. It reproduced only after rebuilding with `.env.local` moved aside.
+Cause: **`AUTH_SECRET` was never set as a Cloudflare secret.** Nothing in the
+repo sets `secret`; next-auth reads `process.env.AUTH_SECRET` only. Missing, it
+makes `assertConfig` return `MissingSecret`, and `@auth/core`'s `Auth()` handles
+config errors *before* its `raw` check: for a non-HTML action like `callback` it
+returns `Response.json({message}, {status:500})` and **throws nothing**.
+`signIn` then reads `Location` off that response, gets null, and takes its
+`responseUrl ?? url` fallback — redirecting to the callback URL it had just
+built. Because nothing throws an `AuthError`, the `catch` in
+`src/app/(auth)/actions.ts` never runs, so the user sees no error at all.
 
-**To reproduce production locally:** move `.env.local` aside, run `opennextjs-cloudflare build`, then `wrangler dev`.
+Reproduced exactly by driving `Auth()` the way `signIn` does, with and without
+a secret: without it the fallback URL matched the production header byte for
+byte. Fixed with `wrangler secret put AUTH_SECRET --name <worker>`.
+
+Note the Worker serving the domain is **`gowatchlist`**, while `wrangler.jsonc`
+says `watchlist`. `secret put` defaults to the config name, so it needs
+`--name` or it writes to the wrong Worker. That mismatch is still unresolved.
+
+### CallbackRouteError: cannot connect to the specified address
+
+With the secret set, sign-in reached `authorize` and failed there:
+
+```
+[auth][cause]: Error: proxy request failed, cannot connect to the specified address
+    at async F.performIO ... at async F.queryRaw
+```
+
+That string is in no package in `node_modules`: it is a workerd error, raised
+when the Worker's outbound TCP `connect()` cannot be established. The query
+never left the Worker.
+
+Cause: **`@prisma/adapter-pg` opens a raw TCP socket, which a deployed Worker
+cannot do to Prisma Postgres.** `wrangler dev` runs workerd on the host's
+network, so TCP succeeded there, as it did under `next start` and for
+`prisma migrate` — which is why every earlier check passed.
+
+Fix: `src/lib/db.ts` uses `PrismaPostgresAdapter` from `@prisma/adapter-ppg`,
+Prisma's serverless driver, which reaches the database over HTTP/WebSockets.
+The connection string is unchanged — the driver sends it as a credential
+instead of dialling it — so `DATABASE_URL` did not need resetting.
+`prisma/seed.ts` and migrations keep `PrismaPg`; they run in Node, where TCP
+works.
+
+Prisma's example pairs that driver with the `prisma-client` generator at
+`runtime = "workerd"`, which this repo rejected (see above). That turned out
+not to be required: the existing `prisma-client-js` generator builds and
+typechecks with the new adapter. After the swap the bundle contains no
+`cloudflare:sockets` reference at all.
+
+Tried first and rejected: removing `pg`/`pg-cloudflare` from
+`serverExternalPackages` once the Worker stopped using them. Measured with
+`OPEN_NEXT_DEPLOY=true opennextjs-cloudflare deploy --dry-run`, the upload was
+3955.70 KiB gzipped against 3955.44 KiB before — noise. The entries are now
+dead config but cost nothing, so the change was reverted to keep the fix
+focused.
+
+### Local builds hide missing secrets (2026-10-01)
+
+OpenNext copies every `.env*` file, `.env.local` included, into `.open-next/cloudflare/next-env.mjs` at build time. So a locally built Worker always has `DATABASE_URL`, even when `.dev.vars` doesn't. Cloudflare's git build has no `.env.local`, so the deployed Worker gets only its own secrets. With no URL the old pg adapter dialled localhost and failed with the same `cannot connect to the specified address` `CallbackRouteError`. That makes a missing secret and the TCP problem above look identical in the logs; `getDb()` now names a missing variable. To test the way production runs, move `.env.local` aside, run `opennextjs-cloudflare build`, then `wrangler dev`.
+
 
 ## Verification
 

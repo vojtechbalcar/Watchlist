@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
-import { profileInitials, type Preferences } from "@/lib/preferences";
+import { profileInitials, profileName, type Preferences } from "@/lib/preferences";
 import { useAccount } from "./account-provider";
 import { logout } from "@/app/(auth)/actions";
 import { resetPreferences, savePreferences, usePreferences, usePreferencesReady } from "./preferences-provider";
@@ -75,7 +75,7 @@ export function SettingsView() {
             const name = String(new FormData(event.currentTarget).get("displayName") || "").trim();
             update("displayName", name);
           }}>
-            <span className="profile-avatar settings-avatar" aria-hidden="true">{profileInitials(preferences.displayName)}</span>
+            <span className="profile-avatar settings-avatar" aria-hidden="true">{profileInitials(profileName(preferences.displayName, account))}</span>
             <div className="settings-name"><label htmlFor="display-name">Display name</label><div><input id="display-name" name="displayName" autoComplete="nickname" maxLength={60} defaultValue={preferences.displayName} placeholder="Your name" aria-describedby="display-name-hint" /><button type="submit" className="settings-button">Save name</button></div><p id="display-name-hint">Used for your profile initials. Visible only in this browser.</p></div>
           </form>
           <div className="settings-account"><div><strong>Signed in as {account.email}</strong><p>Your account signs you in on any device. Preferences and your watchlist are still saved in this browser for now.</p></div><form action={logout}><button type="submit">Log out <ArrowUpRight size={14} aria-hidden="true" /></button></form></div>

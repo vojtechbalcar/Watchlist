@@ -7,10 +7,9 @@ import { NavLink } from "./nav-link";
 type SiteHeaderProps = {
   active?: string;
   asOf: string;
-  initials: string;
 };
 
-export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderProps) {
+export function SiteHeader({ active = "Dashboard", asOf }: SiteHeaderProps) {
   return (
     <header className="site-header border-b border-line bg-surface-raised">
       <div className="header-inner mx-auto flex max-w-(--container-page) items-center gap-8 px-5 sm:px-8 xl:gap-12">
@@ -44,7 +43,7 @@ export function SiteHeader({ active = "Dashboard", asOf, initials }: SiteHeaderP
 
         <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-6">
           <span className="hidden text-sm font-medium text-text-muted md:inline">{asOf}</span>
-          <ProfileMenu initials={initials} />
+          <ProfileMenu />
         </div>
       </div>
     </header>

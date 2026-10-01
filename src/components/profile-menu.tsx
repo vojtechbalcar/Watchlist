@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 import { usePreferences } from "./preferences-provider";
 import { useAccount } from "./account-provider";
 import { logout } from "@/app/(auth)/actions";
-import { profileInitials } from "@/lib/preferences";
+import { profileInitials, profileName } from "@/lib/preferences";
 
-export function ProfileMenu({ initials }: { initials: string }) {
+export function ProfileMenu() {
   const settings = usePreferences();
   const account = useAccount();
   const [open, setOpen] = useState(false);
@@ -41,11 +41,11 @@ export function ProfileMenu({ initials }: { initials: string }) {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
   }}>
     <button ref={trigger} className="profile-trigger" aria-label="Profile menu" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
-      <span className="profile-avatar">{profileInitials(settings.displayName, initials)}</span>
+      <span className="profile-avatar">{profileInitials(profileName(settings.displayName, account))}</span>
       <ChevronDown size={12} aria-hidden="true" />
     </button>
     {open && <div className="profile-popover" id={id}>
-      <div className="profile-identity"><strong>{settings.displayName || account.name || account.email}</strong><span>{account.email}</span></div>
+      <div className="profile-identity"><strong>{profileName(settings.displayName, account)}</strong><span>{account.email}</span></div>
       <nav aria-label="Profile">
         <Link href="/settings" aria-current={pathname === "/settings" ? "page" : undefined} onClick={() => setOpen(false)}><Settings size={16} aria-hidden="true" />Settings<span aria-hidden="true">↗</span></Link>
         <form action={logout}><button type="submit"><LogOut size={16} aria-hidden="true" />Log out</button></form>

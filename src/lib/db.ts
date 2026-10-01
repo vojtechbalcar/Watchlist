@@ -16,6 +16,6 @@ import { PrismaClient } from "@prisma/client";
 export const getDb = cache(() => {
   const connectionString = process.env.DATABASE_URL;
   // Without this the driver fails later, inside a query, as an opaque error.
-  if (!connectionString) throw new Error("DATABASE_URL is not set");
+  if (!connectionString) throw new Error("DATABASE_URL is not set. On Cloudflare it must be a secret on the gowatchlist Worker.");
   return new PrismaClient({ adapter: new PrismaPostgresAdapter({ connectionString }) });
 });

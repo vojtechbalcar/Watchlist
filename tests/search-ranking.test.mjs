@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isPriceFresh, normalizeQuery, rankCandidates } from "../src/lib/search-ranking.ts";
+import { decodeDirectory, isPriceFresh, normalizeQuery, parseSymbols, rankCandidates } from "../src/lib/search-ranking.ts";
 
 const stock = (symbol, name, tracked = false) => ({ symbol, name, tracked });
 
@@ -45,4 +45,18 @@ test("search prices are reused for 15 minutes", () => {
   assert.equal(isPriceFresh(null, now), false);
   assert.equal(isPriceFresh(new Date("2026-10-01T14:50:00Z"), now), true);
   assert.equal(isPriceFresh(new Date("2026-10-01T14:45:00Z"), now), false);
+});
+
+test("the compact directory decodes with -1 meaning none", () => {
+  const stocks = decodeDirectory({ exchanges: ["NASDAQ"], sectors: ["Technology"], stocks: [["AAPL", "Apple Inc.", 0, 0, 1], ["XYZ", "Xyz Corp", -1, -1, 0]] });
+  assert.deepEqual(stocks, [
+    { symbol: "AAPL", name: "Apple Inc.", exchange: "NASDAQ", sector: "Technology", tracked: true },
+    { symbol: "XYZ", name: "Xyz Corp", exchange: null, sector: null, tracked: false },
+  ]);
+});
+
+test("quote requests accept real tickers only, once each, at most 60", () => {
+  assert.deepEqual(parseSymbols(" aapl,BRK.B,bf-a,AAPL,,<script>,x".replace("x", "TOOLONGTICKER123")), ["AAPL", "BRK.B", "BF-A"]);
+  assert.deepEqual(parseSymbols(null), []);
+  assert.equal(parseSymbols(Array.from({ length: 80 }, (_, i) => `T${i}`).join(",")).length, 60);
 });

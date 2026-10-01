@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { ExploreCard } from "./explore-card";
 import { StockSearch } from "./stock-search";
+import { SectorStockList } from "./sector-stock-list";
 import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
 import { useRemovalUndo } from "./removal-undo";
 import { usePreferencesReady } from "./preferences-provider";
@@ -127,6 +128,7 @@ export function ExploreView({
           <div>
             <h2 className="sr-only">All {category} stocks</h2>
             <div className={styles.grid}>{stocks.map(renderCard)}</div>
+            <SectorStockList sector={category} />
           </div>
         ) : (
           <div className={styles.sectors}>

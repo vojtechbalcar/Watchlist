@@ -1,0 +1,14 @@
+.identity { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.identity strong { font-size: 13px; font-weight: 500; }
+.identity small { overflow: hidden; font-size: 11px; color: var(--color-text-muted); text-overflow: ellipsis; white-space: nowrap; }
+.exchange { flex-shrink: 0; font-size: 10px; color: var(--color-text-faint); letter-spacing: 0.04em; }
+.quote { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; min-width: 64px; font-variant-numeric: tabular-nums; }
+.price { font-size: 13px; color: var(--color-text-numeric); }
+.unavailable { font-size: 13px; color: var(--color-value-empty); }
+.loading { display: block; width: 52px; height: 12px; border-radius: 3px; background: var(--color-surface-sunken); animation: pulse 1.2s ease-in-out infinite; }
+.up, .down { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; }
+.up { color: var(--color-up); }
+.down { color: var(--color-down-deep); }
+
+@keyframes pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .loading { animation: none; } }

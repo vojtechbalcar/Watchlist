@@ -1,19 +1,36 @@
 import type { PrismaClient } from "@prisma/client";
 import { pruneUsage, reserveCredits } from "@/lib/api-budget";
+import { classifySectors, syncCiks } from "@/lib/sector-job";
+import { rebuildDirectory } from "@/lib/stock-directory";
 import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, latestSettledSession, quotesDue, symbolSyncDue, type TrackedState } from "@/lib/price-schedule";
 import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured } from "@/lib/twelve-data";
 
 const LISTING_CHUNK = 1000;
 
 /**
- * One run of the scheduled price job. It spends at most the job's per-minute
- * credit allowance, on the symbol list first, then missing daily closes, then
- * the stalest quotes. Whatever doesn't fit waits for the next run.
+ * One run of the scheduled price job. It first classifies a batch of listings
+ * by sector from the SEC, which is free. Then it spends at most the job's
+ * per-minute credit allowance, on the symbol list first, then missing daily
+ * closes, then the stalest quotes. Whatever doesn't fit waits for the next run.
  */
 export async function runPriceJob(db: PrismaClient, now = new Date()) {
-  // Checked up front so a missing key doesn't spend ledger credits on calls that can't succeed.
+  const report = { listings: 0, ciks: 0, sectors: 0, closes: [] as string[], quotes: [] as string[] };
+
+  // Sectors come from the SEC, not Twelve Data, so they cost no credits and don't need the key.
+  try {
+    const cikSync = await db.jobState.findUnique({ where: { job: "sec-ciks" } });
+    if (symbolSyncDue(cikSync?.ranAt ?? null, now)) {
+      report.ciks = await syncCiks(db);
+      await db.jobState.upsert({ where: { job: "sec-ciks" }, create: { job: "sec-ciks", ranAt: now }, update: { ranAt: now } });
+    }
+    report.sectors = await classifySectors(db, now);
+    if (report.ciks || report.sectors) await rebuildDirectory(db, now);
+  } catch (error) {
+    console.error("[sectors]", error);
+  }
+
+  // Checked here so a missing key doesn't spend ledger credits on calls that can't succeed.
   if (!isTwelveDataConfigured()) throw new Error("TWELVE_DATA_API_KEY is not set");
-  const report = { listings: 0, closes: [] as string[], quotes: [] as string[] };
   await pruneUsage(db, now);
 
   const sync = await db.jobState.findUnique({ where: { job: "symbols" } });
@@ -24,6 +41,7 @@ export async function runPriceJob(db: PrismaClient, now = new Date()) {
       await db.listing.createMany({ data: stocks.slice(i, i + LISTING_CHUNK), skipDuplicates: true });
     }
     await db.jobState.upsert({ where: { job: "symbols" }, create: { job: "symbols", ranAt: now }, update: { ranAt: now } });
+    await rebuildDirectory(db, now);
     report.listings = stocks.length;
   }
 

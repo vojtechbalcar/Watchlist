@@ -2,53 +2,35 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDownRight, ArrowUpRight, Search } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
-import { formatPct, formatPrice } from "@/lib/format";
-import type { SearchResult } from "@/lib/search-ranking";
-import { StockLogo } from "./stock-logo";
+import { Search } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { normalizeQuery, rankCandidates } from "@/lib/search-ranking";
+import { useStockDirectory, useStockQuotes } from "./stock-directory-client";
+import { StockRow } from "./stock-row";
 import styles from "./stock-search.module.css";
 
-const DEBOUNCE_MS = 250;
+/** Prices are asked for once typing pauses; matches themselves appear on every keystroke. */
+const QUOTE_DELAY_MS = 200;
 
 const stockHref = (ticker: string) => `/explore/stocks/${encodeURIComponent(ticker)}`;
 
-type Answer = { query: string; results: SearchResult[]; failed: boolean };
-
 /**
- * Searches every NASDAQ and NYSE stock through /api/search and lists matches
- * under the field. Each opens its stock page; untracked stocks' pages fetch
- * their price when opened.
+ * Searches every NASDAQ and NYSE stock. The whole list is loaded once and
+ * matched in the browser, so results appear as you type; only the prices of
+ * the visible matches come from the server. Each result opens its stock page.
  */
 export function StockSearch({ className }: { className?: string }) {
   const router = useRouter();
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
+  const { stocks, failed } = useStockDirectory();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [answer, setAnswer] = useState<Answer>({ query: "", results: [], failed: false });
 
-  const trimmed = query.trim();
-  const settled = answer.query === trimmed;
-  const results = settled ? answer.results : [];
-
-  useEffect(() => {
-    if (!trimmed) return;
-    const controller = new AbortController();
-    const timer = setTimeout(() => {
-      fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal })
-        .then(response => (response.ok ? response.json() : Promise.reject(new Error(`Search answered ${response.status}`))))
-        .then((data: { results: SearchResult[] }) => setAnswer({ query: trimmed, results: data.results, failed: false }))
-        .catch(() => {
-          if (!controller.signal.aborted) setAnswer({ query: trimmed, results: [], failed: true });
-        });
-    }, DEBOUNCE_MS);
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [trimmed]);
+  const trimmed = normalizeQuery(query);
+  const results = useMemo(() => (trimmed && stocks ? rankCandidates(trimmed, stocks) : []), [trimmed, stocks]);
+  const quoteOf = useStockQuotes(results.map(stock => stock.symbol), true, QUOTE_DELAY_MS);
 
   useEffect(() => {
     if (!open) return;
@@ -76,7 +58,7 @@ export function StockSearch({ className }: { className?: string }) {
     } else if (event.key === "Enter" && results[active]) {
       event.preventDefault();
       setOpen(false);
-      router.push(stockHref(results[active].ticker));
+      router.push(stockHref(results[active].symbol));
     }
   }
 
@@ -107,38 +89,18 @@ export function StockSearch({ className }: { className?: string }) {
 
       {expanded && (
         <div className={styles.panel}>
-          <ul id={listId} role="listbox" aria-label="Matching stocks" aria-busy={!settled}>
+          <ul id={listId} role="listbox" aria-label="Matching stocks" aria-busy={!stocks && !failed}>
             {results.map((stock, index) => (
-              <li key={stock.ticker} id={optionId(index)} role="option" aria-selected={index === active} className={styles.option} onPointerEnter={() => setActive(index)}>
-                <Link href={stockHref(stock.ticker)} className={styles.row} tabIndex={-1} onClick={() => setOpen(false)}><Row stock={stock} /></Link>
+              <li key={stock.symbol} id={optionId(index)} role="option" aria-selected={index === active} className={styles.option} onPointerEnter={() => setActive(index)}>
+                <Link href={stockHref(stock.symbol)} prefetch={false} className={styles.row} tabIndex={-1} onClick={() => setOpen(false)}><StockRow stock={stock} quote={quoteOf(stock.symbol)} /></Link>
               </li>
             ))}
           </ul>
-          {!settled && results.length === 0 && <p className={styles.message} role="status">Searching…</p>}
-          {settled && answer.failed && <p className={styles.message} role="status">Search isn’t available right now. Try again in a moment.</p>}
-          {settled && !answer.failed && results.length === 0 && <p className={styles.message} role="status">No US stocks match “{trimmed}”.</p>}
+          {!stocks && !failed && <p className={styles.message} role="status">Loading stocks…</p>}
+          {failed && <p className={styles.message} role="status">Search isn’t available right now. Reload the page to try again.</p>}
+          {stocks && results.length === 0 && <p className={styles.message} role="status">No US stocks match “{trimmed}”.</p>}
         </div>
       )}
     </div>
   );
-}
-
-function Row({ stock }: { stock: SearchResult }) {
-  const Arrow = (stock.changePct ?? 0) >= 0 ? ArrowUpRight : ArrowDownRight;
-  return <>
-    <StockLogo stock={stock} remoteSrc={stock.logoUrl} />
-    <span className={styles.identity}>
-      <strong>{stock.ticker}</strong>
-      <small title={stock.name}>{stock.name}</small>
-    </span>
-    {!stock.tracked && stock.exchange && <span className={styles.exchange}>{stock.exchange}</span>}
-    <span className={styles.quote}>
-      {stock.price === null
-        ? <span className={styles.unavailable} title="Price unavailable right now">—<span className="sr-only">Price unavailable right now</span></span>
-        : <span className={styles.price}>{stock.currency === "USD" ? "$" : `${stock.currency} `}{formatPrice(stock.price)}</span>}
-      {stock.changePct !== null && (
-        <span className={stock.changePct >= 0 ? styles.up : styles.down}><Arrow size={12} aria-hidden="true" />{formatPct(stock.changePct)}</span>
-      )}
-    </span>
-  </>;
 }

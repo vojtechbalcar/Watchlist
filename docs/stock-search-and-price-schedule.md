@@ -19,7 +19,7 @@ tracked set gets its price at the moment it is searched.
 - **Hard rule changed.** It was "Price data comes from Postgres only. Only the
   cron job calls the stock API." The user chose to let search fetch live
   prices, with caching. Two server routes may now call Twelve Data: the
-  scheduled job and `/api/search`, both through `src/lib/twelve-data.ts` and
+  scheduled job and `/api/search` (now `/api/stocks/quotes`), both through `src/lib/twelve-data.ts` and
   the shared credit budget. Pages and client components still read prices
   from Postgres only.
 - **Search prices are cached in Postgres for 15 minutes.** A repeat search
@@ -71,8 +71,8 @@ which leaves over 200 for search.
 - `custom-worker.ts`: wraps `.open-next/worker.js` and adds `scheduled()`,
   which calls the route. `wrangler.jsonc` points `main` at it and sets the
   `*/5 * * * *` trigger. The pattern follows OpenNext's custom-worker how-to.
-- `src/lib/stock-search.ts`, behind `/api/search?q=` (signed-in only, since a
-  search can spend credits), ranked by `src/lib/search-ranking.ts`.
+- `/api/stocks` (`src/lib/stock-directory.ts`) and `/api/stocks/quotes`
+  (`src/lib/stock-quotes.ts`), both signed-in only; see "Faster search" below.
 - `src/components/stock-search.tsx`: the combobox on Explore and the sector
   pages. Search no longer filters the cards.
 
@@ -100,6 +100,63 @@ now covers every on-demand lookup.
 
 Not there yet: the untracked page has no chart and no "Add to watchlist"
 button, because the watchlist still only knows the 48 demo stocks.
+
+## Faster search and full sector lists (2026-10-01)
+
+The user asked for two things. "Show all" on a sector only listed the demo
+cards, and search felt slow: every keystroke waited on a server round trip
+(about 1.5 s measured locally).
+
+**Search now matches in the browser.** `/api/stocks` sends the whole directory
+once: about 6,400 rows of `[symbol, name, exchange, sector, tracked]`, with
+exchange and sector as indexes. That is 285 KB raw, 75 KB gzipped, and cached
+privately for an hour. `rankCandidates` runs on every keystroke in about
+3 ms. Only the visible six results go to `/api/stocks/quotes?live=1`, 200 ms
+after typing pauses, and the browser reuses those answers for a minute. Rows
+show a loading bar until their price arrives.
+Rejected: a Postgres trigram index. It would still cost a round trip per
+keystroke.
+
+**Sectors come from the SEC.** Twelve Data's free plan has no sector data
+(its profile endpoint costs extra credits per stock). EDGAR is free:
+`company_tickers_exchange.json` maps tickers to company numbers (CIKs). That
+covers 5,775 of the 6,392 listings, or 5,505 companies. Each company's
+submissions file has its industry code (SIC), which `src/lib/sec-sectors.ts`
+maps onto the app's nine sectors by code range. The mapping was checked
+against the 48 hand-sectored stocks; only Visa (business services) and
+Qualcomm (communications equipment) would differ, and tracked stocks keep
+their own sector anyway.
+- Mining and chemicals fall under Industrials and telecom under Technology,
+  because the app has no Materials or Communication sector.
+- SPACs and shells (SIC 6770, 9995+) get no sector.
+
+The price job runs `syncCiks` daily and classifies 40 companies per run, both
+before the Twelve Data key check because they cost no credits. A full
+backfill was run locally on 2026-10-01.
+Bulk updates pass rows as JSON through `jsonb_to_recordset`, because the
+Prisma Postgres driver sends JS arrays as comma-joined text, which Postgres
+rejects as `malformed array literal`. `UNNEST($1::text[])` failed that way
+first.
+
+**The directory is stored pre-built.** Assembling it took 6.3 s per request in
+local workerd. The `Snapshot` table now holds the finished JSON. The price job
+rebuilds it after the symbol sync, a CIK sync, or any sector batch, and
+`/api/stocks` serves the stored text with an ETag (304 when unchanged). That
+brought it to about 1.1 s locally, which is mostly the round trip to the US
+database.
+
+**Prefetch is off for stock links in search and sector lists.** Next.js
+prefetches links as they scroll into view, and prefetching an untracked
+stock's page renders it, which spends up to 3 credits. The local Worker log
+showed the sector list doing that for every visible row before
+`prefetch={false}`. Any future link to an untracked stock's page needs the
+same.
+
+**Sector pages list every stock.** `SectorStockList` sits under the tracked
+cards, 30 at a time with "Show more". Its prices are stored-only
+(`/api/stocks/quotes` without `live`); pricing 700 stocks a sector would
+take 90 minutes of the free plan's per-minute budget. A stock gets a price
+once someone searches or opens it.
 
 ## Setup the Worker needs
 

@@ -89,6 +89,16 @@ model Listing {
   /// DailyClose instead.
   closes          Json?
   closesFetchedAt DateTime?
+  /// The SEC's company number, matched by ticker; null when EDGAR doesn't list it.
+  cik             Int?
+  /// The SEC industry code and the app sector it maps to; see src/lib/sec-sectors.ts.
+  sic             Int?
+  sector          String?
+  /// Set once EDGAR was asked, so companies without a code aren't asked again.
+  sectorCheckedAt DateTime?
+
+  @@index([sector])
+  @@index([cik])
 }
 
 /// Twelve Data credits spent, per UTC minute ("m:2026-10-01T14:05") and per
@@ -115,4 +125,13 @@ model User {
   /// scrypt, as `salt:hash` in hex.
   passwordHash String
   createdAt    DateTime @default(now())
+}
+
+/// A response built ahead of time because assembling it per request is slow,
+/// e.g. the ~6,400-row stock directory. Rebuilt by the price job when its
+/// inputs change.
+model Snapshot {
+  key     String   @id
+  body    String
+  builtAt DateTime
 }

@@ -90,3 +90,4 @@ For the data integration, **all application price reads must come from Postgres.
 - Commit and push each completed, verified change, preserving unrelated work.
 
 See [AGENTS.md](AGENTS.md) for development instructions and [docs/MEMORY.md](docs/MEMORY.md) for the project memory index.
+# portofilo

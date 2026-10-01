@@ -35,6 +35,9 @@ model Instrument {
   measured        Instrument[]   @relation("MeasuredAgainst")
   closes          DailyClose[]
   quote           Quote?
+  /// When the price job last asked for this instrument's daily closes, so a
+  /// market holiday doesn't make it ask again on every run.
+  closesCheckedAt DateTime?
 
   @@index([kind, sector])
 }
@@ -51,14 +54,50 @@ model DailyClose {
   @@index([ticker, date(sort: Desc)])
 }
 
-/// The latest price and day move, replaced on each cron run.
+/// The latest price and day move, replaced on each run of the price job.
 model Quote {
   ticker     String     @id
   price      Decimal    @db.Decimal(14, 4)
   changeAbs  Decimal    @db.Decimal(14, 4)
   changePct  Decimal    @db.Decimal(9, 4)
+  /// The market time the price is from.
   asOf       DateTime
+  /// When the job fetched it, which decides when it is due again.
+  fetchedAt  DateTime   @default(now())
   instrument Instrument @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
+}
+
+/// Every stock search can find: Twelve Data's NASDAQ and NYSE listings, synced
+/// daily. Tracked instruments appear here too. Their prices come from Quote;
+/// the price columns here cache what search fetched for everything else.
+model Listing {
+  symbol         String    @id
+  name           String
+  exchange       String
+  type           String
+  currency       String    @default("USD")
+  /// Null until search first asks for it; see logoCheckedAt.
+  logoUrl        String?
+  /// Set once the logo was requested, even when Twelve Data had none.
+  logoCheckedAt  DateTime?
+  price          Decimal?  @db.Decimal(14, 4)
+  changeAbs      Decimal?  @db.Decimal(14, 4)
+  changePct      Decimal?  @db.Decimal(9, 4)
+  priceFetchedAt DateTime?
+}
+
+/// Twelve Data credits spent, per UTC minute ("m:2026-10-01T14:05") and per
+/// UTC day ("d:2026-10-01"). Every caller reserves here before calling.
+model ApiUsage {
+  bucket  String @id
+  credits Int    @default(0)
+}
+
+/// When a recurring job last completed, for jobs that run less often than the
+/// schedule fires.
+model JobState {
+  job   String   @id
+  ranAt DateTime
 }
 
 /// An account. Auth.js signs people in with email and password and keeps the

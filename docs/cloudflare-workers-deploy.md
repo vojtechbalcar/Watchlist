@@ -81,9 +81,11 @@ Reproduced exactly by driving `Auth()` the way `signIn` does, with and without
 a secret: without it the fallback URL matched the production header byte for
 byte. Fixed with `wrangler secret put AUTH_SECRET --name <worker>`.
 
-Note the Worker serving the domain is **`gowatchlist`**, while `wrangler.jsonc`
-says `watchlist`. `secret put` defaults to the config name, so it needs
-`--name` or it writes to the wrong Worker. That mismatch is still unresolved.
+The Worker serving the domain is **`gowatchlist`**. `wrangler.jsonc` used to
+say `watchlist`, so `secret put` without `--name` wrote to the wrong Worker.
+Resolved 2026-10-02: the user chose `gowatchlist`, the Cloudflare project's
+name, and `wrangler.jsonc` now matches. Rejected: renaming the live Worker,
+which would move the domain and drop its secrets.
 
 ### CallbackRouteError: cannot connect to the specified address
 

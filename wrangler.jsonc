@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "watchlist",
+  "name": "gowatchlist",
   "main": "custom-worker.ts",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],

@@ -180,7 +180,17 @@ stocks' stored prices only.
 - Not verified: live batch prices and logos. The public demo key only serves
   single symbols, so those paths need the real key.
 
-## Open
+## Market holidays (2026-10-02)
 
-- Market holidays aren't modelled. The job still refreshes quotes on a
-  holiday, which wastes credits but doesn't break anything.
+`marketHours` in `src/lib/price-schedule.ts` knows the NYSE calendar: the ten
+full holidays (weekend dates moved to Friday or Monday; New Year's Day on a
+Saturday is not observed) and the 13:00 early closes on July 3, the day after
+Thanksgiving, and Christmas Eve. `isMarketOpen` and `latestSettledSession` use
+it, so the job spends no quote credits on a holiday and doesn't wait for a
+session that never happens. The dates are computed by rule, including Good
+Friday from Easter. Rejected: a hardcoded list of dates, which runs out, and
+Twelve Data's `/market_state`, which costs a credit per check.
+
+Not modelled: unscheduled closures such as a national day of mourning. On
+one, the job behaves as it used to on every holiday: it fetches quotes that
+haven't moved.

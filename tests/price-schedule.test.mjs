@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, isMarketOpen, latestSettledSession, nyClock, nyToUtc, quotesDue, sessionsToFetch, symbolSyncDue } from "../src/lib/price-schedule.ts";
+import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, isMarketOpen, marketHours, latestSettledSession, nyClock, nyToUtc, quotesDue, sessionsToFetch, symbolSyncDue } from "../src/lib/price-schedule.ts";
 
 // 2026-10-01 is a Thursday; New York is on EDT (UTC−4).
 const at = iso => new Date(iso);
@@ -68,4 +68,47 @@ test("the symbol list syncs about once a day", () => {
   assert.equal(symbolSyncDue(null, now), true);
   assert.equal(symbolSyncDue(at("2026-10-01T00:00:00Z"), now), false);
   assert.equal(symbolSyncDue(at("2026-09-30T15:00:00Z"), now), true);
+});
+
+test("NYSE holidays have no session, including observed and moving dates", () => {
+  const closed = [
+    "2026-01-01", // New Year's Day
+    "2026-01-19", // Martin Luther King Jr. Day, third Monday
+    "2026-02-16", // Washington's Birthday, third Monday
+    "2026-04-03", // Good Friday (Easter is April 5)
+    "2026-05-25", // Memorial Day, last Monday
+    "2026-06-19", // Juneteenth
+    "2026-07-03", // Independence Day falls on a Saturday, observed Friday
+    "2026-09-07", // Labor Day
+    "2026-11-26", // Thanksgiving, fourth Thursday
+    "2026-12-25", // Christmas
+    "2027-03-26", // Good Friday (Easter is March 28)
+    "2027-06-18", // Juneteenth falls on a Saturday, observed Friday
+    "2027-12-24", // Christmas falls on a Saturday, observed Friday
+    "2028-01-17", // MLK; New Year's Day 2028 is a Saturday and is not observed
+  ];
+  for (const ymd of closed) assert.equal(marketHours(ymd), null, ymd);
+  assert.equal(marketHours("2027-12-31"), 16 * 60, "New Year's Eve 2027 trades normally");
+  assert.deepEqual([marketHours("2026-10-01"), marketHours("2026-10-03")], [16 * 60, null]);
+});
+
+test("the market closes at 13:00 before Independence Day, after Thanksgiving, and on Christmas Eve", () => {
+  assert.equal(marketHours("2026-11-27"), 13 * 60);
+  assert.equal(marketHours("2026-12-24"), 13 * 60);
+  assert.equal(marketHours("2025-07-03"), 13 * 60);
+  assert.equal(marketHours("2026-07-02"), 16 * 60, "July 3 is the holiday itself in 2026");
+  assert.equal(isMarketOpen(at("2026-11-27T17:59:00Z")), true);
+  assert.equal(isMarketOpen(at("2026-11-27T18:00:00Z")), false);
+});
+
+test("holidays are skipped when finding the latest settled session", () => {
+  assert.equal(isMarketOpen(at("2026-11-26T16:00:00Z")), false); // Thanksgiving, 11:00 New York
+  assert.equal(latestSettledSession(at("2026-11-27T12:00:00Z")).ymd, "2026-11-25");
+  assert.equal(latestSettledSession(at("2026-11-27T18:15:00Z")).ymd, "2026-11-27"); // early close settles at 13:15
+  assert.equal(latestSettledSession(at("2026-09-08T12:00:00Z")).ymd, "2026-09-04"); // Tuesday after Labor Day
+});
+
+test("quotes aren't refreshed during a holiday's usual trading hours", () => {
+  const now = at("2026-11-26T16:00:00Z");
+  assert.deepEqual(quotesDue([state("SPY", { quoteFetchedAt: at("2026-11-25T21:30:00Z") })], now), []);
 });

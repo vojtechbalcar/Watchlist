@@ -34,3 +34,39 @@ export function axisLabels(axis: SeriesPoint[], count = 4): { index: number; lab
   const indexes = axis.length === 1 ? [0] : [...new Set(Array.from({ length: count }, (_, i) => Math.round(i * (axis.length - 1) / (count - 1))))];
   return indexes.map(index => ({ index, label: format(axis[index][0]) }));
 }
+
+export type GapPoint = { at: number; line: number; base: number };
+
+/**
+ * The area between a line and its baseline, split where they cross so each band
+ * is either ahead (line above base) or behind. `at` is an index into the series,
+ * fractional at a crossing. A missing value on either line ends the band.
+ */
+export function gapBands(line: (number | null)[], base: (number | null)[]): { ahead: boolean; points: GapPoint[] }[] {
+  const bands: { ahead: boolean; points: GapPoint[] }[] = [];
+  let band: { ahead: boolean; points: GapPoint[] } | null = null;
+  line.forEach((value, at) => {
+    const baseValue = base[at];
+    if (value === null || value === undefined || baseValue === null || baseValue === undefined) {
+      band = null;
+      return;
+    }
+    const gap = value - baseValue;
+    if (band && (band.ahead ? gap < 0 : gap > 0)) {
+      const last = band.points.at(-1)!;
+      const lastGap = last.line - last.base;
+      const t = lastGap / (lastGap - gap);
+      const meet = last.line + t * (value - last.line);
+      const crossing = { at: last.at + t * (at - last.at), line: meet, base: meet };
+      band.points.push(crossing);
+      band = { ahead: gap > 0, points: [crossing] };
+      bands.push(band);
+    }
+    if (!band) {
+      band = { ahead: gap >= 0, points: [] };
+      bands.push(band);
+    }
+    band.points.push({ at, line: value, base: baseValue });
+  });
+  return bands;
+}

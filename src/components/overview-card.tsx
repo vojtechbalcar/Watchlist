@@ -8,7 +8,7 @@ import { watchlistRows } from "@/lib/watchlist-catalog";
 import { watchlistSummary } from "@/lib/watchlist-state";
 import { exploreRanges } from "@/lib/explore-performance";
 import { benchmarkTicker } from "@/lib/explore-data";
-import { alignTo, averageLines, axisLabels } from "@/lib/chart-series";
+import { alignTo, averageLines, axisLabels, gapBands } from "@/lib/chart-series";
 import { useMarket, useMarketSeries } from "./market-provider";
 
 const periods = exploreRanges;
@@ -50,7 +50,7 @@ export function OverviewCard({ holdings }: { holdings: Holding[] }) {
         <svg viewBox="0 0 980 235" className="block w-full h-[240px] sm:h-[260px]" preserveAspectRatio="none" role="img" aria-label={`Watchlist average and ${summary.benchmarkLabel} returns over ${range}`}>
           {[0, 1, 2, 3, 4].map(i => <g key={i}><line x1="8" x2="910" y1={200 - i * 45} y2={200 - i * 45} stroke="var(--color-line-soft)" strokeDasharray="4 6" /><text x="976" y={204 - i * 45} textAnchor="end" fill="var(--color-text-muted)" fontSize="11">{min + (max - min) / 4 * i}%</text></g>)}
           {axis.length > 1 && <>
-            {lastValue !== null && <polygon points={`${x(0)},${y(0)} ${points(values)} ${x(values.findLastIndex(value => value !== null))},${y(0)}`} fill={lastValue >= 0 ? "var(--color-up-surface)" : "var(--color-down-surface)"} />}
+            {gapBands(values, benchValues).map((band, i) => <polygon key={i} points={[...band.points.map(p => `${x(p.at)},${y(p.line)}`), ...band.points.toReversed().map(p => `${x(p.at)},${y(p.base)}`)].join(" ")} fill={band.ahead ? "var(--color-up-surface)" : "var(--color-down-surface)"} />)}
             <polyline points={points(benchValues)} fill="none" stroke="var(--color-chart-benchmark)" strokeWidth="1.5" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
             <polyline points={points(values)} fill="none" stroke="var(--color-chart-watchlist)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
             {lastValue !== null && <circle cx="910" cy={y(lastValue)} r="3.5" fill="var(--color-ink)" stroke="var(--color-surface)" strokeWidth="2" />}

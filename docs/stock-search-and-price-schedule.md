@@ -98,8 +98,17 @@ in once the price job has stored SPY's closes.
 this page. All of them spend the "search" budget (8 a minute, 800 a day), which
 now covers every on-demand lookup.
 
-Not there yet: the untracked page has no chart and no "Add to watchlist"
-button, because the watchlist still only knows the 48 demo stocks.
+Not there yet: an "Add to watchlist" button, because the watchlist still
+only knows the 48 tracked stocks.
+
+**Chart (2026-10-05).** The page now has the tracked page's panel: range
+buttons, the three figures, a verdict, and a line chart of the stock against
+the S&P 500 with the gap shaded green or red. The lines come from the same
+cached closes as the table (`returnSeries`, both ending at the stock's latest
+close), so the page spends no extra credits. The chart is
+`ReturnLinesChart`, shared with the dashboard overview. Rejected: the tracked
+page's bar chart of period totals, because the closes are already there to
+draw the real path.
 
 ## Faster search and full sector lists (2026-10-01)
 

@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { refreshListingCloses, refreshListingLogos, refreshListingPrices } from "@/lib/listing-refresh";
+import { returnSeries, type SeriesPoint } from "@/lib/market";
 import { parseStoredCloses, periodReturn, periods, type Period } from "@/lib/period-returns";
 
 /** Untracked stocks have no sector, so they are measured against the whole market. */
@@ -20,6 +21,8 @@ export type ListingDetail = {
   closesThrough: string | null;
   benchmark: string;
   returns: { period: Period; stock: number | null; benchmark: number | null; gap: number | null }[];
+  /** Cumulative return lines for the chart, both ending at `closesThrough`. */
+  series: Record<Period, { stock: SeriesPoint[]; benchmark: SeriesPoint[] }>;
 };
 
 /**
@@ -43,6 +46,7 @@ export async function getListingDetail(db: PrismaClient, symbol: string, now = n
   const closes = parseStoredCloses(listing.closes);
   const market = benchmarkCloses.map(row => ({ date: row.date.toISOString().slice(0, 10), close: Number(row.close) }));
   const through = closes.at(-1)?.date ?? null;
+  const marketThrough = through ? market.filter(row => row.date <= through) : [];
 
   return {
     ticker: listing.symbol,
@@ -63,5 +67,6 @@ export async function getListingDetail(db: PrismaClient, symbol: string, now = n
       const marketReturn = through ? periodReturn(market, period, through) : null;
       return { period, stock, benchmark: marketReturn, gap: stock !== null && marketReturn !== null ? stock - marketReturn : null };
     }),
+    series: Object.fromEntries(periods.map(period => [period, { stock: returnSeries(closes, period), benchmark: returnSeries(marketThrough, period) }])) as ListingDetail["series"],
   };
 }

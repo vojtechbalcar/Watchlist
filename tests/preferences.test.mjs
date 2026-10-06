@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { register } from "node:module";
 import test from "node:test";
-import { defaultPreferences, parsePreferences, profileInitials, profileName } from "../src/lib/preferences.ts";
+
+register("./resolve-typescript.mjs", import.meta.url);
+const { defaultPreferences, parsePreferences, profileInitials, profileName } = await import("../src/lib/preferences.ts");
 
 test("missing, corrupt, and non-object storage recover to defaults", () => {
   for (const raw of [null, "", "{broken", "null", "[]", "42", '"compact"']) {

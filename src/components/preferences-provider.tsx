@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { defaultPreferences, parsePreferences, PREFERENCES_KEY, type Preferences } from "@/lib/preferences";
+import { useEffect, useSyncExternalStore } from "react";
+import { defaultPreferences, parsePreferences, PREFERENCES_KEY, reconcilePreferences, type Preferences } from "@/lib/preferences";
+import { createAccountSync } from "./account-sync";
 
 const changeEvent = "watchlist-preferences-change";
 let cachedRaw: string | null | undefined;
@@ -36,9 +37,31 @@ export function usePreferences() {
   return useSyncExternalStore(subscribe, getSnapshot, () => defaultPreferences);
 }
 
-/** Prevent native form edits before React can save them. */
+/** Preferences follow the account like the watchlist; see createAccountSync. */
+const sync = createAccountSync<Preferences>({
+  endpoint: "/api/preferences",
+  ownerKey: "watchlist.preferences-owner.v1",
+  read: getSnapshot,
+  replace(preferences) {
+    try { localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences)); } catch { /* Blocked storage. */ }
+    window.dispatchEvent(new Event(changeEvent));
+  },
+  reconcile: reconcilePreferences,
+  empty: defaultPreferences,
+});
+
+/** Mounted once in the (market) layout for the signed-in account. */
+export function PreferencesSync({ userId }: { userId: string }) {
+  useEffect(() => { void sync.start(userId); }, [userId]);
+  return null;
+}
+
+/**
+ * True once the account's preferences have loaded (or failed to), so forms
+ * and saved choices don't start from this browser's defaults.
+ */
 export function usePreferencesReady() {
-  return useSyncExternalStore(subscribe, () => true, () => false);
+  return useSyncExternalStore(sync.subscribe, sync.isSynced, () => false);
 }
 
 export function savePreferences(patch: Partial<Preferences>): boolean {
@@ -46,6 +69,7 @@ export function savePreferences(patch: Partial<Preferences>): boolean {
     const next = parsePreferences(JSON.stringify({ ...getSnapshot(), ...patch }));
     localStorage.setItem(PREFERENCES_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(changeEvent));
+    sync.changed();
     return true;
   } catch {
     return false;
@@ -56,6 +80,7 @@ export function resetPreferences(): boolean {
   try {
     localStorage.removeItem(PREFERENCES_KEY);
     window.dispatchEvent(new Event(changeEvent));
+    sync.changed();
     return true;
   } catch {
     return false;

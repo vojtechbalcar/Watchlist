@@ -42,10 +42,27 @@ It is now stored per account in Postgres.
 - Server input goes through the browser's own `parseWatchlist`, so a bad
   request becomes a valid list rather than an error.
 
+## Preferences too (2026-10-06)
+
+Display and comparison preferences ([[settings-preferences]]) now sync the
+same way, in `SavedPreferences` through `/api/preferences`. The client logic
+moved into `createAccountSync` (`src/components/account-sync.ts`), which both
+stores use. The rules moved into `reconcileAccountCopy`, where untouched
+defaults count as blank and are never uploaded. Each copy has its own owner
+key (`watchlist.owner.v1`, `watchlist.preferences-owner.v1`).
+`usePreferencesReady` now waits for the account's preferences. The Settings
+form was already disabled until then, so it can't send defaults over saved
+choices. Rejected: one combined table and route, which would have tied two
+unrelated forms to one request.
+
+Verified with a throwaway account (deleted afterwards):
+- settings saved in a browser before this moved into the account;
+- a change in Settings reached it;
+- a fresh browser opened with compact density and the 1Y period, and its
+  watchlist still loaded after the refactor.
+
 ## Not covered
 
-- Display and comparison preferences ([[settings-preferences]]) are still
-  per browser.
 - A change made offline is saved only when the next change goes through.
 
 ## Verification (2026-10-06)

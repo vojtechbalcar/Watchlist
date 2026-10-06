@@ -1,3 +1,5 @@
+import { reconcileAccountCopy, type Reconcile } from "./watchlist-sync";
+
 export const PREFERENCES_KEY = "watchlist.preferences.v1";
 
 export const defaultPreferences = {
@@ -44,6 +46,11 @@ export function parsePreferences(raw: string | null): Preferences {
   } catch {
     return defaultPreferences;
   }
+}
+
+/** Preferences are saved per account like the watchlist; untouched defaults are never uploaded. */
+export function reconcilePreferences(input: Reconcile<Preferences>) {
+  return reconcileAccountCopy(input, defaultPreferences, value => JSON.stringify(value) === JSON.stringify(defaultPreferences));
 }
 
 /**

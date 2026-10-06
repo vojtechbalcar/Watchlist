@@ -126,6 +126,7 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   watchlist    SavedWatchlist?
+  preferences  SavedPreferences?
 }
 
 /// A user's watchlist, so it follows them across browsers and devices. The
@@ -133,6 +134,15 @@ model User {
 model SavedWatchlist {
   userId    String   @id
   /// Tickers, setup flags, and an unfinished setup draft, as WatchlistState.
+  state     Json
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// A user's display and comparison preferences, synced like SavedWatchlist.
+model SavedPreferences {
+  userId    String   @id
+  /// Preferences, as src/lib/preferences.ts parses them.
   state     Json
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -34,3 +34,12 @@ test("nothing anywhere stays empty without a request", () => {
   assert.deepEqual(reconcileWatchlist({ server: null, local: emptyWatchlist, localOwner: null, userId: "u1", editedBeforeLoad: false }),
     { local: emptyWatchlist, upload: null });
 });
+
+test("preferences follow the same rules, with defaults as the blank copy", async () => {
+  const { reconcilePreferences } = await import("../src/lib/preferences.ts");
+  const { defaultPreferences } = await import("../src/lib/preferences.ts");
+  const compact = { ...defaultPreferences, density: "compact" };
+  assert.deepEqual(reconcilePreferences({ server: null, local: defaultPreferences, localOwner: null, userId: "u1", editedBeforeLoad: false }), { local: defaultPreferences, upload: null });
+  assert.deepEqual(reconcilePreferences({ server: null, local: compact, localOwner: null, userId: "u1", editedBeforeLoad: false }), { local: compact, upload: compact });
+  assert.deepEqual(reconcilePreferences({ server: defaultPreferences, local: compact, localOwner: "u2", userId: "u1", editedBeforeLoad: false }), { local: defaultPreferences, upload: null });
+});

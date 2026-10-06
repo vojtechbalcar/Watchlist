@@ -30,7 +30,8 @@
 
 - [[account-pages]] — email/password accounts with Auth.js, gated market pages, and what is still browser-only.
 
-- [[checkpoint-2026-09-06]] — completed work, verification, current limitations, and next steps.
+- [[checkpoint-2026-10-06]] — current state: what works, what's blocked on the Worker secrets, and what's next.
+- [[checkpoint-2026-09-06]] — earlier checkpoint, superseded.
 - [[neutral-page-design]] — current visual rules and the correction that Compare and Explore need structural redesigns, not just new colors.
 - [[git-commit-workflow]] — automatically commit and push each completed, verified change to GitHub.
 - [[watchlist-placeholder-data]] — demo data, illustrative histories, and the future Postgres boundary.

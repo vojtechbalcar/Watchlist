@@ -1,7 +1,7 @@
 ---
 type: checkpoint
 updated: 2026-09-06
-status: current
+status: superseded
 ---
 
 # Checkpoint — 2026-09-06

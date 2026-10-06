@@ -67,3 +67,12 @@ test("peer differences are antisymmetric and self comparisons are blank", () => 
     }
   }
 });
+
+test("stocks outside the tracked set compare like tracked ones", () => {
+  const listing = { ticker: "AAP", name: "Advance Auto Parts Inc.", price: 38.91, currency: "USD", changeAbs: -0.82, changePct: -2.06, logoSrc: null, remoteLogo: null, untracked: true, returns: returns(-1) };
+  const tracked = { ...listing, ticker: "MSFT", name: "Microsoft Corp", untracked: undefined, returns: returns(7) };
+  const [aap, msft] = compareRows([listing, tracked], "YTD", ["AAP", "MSFT"], returns(10));
+  assert.deepEqual([aap.returnPct, aap.vsBenchmarkPct, aap.vsPeers.MSFT], [-1, -11, -8]);
+  assert.equal(aap.holding.untracked, true);
+  assert.equal(msft.vsPeers.AAP, 8);
+});

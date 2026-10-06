@@ -1,6 +1,5 @@
-import type { ExploreStock } from "./explore-data";
 import { exploreRanges, type ExploreRange } from "./explore-performance";
-import { watchlistRows, type WatchlistRow } from "./watchlist-catalog";
+import { watchlistRows, type WatchlistRow, type WatchlistStock } from "./watchlist-catalog";
 
 export type CompareRange = ExploreRange;
 export const compareRanges = exploreRanges;
@@ -17,7 +16,7 @@ export type CompareRow = {
 
 /** All returns and market gaps come from the same rows as the saved watchlist. */
 export function compareRows(
-  stocks: ExploreStock[],
+  stocks: WatchlistStock[],
   range: CompareRange,
   selected: string[],
   benchmark: Record<CompareRange, number | null>,

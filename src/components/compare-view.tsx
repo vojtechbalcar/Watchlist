@@ -10,6 +10,7 @@ import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
 import { compareColors, compareRanges, compareRows, type CompareRange } from "@/lib/compare-data";
 import { useMarket } from "./market-provider";
+import { useWatchlistStocks } from "./watchlist-listings";
 import { addComparisonStock, comparisonLimit, initialComparison, reconcileComparison } from "@/lib/compare-selection";
 import styles from "./compare-view.module.css";
 
@@ -39,6 +40,8 @@ export function CompareView() {
 
 function SavedComparison({ tickers }: { tickers: string[] }) {
   const market = useMarket();
+  // Saved stocks outside the tracked set load when viewed, as on the dashboard.
+  const watchlist = useWatchlistStocks(tickers);
   const compareBenchmark = market.benchmark;
   const preferences = usePreferences();
   const [selectedRange, setRange] = useState<CompareRange | null>(null);
@@ -52,9 +55,9 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
   const selected = active.map(item => item.ticker);
   const slots = Object.fromEntries(active.map(item => [item.ticker, item.colorSlot]));
   // Stocks without a return for this period sit out, and the notice below names them.
-  const rows = compareRows(market.stocks, range, selected, compareBenchmark.returnByRange, slots).filter((row): row is typeof row & { returnPct: number } => row.returnPct !== null);
+  const rows = compareRows(watchlist.stocks, range, selected, compareBenchmark.returnByRange, slots).filter((row): row is typeof row & { returnPct: number } => row.returnPct !== null);
   const ranked = [...rows].sort((a, b) => b.returnPct - a.returnPct);
-  const available = market.stocks.filter(stock => tickers.includes(stock.ticker) && !selected.includes(stock.ticker));
+  const available = watchlist.stocks.filter(stock => tickers.includes(stock.ticker) && !selected.includes(stock.ticker));
   const unavailable = selected.filter(ticker => !rows.some(row => row.series.ticker === ticker));
   const beating = rows.filter(row => (row.vsBenchmarkPct ?? 0) > 0).length;
   const behind = rows.filter(row => (row.vsBenchmarkPct ?? 0) < 0).length;
@@ -110,7 +113,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
             <dt><i style={{ background: row.series.colorVar }} aria-hidden="true" />{row.series.ticker}</dt>
             <dd>{formatPct(row.returnPct)}</dd><small><Gap value={row.vsBenchmarkPct} /> vs. market</small>
           </div>)}</dl>
-          <CompareChart rows={rows} benchmarkLabel={compareBenchmark.label} range={range} />
+          <CompareChart rows={rows} benchmarkLabel={compareBenchmark.label} range={range} extraSeries={watchlist.series} />
           <div className="chart-caption"><span><span className="text-chart-benchmark">┄</span> {compareBenchmark.label} <span className="ml-2">{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</span></span><span>Daily closes · {range}</span></div>
         </div>
         <aside className="overview-aside compare-aside">

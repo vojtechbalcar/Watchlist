@@ -2,13 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CompareRow, CompareRange } from "@/lib/compare-data";
+import type { SeriesPoint } from "@/lib/market";
 import { comparisonDomain, comparisonY } from "@/lib/compare-chart";
 import { alignTo, axisLabels } from "@/lib/chart-series";
 import { benchmarkTicker } from "@/lib/explore-data";
 import { useMarketSeries } from "./market-provider";
 
 /** Each selected stock's cumulative return against the benchmark's, on the benchmark's trading days. */
-export function CompareChart({ rows, benchmarkLabel, range }: { rows: CompareRow[]; benchmarkLabel: string; range: CompareRange }) {
+export function CompareChart({ rows, benchmarkLabel, range, extraSeries = {} }: {
+  rows: CompareRow[]; benchmarkLabel: string; range: CompareRange;
+  /** Lines for saved stocks outside the tracked set, which the market series doesn't carry. */
+  extraSeries?: Record<string, Partial<Record<CompareRange, SeriesPoint[]>>>;
+}) {
   const svg = useRef<SVGSVGElement>(null);
   const lines = useMarketSeries();
   const [width, setWidth] = useState(980);
@@ -24,7 +29,7 @@ export function CompareChart({ rows, benchmarkLabel, range }: { rows: CompareRow
 
   const axis = lines?.series[benchmarkTicker(benchmarkLabel)]?.[range] ?? [];
   const benchmark = axis.map(([, value]) => value);
-  const stockLines = rows.map(row => alignTo(axis, lines?.series[row.series.ticker]?.[range] ?? []));
+  const stockLines = rows.map(row => alignTo(axis, (lines?.series[row.series.ticker] ?? extraSeries[row.series.ticker])?.[range] ?? []));
   const domain = comparisonDomain([...benchmark, ...stockLines.flat().filter((value): value is number => value !== null), ...rows.flatMap(row => row.returnPct ?? [])]);
   const x = (index: number) => 8 + (axis.length > 1 ? index / (axis.length - 1) : 1) * plotWidth;
   const points = (data: (number | null)[]) => data.flatMap((value, i) => value === null ? [] : [`${x(i)},${comparisonY(value, domain)}`]).join(" ");

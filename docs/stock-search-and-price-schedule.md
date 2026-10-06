@@ -220,8 +220,10 @@ stocks across all users), and a capped version of that.
   never flashes the empty state.
 - **Links to them don't prefetch** (`Holding.untracked`), since rendering an
   untracked page can spend credits.
-- **Not covered:** Compare still lists only tracked stocks, and setup still
-  offers only the 48.
+- **Compare (2026-10-06)** uses the same hook, so untracked saved stocks can
+  be picked, charted, ranked, and compared side by side. `CompareChart` takes
+  their lines as `extraSeries`.
+- **Not covered:** setup still offers only the 48.
 
 Verified locally (no Twelve Data key, so cached prices only): added AAP from
 its page, then the dashboard showed it with MSFT in the table, the average,

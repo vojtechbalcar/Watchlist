@@ -125,6 +125,17 @@ model User {
   /// scrypt, as `salt:hash` in hex.
   passwordHash String
   createdAt    DateTime @default(now())
+  watchlist    SavedWatchlist?
+}
+
+/// A user's watchlist, so it follows them across browsers and devices. The
+/// browser keeps a working copy; see src/lib/watchlist-sync.ts.
+model SavedWatchlist {
+  userId    String   @id
+  /// Tickers, setup flags, and an unfinished setup draft, as WatchlistState.
+  state     Json
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// A response built ahead of time because assembling it per request is slow,

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ListPlus } from "lucide-react";
-import { usePreferencesReady } from "./preferences-provider";
-import { restartWatchlistSetup, useWatchlist } from "./watchlist-store";
+import { restartWatchlistSetup, useWatchlist, useWatchlistReady } from "./watchlist-store";
 import { emptySetupDraft, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
 import { watchlistRows } from "@/lib/watchlist-catalog";
 import { WatchlistSetup } from "./watchlist-setup";
@@ -17,7 +16,7 @@ import styles from "./watchlist-setup.module.css";
 
 export function WatchlistWorkspace({ dashboard = false }: { dashboard?: boolean }) {
   const state = useWatchlist();
-  const ready = usePreferencesReady();
+  const ready = useWatchlistReady();
   if (!ready) return dashboard
     ? <><PageHeadingSkeleton /><OverviewCardSkeleton /><div className="mt-10"><WatchlistTableSkeleton compact /></div></>
     : <WatchlistTableSkeleton />;

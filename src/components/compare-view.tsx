@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { usePreferences, usePreferencesReady } from "./preferences-provider";
+import { usePreferences } from "./preferences-provider";
 import { CompareBodySkeleton } from "./skeletons";
-import { useWatchlist } from "./watchlist-store";
+import { useWatchlist, useWatchlistReady } from "./watchlist-store";
 import { StockLink } from "./stock-link";
 import { CompareChart } from "./compare-chart";
 import { formatPct } from "@/lib/format";
@@ -23,7 +23,7 @@ function Gap({ value }: { value: number | null }) {
 
 export function CompareView() {
   const watchlist = useWatchlist();
-  const ready = usePreferencesReady();
+  const ready = useWatchlistReady();
   return <>
     <div className="page-heading">
       <div><p className="eyebrow">A clearer view, side by side</p><h1 className="page-title">Compare</h1></div>

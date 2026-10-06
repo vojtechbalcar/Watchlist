@@ -6,6 +6,8 @@ status: current
 
 # Saved watchlist
 
+Superseded in part by [[account-watchlist]]: the list is now also saved to the account.
+
 Related: [[resumable-setup]], [[settings-preferences]], [[watchlist-placeholder-data]], [[watchlist-comparisons]], [[git-commit-workflow]]
 
 The user approved connecting Compare to their saved watchlist. The existing, uncommitted setup and membership integration is a prerequisite: the previously committed Explore and Watchlist views kept separate component state. These related draft files are verified and committed together before Compare adopts them. Unrelated assets, the nested scaffold, and the separate benchmark-spark edit are excluded.

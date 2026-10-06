@@ -7,9 +7,8 @@ import { ExploreCard } from "./explore-card";
 import { StockSearch } from "./stock-search";
 import { formatAsOf, useMarket } from "./market-provider";
 import { SectorStockList } from "./sector-stock-list";
-import { useWatchlist, toggleWatchlistStock } from "./watchlist-store";
+import { useWatchlist, toggleWatchlistStock, useWatchlistReady } from "./watchlist-store";
 import { useRemovalUndo } from "./removal-undo";
-import { usePreferencesReady } from "./preferences-provider";
 import { useExplorePeriod } from "./explore-period-provider";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import {
@@ -31,7 +30,7 @@ export function ExploreView({
   const market = useMarket();
   const { range, setRange } = useExplorePeriod();
   const { tickers: added } = useWatchlist();
-  const ready = usePreferencesReady();
+  const ready = useWatchlistReady();
   const [filter, setFilter] = useState("all");
   const [saveError, setSaveError] = useState(false);
   const undo = useRemovalUndo(added);

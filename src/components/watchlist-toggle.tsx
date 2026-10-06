@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
-import { usePreferencesReady } from "./preferences-provider";
 import { useRemovalUndo } from "./removal-undo";
-import { toggleWatchlistStock, useWatchlist } from "./watchlist-store";
+import { toggleWatchlistStock, useWatchlist, useWatchlistReady } from "./watchlist-store";
 import styles from "./stock-detail.module.css";
 
 /** Adds a stock page's stock to the watchlist, or removes it with an undo. */
 export function WatchlistToggle({ ticker }: { ticker: string }) {
   const { tickers } = useWatchlist();
-  const ready = usePreferencesReady();
+  const ready = useWatchlistReady();
   const undo = useRemovalUndo(tickers);
   const [saveError, setSaveError] = useState(false);
   const added = tickers.includes(ticker);

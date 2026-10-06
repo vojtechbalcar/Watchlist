@@ -11,6 +11,11 @@ const PUSH_DELAY_MS = 400;
  * the browser's copy. localStorage stays the working copy, so every change is
  * instant and other tabs see it; the account's copy at `endpoint` is what
  * other devices load. `reconcile` decides how the two meet on load.
+ *
+ * A change that couldn't be sent (offline, server error) is marked in
+ * localStorage. It is sent again when the browser comes back online, and on
+ * the next visit it counts as a change made while loading, so the account's
+ * older copy doesn't overwrite it.
  */
 export function createAccountSync<T>({ endpoint, ownerKey, read, replace, reconcile, empty }: {
   endpoint: string;
@@ -27,12 +32,32 @@ export function createAccountSync<T>({ endpoint, ownerKey, read, replace, reconc
   let editedBeforeLoad = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const listeners = new Set<() => void>();
+  const unsentKey = `${ownerKey}:unsent`;
+
+  function markUnsent(unsent: boolean) {
+    try {
+      if (unsent) localStorage.setItem(unsentKey, "1");
+      else localStorage.removeItem(unsentKey);
+    } catch { /* Blocked storage: nothing survives a reload anyway. */ }
+  }
+
+  function hasUnsent() {
+    try { return localStorage.getItem(unsentKey) === "1"; } catch { return false; }
+  }
 
   async function push(value: T) {
+    markUnsent(true);
     try {
       // keepalive lets a change made just before leaving the page still arrive.
-      await fetch(endpoint, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: value }), keepalive: true });
-    } catch { /* The next change sends the whole copy again. */ }
+      const response = await fetch(endpoint, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: value }), keepalive: true });
+      if (response.ok) markUnsent(false);
+    } catch { /* Stays marked; sent again when the browser is back online or on the next visit. */ }
+  }
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("online", () => {
+      if (user && synced && hasUnsent()) void push(read());
+    });
   }
 
   function readOwner() {
@@ -52,7 +77,11 @@ export function createAccountSync<T>({ endpoint, ownerKey, read, replace, reconc
       if (user === userId) return;
       user = userId;
       synced = false;
-      editedBeforeLoad = false;
+      // A change this account couldn't send last time outranks its older saved copy.
+      // Another account's unsent change stays in its own browser copy and is never sent.
+      const owner = readOwner();
+      editedBeforeLoad = hasUnsent() && owner === userId;
+      if (owner !== null && owner !== userId) markUnsent(false);
       let server: T | null;
       try {
         const response = await fetch(endpoint, { cache: "no-store", signal: AbortSignal.timeout(LOAD_TIMEOUT_MS) });

@@ -61,9 +61,21 @@ Verified with a throwaway account (deleted afterwards):
 - a fresh browser opened with compact density and the 1Y period, and its
   watchlist still loaded after the refactor.
 
-## Not covered
+## Offline changes (2026-10-06)
 
-- A change made offline is saved only when the next change goes through.
+A change that couldn't be sent sets `<ownerKey>:unsent` in localStorage. It
+is sent again on the browser's `online` event. On the next visit it counts as
+a change made while loading, so this browser's copy wins and uploads instead
+of being replaced by the account's older one. Only a successful response
+clears the mark (before this, any response counted as saved). Another
+account signing in clears the mark, so its own change is never sent.
+Rejected: a queue of individual changes. The whole copy is small, and sending
+it once is enough.
+
+Verified by switching a browser offline (throwaway account, deleted):
+- a stock added offline was saved on reconnect;
+- a stock added offline in a page that closed before reconnecting was still
+  there on the next visit and reached the account.
 
 ## Verification (2026-10-06)
 

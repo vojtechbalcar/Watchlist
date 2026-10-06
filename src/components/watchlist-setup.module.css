@@ -52,6 +52,10 @@
 .stockName > small { display: block; max-width: 130px; margin-top: 4px; font-size: 10px; color: var(--color-text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 .stockPrice { margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .snapshot { margin-top: 14px; font-size: 10px; color: var(--color-text-secondary); }
+.moreHeading { grid-column: 1 / -1; margin-top: 14px; font-size: 11px; font-weight: 500; }
+.moreHeading span { font-weight: 400; color: var(--color-text-secondary); }
+.more { grid-column: 1 / -1; justify-self: center; margin-top: 6px; padding: 10px 16px; border: 1px solid var(--color-line); border-radius: 5px; background: var(--color-surface-raised); font-size: 12px; cursor: pointer; }
+.more:hover { border-color: var(--color-ink); }
 .chosen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .chosen > span { display: inline-flex; align-items: center; gap: 10px; min-height: 30px; border: 1px solid var(--color-line); border-radius: 4px; padding: 5px 9px; background: var(--color-surface-raised); font-size: 11px; }
 .chosen button { display: grid; place-items: center; min-width: 20px; min-height: 20px; color: var(--color-text-secondary); }

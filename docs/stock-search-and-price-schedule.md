@@ -223,7 +223,15 @@ stocks across all users), and a capped version of that.
 - **Compare (2026-10-06)** uses the same hook, so untracked saved stocks can
   be picked, charted, ranked, and compared side by side. `CompareChart` takes
   their lines as `extraSeries`.
-- **Not covered:** setup still offers only the 48.
+- **Setup (2026-10-06)** offers any stock too. The 48 tracked stocks stay as
+  featured picks. Below them, `setupCandidates` lists the chosen sectors'
+  other stocks from the directory, 30 at a time, or, while searching, the
+  best matches from all of it. Search results get live prices for the top
+  six like Explore's search; listed stocks show stored prices only. With no
+  search and no sectors chosen, it lists nothing extra rather than 6,400
+  rows. Verified with a throwaway account (deleted afterwards): Consumer
+  listed 755 more, a search found AAP, the last step used AAP as the
+  example, and the finished list reached the account.
 
 Verified locally (no Twelve Data key, so cached prices only): added AAP from
 its page, then the dashboard showed it with MSFT in the table, the average,

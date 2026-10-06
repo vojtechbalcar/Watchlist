@@ -10,7 +10,14 @@ import { formatPct, formatPrice } from "@/lib/format";
 import { emptySetupDraft, withoutTicker, withTickerAt, type SetupDraft } from "@/lib/watchlist-state";
 import { completeWatchlistSetup, dismissWatchlistSetup, saveSetupDraft } from "./watchlist-store";
 import { StockLogo } from "./stock-logo";
+import { useStockDirectory, useStockQuotes } from "./stock-directory-client";
+import { useWatchlistStocks } from "./watchlist-listings";
+import { setupCandidates } from "@/lib/setup-candidates";
+import { SEARCH_LIMIT } from "@/lib/search-ranking";
 import styles from "./watchlist-setup.module.css";
+
+/** Untracked stocks shown per page under the featured ones. */
+const MORE_PAGE = 30;
 
 const stepNames = ["Your interests", "Choose stocks", "See the context"];
 const titles = ["What catches your eye?", "Pick your first stocks.", "Meet your benchmark."];
@@ -32,6 +39,7 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
   const [draft, setDraft] = useState(initialDraft ?? emptySetupDraft);
   const { step, interests, selected } = draft;
   const [query, setQuery] = useState("");
+  const [moreShown, setMoreShown] = useState(MORE_PAGE);
   const [error, setError] = useState<keyof typeof saveErrors | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saved" | "failed">(initialDraft ? "saved" : "idle");
   const [pendingChip, setPendingChip] = useState<{ ticker: string; index: number } | null>(null);
@@ -48,8 +56,20 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     .filter(stock => `${stock.ticker} ${stock.name}`.toLowerCase().includes(query.trim().toLowerCase()));
   // A removed chip holds its place until the user undoes it, re-picks the stock, or moves on.
   const pendingRemoval = pendingChip && !selected.includes(pendingChip.ticker) ? pendingChip : null;
-  const chosen = market.stocks.filter(stock => selected.includes(stock.ticker) || pendingRemoval?.ticker === stock.ticker);
-  const example = watchlistRows(market.stocks, [selected[0] ?? "MSFT"], "YTD", market.benchmark.returnByRange)[0];
+  const chosen = pendingRemoval ? withTickerAt(selected, pendingRemoval.ticker, pendingRemoval.index) : selected;
+  // Beyond the featured stocks: the chosen sectors' other stocks, or any stock a search finds.
+  const directory = useStockDirectory();
+  const more = step === 1 && directory.stocks ? setupCandidates(directory.stocks, { interests, query, shown: moreShown }) : { stocks: [], total: 0 };
+  // Search results get live prices like Explore's search; listed stocks show what is stored.
+  const searching = query.trim().length > 0;
+  const liveQuote = useStockQuotes(searching ? more.stocks.slice(0, SEARCH_LIMIT).map(stock => stock.symbol) : [], true, 200);
+  const storedQuote = useStockQuotes(more.stocks.slice(searching ? SEARCH_LIMIT : 0).map(stock => stock.symbol), false);
+  const quoteOf = (symbol: string) => liveQuote(symbol) ?? storedQuote(symbol);
+  // The first pick may be outside the tracked set; its figures load like a watchlist row's.
+  const exampleStocks = useWatchlistStocks(step === 2 && selected[0] ? [selected[0]] : []).stocks;
+  // Before the last step an untracked first pick isn't loaded, so the aside's example falls back to MSFT.
+  const example = watchlistRows(exampleStocks, [selected[0] ?? "MSFT"], "YTD", market.benchmark.returnByRange)[0]
+    ?? watchlistRows(market.stocks, ["MSFT"], "YTD", market.benchmark.returnByRange)[0];
   const benchmarkReturn = market.benchmark.returnByRange.YTD;
   const returnPct = example.returnPct;
   const gap = example.vsBenchmarkPct;
@@ -77,6 +97,7 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     setPendingChip(null);
   }
   function toggleInterest(sector: Sector) {
+    setMoreShown(MORE_PAGE);
     updateDraft({ interests: interests.includes(sector) ? interests.filter(item => item !== sector) : [...interests, sector] });
   }
   function toggleStock(ticker: string) {
@@ -93,6 +114,11 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     router.push("/explore");
   }
 
+  function stockOption(stock: { ticker: string; name: string; price: number | null; logoUrl?: string | null }) {
+    const checked = selected.includes(stock.ticker);
+    return <label key={stock.ticker} className={styles.stockOption} data-selected={checked}><input type="checkbox" className="sr-only" aria-label={`${stock.ticker} · ${stock.name}`} checked={checked} onChange={() => toggleStock(stock.ticker)} /><StockLogo stock={stock} remoteSrc={stock.logoUrl} /><span className={styles.stockName}><strong>{stock.ticker}</strong><small>{stock.name}</small></span><span className={styles.stockPrice}>{stock.price === null ? "—" : `$${formatPrice(stock.price)}`}</span><span className={styles.checkBox} aria-hidden="true">{checked && <Check size={12} />}</span></label>;
+  }
+
   return <section className={styles.setup} aria-label="Watchlist setup">
     <div className={styles.heading}><div><p className="eyebrow">A few stocks. A clearer perspective.</p><h1 className="page-title">Build your first watchlist</h1><p>Your starting point for seeing stocks in context.</p></div><button className={styles.skip} onClick={skip}>I’ll explore on my own <ArrowRight size={14} aria-hidden="true" /></button></div>
     <ol className={styles.steps} aria-label="Setup progress">{stepNames.map((name, index) => <li key={name} aria-current={index === step ? "step" : undefined} data-complete={index < step}><span>{index < step ? <Check size={13} aria-hidden="true" /> : `0${index + 1}`}</span>{name}</li>)}</ol>
@@ -104,28 +130,34 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
         {step === 0 && <div className={styles.sectors}>{sectors.map(sector => <label key={sector} className={styles.sector} data-selected={interests.includes(sector)}><input type="checkbox" className="sr-only" checked={interests.includes(sector)} onChange={() => toggleInterest(sector)} /><span className={styles.sectorTop}><strong>{sector}</strong><span className={styles.checkBox} aria-hidden="true">{interests.includes(sector) && <Check size={12} />}</span></span><span className={styles.sectorDescription}>{sectorDescriptions[sector]}</span></label>)}</div>}
 
         {step === 1 && <>
-          <div className={styles.stockToolbar}><label className={styles.search}><Search size={15} aria-hidden="true" /><input type="search" aria-label="Search stocks for your watchlist" placeholder="Search a company or symbol" value={query} onChange={event => setQuery(event.target.value)} /></label><span>{interests.length ? `${interests.length} ${interests.length === 1 ? "sector" : "sectors"}` : "All sectors"}{interests.length > 0 && <button onClick={() => updateDraft({ interests: [] })}>Browse all</button>}</span></div>
-          <fieldset className={styles.stockPicker}><legend className="sr-only">Choose stocks for your watchlist</legend>{stocks.map(stock => <label key={stock.ticker} className={styles.stockOption} data-selected={selected.includes(stock.ticker)}><input type="checkbox" className="sr-only" aria-label={`${stock.ticker} · ${stock.name}`} checked={selected.includes(stock.ticker)} onChange={() => toggleStock(stock.ticker)} /><StockLogo stock={stock} /><span className={styles.stockName}><strong>{stock.ticker}</strong><small>{stock.name}</small></span><span className={styles.stockPrice}>{stock.price === null ? "—" : `$${formatPrice(stock.price)}`}</span><span className={styles.checkBox} aria-hidden="true">{selected.includes(stock.ticker) && <Check size={12} />}</span></label>)}</fieldset>
-          {stocks.length === 0 && <div className={styles.noResults}><p>No companies match this search.</p><button onClick={() => { setQuery(""); updateDraft({ interests: [] }); }}>Browse all stocks</button></div>}
+          <div className={styles.stockToolbar}><label className={styles.search}><Search size={15} aria-hidden="true" /><input type="search" aria-label="Search stocks for your watchlist" placeholder="Search a company or symbol" value={query} onChange={event => { setQuery(event.target.value); setMoreShown(MORE_PAGE); }} /></label><span>{interests.length ? `${interests.length} ${interests.length === 1 ? "sector" : "sectors"}` : "All sectors"}{interests.length > 0 && <button onClick={() => updateDraft({ interests: [] })}>Browse all</button>}</span></div>
+          <fieldset className={styles.stockPicker}><legend className="sr-only">Choose stocks for your watchlist</legend>
+            {stocks.map(stock => stockOption({ ticker: stock.ticker, name: stock.name, price: stock.price }))}
+            {more.stocks.length > 0 && <p className={styles.moreHeading}>{searching ? "More matches" : interests.length === 1 ? `More ${interests[0].toLowerCase()} stocks` : "More stocks in these sectors"} <span>· {more.total.toLocaleString("en-US")}</span></p>}
+            {more.stocks.map(stock => { const quote = quoteOf(stock.symbol); return stockOption({ ticker: stock.symbol, name: stock.name, price: quote?.price ?? null, logoUrl: quote?.logoUrl }); })}
+            {more.stocks.length < more.total && <button type="button" className={styles.more} onClick={() => setMoreShown(count => count + MORE_PAGE)}>Show {Math.min(MORE_PAGE, more.total - more.stocks.length)} more</button>}
+          </fieldset>
+          {!searching && !interests.length && <p className={styles.snapshot}>Featured companies above. Search to find any of the {directory.stocks ? directory.stocks.length.toLocaleString("en-US") : "6,000+"} stocks on NASDAQ and NYSE.</p>}
+          {stocks.length === 0 && more.stocks.length === 0 && <div className={styles.noResults}><p>No companies match this search.</p><button onClick={() => { setQuery(""); updateDraft({ interests: [] }); }}>Browse all stocks</button></div>}
           <p className={styles.snapshot}>{market.asOf ? `Prices in USD · as of ${formatAsOf(market.asOf)}` : "Prices in USD · not loaded yet"}</p>
         </>}
 
         {step === 2 && <div className={styles.review}>
           <div className={styles.benchmarkIntro}><span className={styles.benchmarkMark}>S&P</span><div><h3>S&P 500</h3><p>Your watchlist’s broad-market reference. It gives each stock’s return something to measure up to.</p></div><span className="period-tag">YTD</span></div>
-          <div className={styles.comparison}><div className={styles.comparisonHeading}><span>One of your stocks, in context</span><span>Year to date</span></div><div className={styles.exampleStock}><StockLogo stock={example} /><span><strong>{example.ticker}</strong><small>{example.name}</small></span></div><dl><div><dt>{example.ticker} return</dt><dd>{returnPct === null ? "—" : formatPct(returnPct)}</dd></div><div><dt>S&P 500 return</dt><dd>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</dd></div><div><dt>Difference</dt><dd className={gap === null ? undefined : gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === null ? "—" : <>{gap > 0 ? "+" : gap < 0 ? "−" : ""}{Math.abs(gap).toFixed(2)} <small>pp</small></>}</dd></div></dl><p>{gap === null ? `${example.ticker}’s comparison appears once its prices are in.` : gap === 0 ? `${example.ticker} is in line with the S&P 500.` : `${example.ticker} is ${Math.abs(gap).toFixed(2)} percentage points ${gap > 0 ? "ahead of" : "behind"} the S&P 500.`} That’s the context a price alone can’t give you.</p></div>
+          <div className={styles.comparison}><div className={styles.comparisonHeading}><span>One of your stocks, in context</span><span>Year to date</span></div><div className={styles.exampleStock}><StockLogo stock={example} remoteSrc={example.remoteLogo} /><span><strong>{example.ticker}</strong><small>{example.name}</small></span></div><dl><div><dt>{example.ticker} return</dt><dd>{returnPct === null ? "—" : formatPct(returnPct)}</dd></div><div><dt>S&P 500 return</dt><dd>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</dd></div><div><dt>Difference</dt><dd className={gap === null ? undefined : gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === null ? "—" : <>{gap > 0 ? "+" : gap < 0 ? "−" : ""}{Math.abs(gap).toFixed(2)} <small>pp</small></>}</dd></div></dl><p>{gap === null ? `${example.ticker}’s comparison appears once its prices are in.` : gap === 0 ? `${example.ticker} is in line with the S&P 500.` : `${example.ticker} is ${Math.abs(gap).toFixed(2)} percentage points ${gap > 0 ? "ahead of" : "behind"} the S&P 500.`} That’s the context a price alone can’t give you.</p></div>
           <p className={styles.reviewNote}>Your watchlist starts with year-to-date comparisons. In Explore, each company is compared with its own sector benchmark. You can choose other periods there.</p>
         </div>}
 
         {error && <div className={styles.error} role="alert"><p>{saveErrors[error]}</p><button className={styles.retry} onClick={() => error === "complete" ? finish() : error === "skip" ? skip() : persistDraft(draft)}>Try again</button></div>}
         <div className={styles.actions}><div>{step > 0 && <button className={styles.back} onClick={() => changeStep(step === 2 ? 1 : 0)}><ArrowLeft size={14} aria-hidden="true" />Back</button>}</div><span>{step === 0 ? (interests.length ? `${interests.length} selected` : "All sectors welcome") : `${selected.length} ${selected.length === 1 ? "stock" : "stocks"} selected`}</span><button className="primary-action" disabled={step > 0 && selected.length === 0} onClick={() => step === 2 ? finish() : changeStep(step === 0 ? 1 : 2)}>{step === 2 ? "Create my watchlist" : "Continue"}<ArrowRight size={14} aria-hidden="true" /></button></div>
-        <p className={styles.saveStatus} role="status">{saveState === "saved" ? "Progress saved in this browser." : saveState === "failed" ? "Latest changes not saved." : "Your progress saves as you go."}</p>
+        <p className={styles.saveStatus} role="status">{saveState === "saved" ? "Progress saved." : saveState === "failed" ? "Latest changes not saved." : "Your progress saves as you go."}</p>
       </div>
       <aside className={styles.aside} aria-label="Your watchlist preview">
         <p className="eyebrow">Your starting point</p><h2>{selected.length ? `${selected.length} ${selected.length === 1 ? "company" : "companies"} to watch.` : "Curiosity comes first."}</h2><p>{selected.length ? "A watchlist follows companies you’re interested in. You don’t need to own their shares." : "You don’t need to know everything about the market. Start with a company you want to understand."}</p>
-        {chosen.length > 0 ? <><div className={styles.chosen}>{chosen.map(stock => <span key={stock.ticker} data-removed={pendingRemoval?.ticker === stock.ticker || undefined}>{stock.ticker}{pendingRemoval?.ticker === stock.ticker
-          ? <button className={styles.chipUndo} aria-label={`Undo removing ${stock.ticker} from selection`} onClick={undoChip}>Undo</button>
-          : step !== 2 && <button aria-label={`Remove ${stock.ticker} from selection`} onClick={() => removeChip(stock.ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>{returnPct === null ? "—" : formatPct(returnPct)}</strong></div><div><span>Market return</span><strong>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</strong></div>{gap !== null && <p className={gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === 0 ? "In line with the market" : `${gap > 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)} pp ${gap > 0 ? "ahead of" : "behind"} the market`}</p>}<small>For example · {example.ticker} vs. S&P 500, YTD</small></div>}
-        <div className={styles.storageNote}><span>Made for watching.</span><p>Return to setup whenever you’re ready. We save your progress in this browser when storage is available.</p></div>
+        {chosen.length > 0 ? <><div className={styles.chosen}>{chosen.map(ticker => <span key={ticker} data-removed={pendingRemoval?.ticker === ticker || undefined}>{ticker}{pendingRemoval?.ticker === ticker
+          ? <button className={styles.chipUndo} aria-label={`Undo removing ${ticker} from selection`} onClick={undoChip}>Undo</button>
+          : step !== 2 && <button aria-label={`Remove ${ticker} from selection`} onClick={() => removeChip(ticker)}><X size={12} aria-hidden="true" /></button>}</span>)}</div>{step === 2 && <button className={styles.edit} onClick={() => changeStep(1)}>Edit your selection</button>}</> : <div className={styles.example}><div><span>Stock return</span><strong>{returnPct === null ? "—" : formatPct(returnPct)}</strong></div><div><span>Market return</span><strong>{benchmarkReturn === null ? "—" : formatPct(benchmarkReturn)}</strong></div>{gap !== null && <p className={gap > 0 ? "text-up" : gap < 0 ? "text-down" : "text-text-secondary"}>{gap === 0 ? "In line with the market" : `${gap > 0 ? "+" : "−"}${Math.abs(gap).toFixed(2)} pp ${gap > 0 ? "ahead of" : "behind"} the market`}</p>}<small>For example · {example.ticker} vs. S&P 500, YTD</small></div>}
+        <div className={styles.storageNote}><span>Made for watching.</span><p>Return to setup whenever you’re ready. Your progress is saved to your account as you go.</p></div>
       </aside>
     </div>
     <p className="sr-only" role="status" aria-live="polite">{selected.length} stocks selected.</p>

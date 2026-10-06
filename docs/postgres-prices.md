@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-01
+updated: 2026-10-06
 status: current
 ---
 
@@ -54,40 +54,31 @@ without explanation; intraday bars, which multiply the data and the API quota
 for a view the app does not yet offer; and calling the stock API from a page or
 a client component, which the project's hard rules forbid outright.
 
-## Blocked on
+## How the plan turned out (checked 2026-10-06)
 
-- `vercel login`, before the database can be provisioned through the Vercel
-  Marketplace. `vercel integration discover` starts a device-login flow and
-  hangs without it.
-- A Twelve Data account and its API key in `.env.local`, before the cron job
-  can fetch anything.
+The plan above was written before any of it existed. It is all built, with
+these differences:
 
-## Implementation plan
+- **Database:** Prisma Postgres, not a Vercel Marketplace store. The app
+  deploys to Cloudflare Workers ([[cloudflare-workers-deploy]]), so the
+  `vercel login` blocker no longer applied.
+- **Tables:** the identity table is `Instrument` (stocks and benchmarks,
+  `kind` telling them apart), not `Stock`, beside `DailyClose` and `Quote`.
+- **Schedule:** the price job runs every 5 minutes on a Cloudflare Cron
+  Trigger in `wrangler.jsonc`, not daily from `vercel.json`. See
+  [[stock-search-and-price-schedule]].
+- **Who calls the API:** the job is no longer the only caller. On-demand
+  lookups for search, untracked stock pages, and watchlists were added later
+  ([[CLAUDE-hard-rules]]).
+- **Twelve Data key:** set locally only. Production needs
+  `TWELVE_DATA_API_KEY` and `CRON_SECRET` on the `gowatchlist` Worker.
+  As of 2026-10-06 they had not been set, so production prices date from
+  2026-10-01.
 
-- [ ] Provision Postgres via `vercel integration discover --category storage`
-      and `vercel integration add`, then `vercel env pull`. Requires the login
-      above.
-- [ ] Add Prisma, `prisma/schema.prisma` with `Stock`, `DailyClose`, and
-      `Quote`, and the first migration. Seed `Stock` from the existing catalog
-      in `explore-data.ts`.
-- [ ] Add failing tests for return calculations over stored closes, including
-      missing days, a ticker with no closes at all, and a range that predates a
-      ticker's first close.
-- [ ] Replace the reads: `watchlist-data.ts`, `watchlist-catalog.ts`,
-      `explore-performance.ts`, and `market-benchmark.ts` query Postgres through
-      one data-access module. Pages become async server components inside the
-      Suspense boundaries that already exist.
-- [ ] Render honest gaps wherever a figure is missing, matching Explore's
-      existing "no data for this range" treatment.
-- [ ] Add `/api/cron/prices` with `CRON_SECRET`, the Twelve Data fetcher behind
-      its own module, and the schedule in `vercel.json`.
-- [ ] Verify: tests, typecheck, scoped ESLint, a real cron run populating the
-      tables, every route against real rows, and every route against an empty
-      database. Update the docs, review the diff, commit and push.
-
-## Verification
-
-Pending.
+Done, in plan order: database and Prisma; schema, migrations, and seed;
+return tests over stored closes (`tests/period-returns.test.mjs`); reads
+moved to Postgres (below); honest gaps; the cron route and schedule;
+verification (below).
 
 ## Real prices on every page (2026-10-01)
 

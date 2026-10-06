@@ -1,6 +1,8 @@
 import type { PrismaClient } from "@prisma/client";
 import { refreshListingCloses, refreshListingLogos, refreshListingPrices } from "@/lib/listing-refresh";
+import { trackedStocks } from "@/lib/explore-data";
 import { returnSeries, type SeriesPoint } from "@/lib/market";
+import { listingFigures } from "@/lib/watchlist-listing";
 import { parseStoredCloses, periodReturn, periods, type Period } from "@/lib/period-returns";
 
 /** Untracked stocks have no sector, so they are measured against the whole market. */
@@ -69,4 +71,33 @@ export async function getListingDetail(db: PrismaClient, symbol: string, now = n
     }),
     series: Object.fromEntries(periods.map(period => [period, { stock: returnSeries(closes, period), benchmark: returnSeries(marketThrough, period) }])) as ListingDetail["series"],
   };
+}
+
+export type WatchlistListing = { ticker: string; name: string; currency: string; logoUrl: string | null } & ReturnType<typeof listingFigures>;
+
+/** Enough for a large watchlist; each stale stock can spend a credit. */
+export const WATCHLIST_LISTING_LIMIT = 40;
+
+/**
+ * Watchlist rows for stocks outside the tracked set. Nothing schedules these:
+ * viewing the watchlist refreshes each price older than 15 minutes, a missing
+ * logo, and closes once per session, all within the on-demand budget. A
+ * symbol that isn't a listing is left out, and the page keeps a gap row.
+ */
+export async function getWatchlistListings(db: PrismaClient, symbols: string[], now = new Date()): Promise<WatchlistListing[]> {
+  const wanted = symbols.filter(symbol => !trackedStocks.some(stock => stock.ticker === symbol)).slice(0, WATCHLIST_LISTING_LIMIT);
+  if (!wanted.length) return [];
+  const listings = await db.listing.findMany({ where: { symbol: { in: wanted } } });
+  await Promise.all([
+    refreshListingPrices(db, listings, now),
+    refreshListingLogos(db, listings, now),
+    ...listings.map(listing => refreshListingCloses(db, listing, now)),
+  ]);
+  return listings.map(listing => ({
+    ticker: listing.symbol,
+    name: listing.name,
+    currency: listing.currency,
+    logoUrl: listing.logoUrl,
+    ...listingFigures(listing),
+  }));
 }

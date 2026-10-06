@@ -4,6 +4,7 @@ import { formatPct, formatPrice } from "@/lib/format";
 import type { ListingDetail } from "@/lib/listing-detail";
 import { ListingPerformance } from "./listing-performance";
 import { StockLogo } from "./stock-logo";
+import { WatchlistToggle } from "./watchlist-toggle";
 import styles from "./stock-detail.module.css";
 
 function direction(value: number) {
@@ -26,6 +27,7 @@ export function ListingDetailView({ stock }: { stock: ListingDetail }) {
     </nav>
     <header className={styles.heading}>
       <div className={styles.identity}><StockLogo stock={stock} remoteSrc={stock.logoUrl} /><div><p className="eyebrow">{stock.exchange} · {stock.ticker}</p><h1>{stock.name}</h1></div></div>
+      <WatchlistToggle ticker={stock.ticker} />
     </header>
 
     <div className={styles.quote}>

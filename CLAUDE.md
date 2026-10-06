@@ -9,8 +9,8 @@ or just moving with it?
 
 ## Hard rules
 - Client components read price data from Postgres only, through the server. Only the
-  scheduled price job and on-demand lookups (`/api/stocks/quotes?live=1` and an untracked
-  stock's page) call the stock API, all through `src/lib/twelve-data.ts` and its credit budget.
+  scheduled price job and on-demand lookups (`/api/stocks/quotes?live=1`, an untracked
+  stock's page, and `/api/stocks/watchlist`) call the stock API, all through `src/lib/twelve-data.ts` and its credit budget.
 - Maroon is brand only, never gains or losses. Green/red are market direction only.
 - The word is "watchlist", never "portfolio".
 

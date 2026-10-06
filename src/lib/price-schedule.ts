@@ -131,6 +131,20 @@ export function latestSettledSession(now: Date) {
   throw new Error("No settled session in the last ten days");
 }
 
+/**
+ * The latest session that had opened by `now`: today once the bell has rung,
+ * otherwise the previous trading day. A quote fetched then is that session's.
+ */
+export function sessionOpenedBy(now: Date) {
+  const { ymd: today, minutes } = nyClock(now);
+  const [year, month, day] = today.split("-").map(Number);
+  for (let back = 0; back < 10; back++) {
+    const ymd = ymdOf(year, month, day - back);
+    if (marketHours(ymd) !== null && (back > 0 || minutes >= MARKET_OPEN)) return ymd;
+  }
+  throw new Error("No session in the last ten days");
+}
+
 export type TrackedState = {
   ticker: string;
   /** The newest stored close, as YYYY-MM-DD. */

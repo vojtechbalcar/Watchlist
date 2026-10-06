@@ -11,6 +11,7 @@ import { WatchlistSetup } from "./watchlist-setup";
 import { WatchlistTable } from "./watchlist-table";
 import { OverviewCard } from "./overview-card";
 import { useMarket } from "./market-provider";
+import { useWatchlistStocks } from "./watchlist-listings";
 import { OverviewCardSkeleton, PageHeadingSkeleton, WatchlistTableSkeleton } from "./skeletons";
 import styles from "./watchlist-setup.module.css";
 
@@ -30,7 +31,8 @@ function ReadyWorkspace({ state, dashboard }: { state: WatchlistState; dashboard
   const [restartError, setRestartError] = useState(false);
   const [created, setCreated] = useState(false);
   const market = useMarket();
-  const rows = watchlistRows(market.stocks, state.tickers, "YTD", market.benchmark.returnByRange);
+  const { stocks } = useWatchlistStocks(state.tickers);
+  const rows = watchlistRows(stocks, state.tickers, "YTD", market.benchmark.returnByRange);
 
   // A successful completion in another tab closes an older editor too.
   if (editing && rows.length && !state.setupDraft) setEditing(false);

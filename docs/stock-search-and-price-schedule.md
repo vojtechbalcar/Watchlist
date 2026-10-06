@@ -98,8 +98,9 @@ in once the price job has stored SPY's closes.
 this page. All of them spend the "search" budget (8 a minute, 800 a day), which
 now covers every on-demand lookup.
 
-Not there yet: an "Add to watchlist" button, because the watchlist still
-only knows the 48 tracked stocks.
+**Watchlist (2026-10-06).** The page has the tracked page's "Add to
+watchlist" button (`WatchlistToggle`, now shared by both pages); see
+"Any stock in the watchlist" below.
 
 **Chart (2026-10-05).** The page now has the tracked page's panel: range
 buttons, the three figures, a verdict, and a line chart of the stock against
@@ -188,6 +189,44 @@ stocks' stored prices only.
   tracked stock's page.
 - Not verified: live batch prices and logos. The public demo key only serves
   single symbols, so those paths need the real key.
+
+## Any stock in the watchlist (2026-10-06)
+
+The watchlist used to accept only the 48 tracked stocks. Now any listed
+stock can be saved, from its page or from Explore.
+
+**Decision: fetch when viewed.** The user chose this over scheduling added
+stocks. An untracked stock in someone's watchlist is refreshed only when a
+watchlist is open: `/api/stocks/watchlist` refreshes each price older than 15
+minutes, a missing logo, and a year of closes once per session, through the
+same `listing-refresh.ts` functions and "search" budget as search and the
+stock page. Rejected: adding saved stocks to the price job (about 10 credits
+a day each, forever, so the free plan's 800 would run out at roughly 20 extra
+stocks across all users), and a capped version of that.
+
+- **Saved tickers are checked by form** (`isWatchlistTicker`), not against
+  the tracked list. `validTickers` and friends take a list or a rule.
+- **Figures match tracked stocks.** `listingFigures` in
+  `src/lib/watchlist-listing.ts` runs the price job's `instrumentMarket` and
+  `instrumentSeries` over the cached closes, with the cached price as the
+  point for `sessionOpenedBy` its fetch time (today after the open, otherwise
+  the previous session). Returns and chart lines therefore end at the price
+  the row shows.
+- **Browser side.** `useWatchlistStocks` (`src/components/watchlist-listings.ts`)
+  merges these stocks into the dashboard and watchlist rows and the overview
+  chart. One request per page for all untracked tickers, reused for a minute
+  across components. While loading, or if a symbol is no longer listed, the
+  row shows the ticker with gaps, so a watchlist of only untracked stocks
+  never flashes the empty state.
+- **Links to them don't prefetch** (`Holding.untracked`), since rendering an
+  untracked page can spend credits.
+- **Not covered:** Compare still lists only tracked stocks, and setup still
+  offers only the 48.
+
+Verified locally (no Twelve Data key, so cached prices only): added AAP from
+its page, then the dashboard showed it with MSFT in the table, the average,
+the chart, the ahead/behind count, and today's movers. The route returns 401
+signed out.
 
 ## Market holidays (2026-10-02)
 

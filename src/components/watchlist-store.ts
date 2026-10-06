@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { availableWatchlistTickers } from "@/lib/watchlist-catalog";
+import { isWatchlistTicker } from "@/lib/watchlist-catalog";
 import { sectors } from "@/lib/explore-data";
 import { completeSetupState, emptySetupDraft, emptyWatchlist, parseWatchlist, removeTickerState, restoreTickerState, WATCHLIST_KEY, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
 import { writeWatchlistStorage } from "@/lib/watchlist-storage";
@@ -15,7 +15,7 @@ function getSnapshot() {
     const raw = localStorage.getItem(WATCHLIST_KEY);
     if (raw !== cachedRaw) {
       cachedRaw = raw;
-      cachedState = parseWatchlist(raw, availableWatchlistTickers, sectors);
+      cachedState = parseWatchlist(raw, isWatchlistTicker, sectors);
     }
   } catch { /* Browsing remains available when storage is blocked. */ }
   return cachedState;
@@ -46,7 +46,7 @@ function writeState(update: (state: WatchlistState) => WatchlistState | null): b
 }
 
 export function toggleWatchlistStock(ticker: string) {
-  if (!availableWatchlistTickers.includes(ticker)) return false;
+  if (!isWatchlistTicker(ticker)) return false;
   return writeState(state => ({
     ...state,
     setupCompleted: true,
@@ -67,11 +67,11 @@ export function removeWatchlistStock(ticker: string): { saved: boolean; index: n
 }
 
 export function restoreWatchlistStock(ticker: string, index: number) {
-  return writeState(state => restoreTickerState(state, ticker, index, availableWatchlistTickers));
+  return writeState(state => restoreTickerState(state, ticker, index, isWatchlistTicker));
 }
 
 export function completeWatchlistSetup(tickers: string[]) {
-  return writeState(state => completeSetupState(state, tickers, availableWatchlistTickers));
+  return writeState(state => completeSetupState(state, tickers, isWatchlistTicker));
 }
 
 export function saveSetupDraft(draft: SetupDraft) {

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, isMarketOpen, marketHours, latestSettledSession, nyClock, nyToUtc, quotesDue, sessionsToFetch, symbolSyncDue } from "../src/lib/price-schedule.ts";
+import { BACKFILL_SESSIONS, TOPUP_SESSIONS, closesDue, isMarketOpen, marketHours, sessionOpenedBy, latestSettledSession, nyClock, nyToUtc, quotesDue, sessionsToFetch, symbolSyncDue } from "../src/lib/price-schedule.ts";
 
 // 2026-10-01 is a Thursday; New York is on EDT (UTC−4).
 const at = iso => new Date(iso);
@@ -111,4 +111,12 @@ test("holidays are skipped when finding the latest settled session", () => {
 test("quotes aren't refreshed during a holiday's usual trading hours", () => {
   const now = at("2026-11-26T16:00:00Z");
   assert.deepEqual(quotesDue([state("SPY", { quoteFetchedAt: at("2026-11-25T21:30:00Z") })], now), []);
+});
+
+test("a quote belongs to the latest session that had opened when it was fetched", () => {
+  assert.equal(sessionOpenedBy(at("2026-10-01T14:00:00Z")), "2026-10-01"); // during the session
+  assert.equal(sessionOpenedBy(at("2026-10-01T20:05:00Z")), "2026-10-01"); // after the close, before it settles
+  assert.equal(sessionOpenedBy(at("2026-10-01T12:00:00Z")), "2026-09-30"); // before the open
+  assert.equal(sessionOpenedBy(at("2026-11-26T18:00:00Z")), "2026-11-25"); // Thanksgiving
+  assert.equal(sessionOpenedBy(at("2026-10-04T15:00:00Z")), "2026-10-02"); // Sunday
 });

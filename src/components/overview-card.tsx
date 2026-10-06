@@ -11,22 +11,24 @@ import { benchmarkTicker } from "@/lib/explore-data";
 import { alignTo, averageLines } from "@/lib/chart-series";
 import { ReturnLinesChart } from "./return-lines-chart";
 import { useMarket, useMarketSeries } from "./market-provider";
+import { useWatchlistStocks } from "./watchlist-listings";
 
 const periods = exploreRanges;
 
 export function OverviewCard({ holdings }: { holdings: Holding[] }) {
   const market = useMarket();
   const lines = useMarketSeries();
+  const watchlist = useWatchlistStocks(holdings.map(stock => stock.ticker));
   const [range, setRange] = useState<typeof periods[number]>("YTD");
   const benchTotal = market.benchmark.returnByRange[range];
-  const rows = watchlistRows(market.stocks, holdings.map(stock => stock.ticker), range, market.benchmark.returnByRange);
+  const rows = watchlistRows(watchlist.stocks, holdings.map(stock => stock.ticker), range, market.benchmark.returnByRange);
   const summary = { ...watchlistSummary(rows, benchTotal), benchmarkLabel: market.benchmark.label };
   const total = summary.watchlistPct;
   const lead = total !== null && benchTotal !== null ? total - benchTotal : null;
 
   // The benchmark's dates are the axis; the watchlist line is the equal-weight average of its stocks' lines.
   const axis = lines?.series[benchmarkTicker(market.benchmark.label)]?.[range] ?? [];
-  const values = averageLines(rows.map(row => alignTo(axis, lines?.series[row.ticker]?.[range] ?? [])));
+  const values = averageLines(rows.map(row => alignTo(axis, (lines?.series[row.ticker] ?? watchlist.series[row.ticker])?.[range] ?? [])));
 
   const moving = holdings.filter((stock): stock is Holding & { changePct: number } => stock.changePct !== null);
   const gain = [...moving].sort((a, b) => b.changePct - a.changePct)[0];
@@ -50,7 +52,7 @@ export function OverviewCard({ holdings }: { holdings: Holding[] }) {
       </div>
       <div className="movers"><div className="aside-heading"><h3>Today’s movers</h3><span className="period-tag">1D</span></div>
         {!gain && <p className="mt-4 text-xs text-text-muted">No moves yet today.</p>}
-        {gain && (gain.ticker === decline.ticker ? [gain] : [gain, decline]).map((stock, i) => <div key={stock.ticker} className="mover"><p><span>{moving.length === 1 ? "Today’s move" : i === 0 ? "Strongest today" : "Weakest today"}</span><span>{stock.changePct >= 0 ? "↗" : "↘"}</span></p><div className="mover-row"><StockLogo stock={stock} /><span>{stock.ticker}<small>{stock.name}</small></span><strong className={stock.changePct > 0 ? "text-up" : "text-down"}>{formatPct(stock.changePct)}</strong></div></div>)}
+        {gain && (gain.ticker === decline.ticker ? [gain] : [gain, decline]).map((stock, i) => <div key={stock.ticker} className="mover"><p><span>{moving.length === 1 ? "Today’s move" : i === 0 ? "Strongest today" : "Weakest today"}</span><span>{stock.changePct >= 0 ? "↗" : "↘"}</span></p><div className="mover-row"><StockLogo stock={stock} remoteSrc={stock.remoteLogo} /><span>{stock.ticker}<small>{stock.name}</small></span><strong className={stock.changePct > 0 ? "text-up" : "text-down"}>{formatPct(stock.changePct)}</strong></div></div>)}
       </div>
     </aside>
   </section>;

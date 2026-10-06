@@ -1,17 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowLeft, ArrowUpRight, Check, Plus } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { benchmarkFor, sectorSlug, type TrackedStock } from "@/lib/explore-data";
 import { explorePerformance, exploreRanges } from "@/lib/explore-performance";
 import { formatPct, formatPrice } from "@/lib/format";
 import { StockLogo } from "./stock-logo";
 import { StockReturnChart } from "./stock-return-chart";
 import { useExplorePeriod } from "./explore-period-provider";
-import { usePreferencesReady } from "./preferences-provider";
-import { toggleWatchlistStock, useWatchlist } from "./watchlist-store";
-import { useRemovalUndo } from "./removal-undo";
+import { WatchlistToggle } from "./watchlist-toggle";
 import { formatAsOf, useMarket } from "./market-provider";
 import styles from "./stock-detail.module.css";
 
@@ -27,19 +24,10 @@ export function StockDetail({ stock: identity }: { stock: TrackedStock }) {
   const market = useMarket();
   const stock = market.stock(identity.ticker)!;
   const { range, setRange } = useExplorePeriod();
-  const { tickers } = useWatchlist();
-  const ready = usePreferencesReady();
-  const undo = useRemovalUndo(tickers);
-  const [saveError, setSaveError] = useState(false);
-  const added = tickers.includes(stock.ticker);
   const benchmark = benchmarkFor(stock);
   const performance = explorePerformance(stock, range);
   const gap = performance?.gap;
   const status = gap === undefined ? "Comparison unavailable" : gap > 0 ? "Ahead of the market" : gap < 0 ? "Behind the market" : "In line with the market";
-
-  function toggleStock() {
-    setSaveError(!(added ? undo.remove(stock.ticker) : toggleWatchlistStock(stock.ticker)));
-  }
 
   return <>
     <nav aria-label="Stock navigation" className={styles.breadcrumb}>
@@ -47,11 +35,8 @@ export function StockDetail({ stock: identity }: { stock: TrackedStock }) {
     </nav>
     <header className={styles.heading}>
       <div className={styles.identity}><StockLogo stock={stock} /><div><p className="eyebrow">{stock.sector} · {stock.ticker}</p><h1>{stock.name}</h1></div></div>
-      <div className={styles.actions}><button type="button" className={styles.membership} aria-pressed={added} disabled={!ready} onClick={toggleStock}>
-        {added ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}{added ? "In your watchlist" : "Add to watchlist"}
-      </button>{undo.pending?.ticker === stock.ticker && <button className={styles.undo} onClick={() => setSaveError(!undo.undo())}>Undo removal</button>}</div>
+      <WatchlistToggle ticker={stock.ticker} />
     </header>
-    {saveError && <p role="alert" className={styles.message}>Your browser couldn’t save that change. Allow site storage and try again.</p>}
     <div className={styles.quote}>{stock.price === null
       ? <><strong>—</strong><span>No price yet. The price job adds one within the hour.</span></>
       : <><strong>${formatPrice(stock.price)}</strong>{stock.changePct !== null && <span className={direction(stock.changePct)}>{formatPct(stock.changePct)}</span>}<span>today · {stock.currency}{market.asOf && ` · as of ${formatAsOf(market.asOf)}`}</span></>}</div>

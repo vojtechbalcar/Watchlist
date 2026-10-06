@@ -17,6 +17,11 @@ test("membership keeps supported symbols once and preserves selection order", ()
   assert.deepEqual(validTickers("AAPL", available), []);
 });
 
+test("membership can be checked by a rule instead of a list", () => {
+  const isTicker = ticker => /^[A-Z]{1,5}$/.test(ticker);
+  assert.deepEqual(validTickers(["AAP", "aap", "TOOLONGX", "AAP", "ZZ"], isTicker), ["AAP", "ZZ"]);
+});
+
 test("skip and completion persist separately from membership", () => {
   assert.deepEqual(parseWatchlist(JSON.stringify({ tickers: [], setupDismissed: true }), available), {
     tickers: [], setupDismissed: true, setupCompleted: false, setupDraft: null,

@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-09-09
+updated: 2026-10-07
 status: current
 ---
 
@@ -8,7 +8,13 @@ status: current
 
 Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
 
-The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The user explicitly requires this three-card hero, including its dark CTA tile, to remain as before. Do not replace it when revising the rest of the landing page.
+The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The October 2026 request below supersedes the earlier instruction to preserve the three-card hero unchanged.
+
+## Current revision request — October 2026
+
+The user finds the hero underwhelming and explicitly requested a hero revision. Their proposed direction is a full-width grid with square corners, keeping the dark CTA substantially the same. The “Measured against the market” panel feels like part of the application rather than a hero element; replace its presentation with something more creative, potentially with interaction connecting the panels. The large illustration does not communicate enough: replace it with a clearer visual metaphor or remove its clutter for a minimal composition.
+
+Rejected in this feedback: the current hero's rounded, inset treatment, the application-like benchmark panel, and the unclear large illustration. The choice between a minimal composition and a replacement illustration is still open. Do not treat either proposed alternative as approved yet. This request concerns the hero; the lower-page direction remains recorded in [[landing-page-design]].
 
 The three-card landing hero at `/landing` was merged through PR #1 in `4dd51d7`. The dashboard remains at `/`. The tile refinements below build on that merged design on `feat/landing-tile-details`; the earlier design decisions remain as history.
 

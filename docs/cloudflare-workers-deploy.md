@@ -156,3 +156,32 @@ then, migrations were applied by hand (`SavedWatchlist`, `SavedPreferences`).
 Verified locally: plain build skips; `WORKERS_CI=1` without the URL warns
 and exits 0; `WORKERS_CI=1` with the URL reported "No pending migrations
 to apply."
+
+## Cron runs killed at 10 ms of CPU (2026-10-07)
+
+**Symptom.** The price job ran about 24 times on 2026-10-06 instead of
+about 288. It spent 145 credits where a trading day needs about 570, and
+whole hours had no runs. The after-close quote refresh never happened.
+A symbol sync at 03:10 UTC reserved its credit but never recorded
+finishing, and nothing ran for the next 3 hours.
+
+**Cause.** `wrangler tail gowatchlist` showed every scheduled invocation
+ending `exceededCpu` at 10 ms CPU / 12 ms wall: killed while the OpenNext
+bundle was still starting, before `scheduled()` did anything. Page requests
+in the same window used 50–330 ms of CPU and finished `ok`. A hard stop at
+exactly 10 ms is the Workers Free plan's CPU limit. Free seems to enforce it
+loosely, so a few runs a day got through. That explains the scattered
+progress.
+
+**Tried first.**
+- Reading the database: run cadence from `Quote.fetchedAt`,
+  `Instrument.closesCheckedAt`, and the `ApiUsage` ledger. That showed how
+  rarely it ran, not why.
+- The schedules API: the `*/5 * * * *` trigger is configured correctly.
+- The Workers Observability query API and the subscriptions API: the
+  wrangler OAuth token gets "Authentication error" on both, so the plan
+  couldn't be read directly.
+
+**Fix.** Pending the user's choice: the Workers Paid plan (cron CPU limit
+30 s), or an external scheduler that calls `/api/cron/prices` as a normal
+request.

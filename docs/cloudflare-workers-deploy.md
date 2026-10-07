@@ -133,3 +133,26 @@ OpenNext copies every `.env*` file, `.env.local` included, into `.open-next/clou
 ## Verification
 
 In local workerd (`wrangler dev` on the OpenNext build) against Prisma Postgres: signed-out redirects, wrong password rejected, case-insensitive login, session carries the user id, all market pages load signed in, Settings shows the email, `/login` redirects signed-in users. `next start` on Node passed the same login checks. Typecheck, ESLint, and `tests/prisma-generate.test.mjs` pass. Locally `pnpm` fails through corepack, so the checks used a shim running `npx pnpm@10.11.1`.
+
+## Migrations run in the build (2026-10-07)
+
+`pnpm run build` now starts with `scripts/migrate.mjs`, which runs
+`prisma migrate deploy` before OpenNext builds. The point is that a schema
+change reaches the database before the code that needs it goes live. Until
+then, migrations were applied by hand (`SavedWatchlist`, `SavedPreferences`).
+
+- It migrates only on Cloudflare's build machines (`WORKERS_CI`, or `CI`)
+  and only when `DATABASE_URL` is set there. A local build never touches the
+  live database, even with the URL in the shell; `pnpm db:deploy` is the
+  manual path.
+- Build variables are separate from the Worker's runtime secrets. Until the
+  user adds `DATABASE_URL` under the Worker's Settings → Build → Variables
+  and secrets, the build prints a warning and deploys without migrating.
+  Rejected: failing the build then, which would block every deploy until the
+  variable exists, while nothing is pending today.
+- Migrations must stay additive (new tables, nullable columns), because the
+  old code keeps running against the new schema until the deploy finishes.
+
+Verified locally: plain build skips; `WORKERS_CI=1` without the URL warns
+and exits 0; `WORKERS_CI=1` with the URL reported "No pending migrations
+to apply."

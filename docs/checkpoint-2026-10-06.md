@@ -35,16 +35,15 @@ Supersedes [[checkpoint-2026-09-06]].
 - **Never run against the real key:** batch quotes, logos, and on-demand
   refreshes for untracked stocks. Locally there is no key, so every check
   used stored prices.
-- The Cloudflare build doesn't run migrations. `SavedWatchlist` and
-  `SavedPreferences` were applied by hand with `prisma migrate deploy`, so
-  the next schema change must be too.
+- Migrations now run in the Cloudflare build (2026-10-07), but only once
+  `DATABASE_URL` is added as a build variable on the Worker; until then the
+  build warns and skips them ([[cloudflare-workers-deploy]]).
 
 ## Next
 
 1. Once the secrets are set: watch a cron run succeed in the Worker logs,
    then check search, an untracked stock page, and an added stock refresh
    live.
-2. Run migrations as part of deploy, so a schema change can't ship before
-   its table exists.
+2. Done 2026-10-07: migrations run in the build (needs the build variable).
 3. Unscheduled market closures (e.g. a national day of mourning) aren't
    modelled. That is rare, and costs only wasted credits.

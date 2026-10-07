@@ -1,0 +1,34 @@
+# Runs the price job (src/lib/price-job.ts) every 5 minutes by calling its
+# route as an ordinary request. Cloudflare's own Cron Trigger was dropped:
+# on the Workers Free plan, scheduled invocations are mostly killed at 10 ms
+# of CPU, while requests to the route finish (see
+# docs/cloudflare-workers-deploy.md). GitHub may delay scheduled runs by a
+# few minutes, which the job tolerates: it catches up on whatever is due.
+name: Price job
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+# One run at a time; a delayed run doesn't pile up behind a slow one.
+concurrency:
+  group: price-job
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call /api/cron/prices
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          status=$(curl -sS -o report.json -w '%{http_code}' --max-time 150 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://usewatchlist.dev/api/cron/prices)
+          cat report.json; echo
+          test "$status" = 200

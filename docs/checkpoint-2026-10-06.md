@@ -14,7 +14,9 @@ Supersedes [[checkpoint-2026-09-06]].
   watchlist and preferences are saved per account and follow the user across
   browsers. Offline changes are resent ([[account-watchlist]]).
 - **Prices from Postgres** on every signed-in page ([[postgres-prices]]):
-  58 tracked instruments refreshed by a 5-minute Cloudflare Cron Trigger.
+  58 tracked instruments refreshed every 5 minutes (since 2026-10-07 by a
+  GitHub Actions workflow; the Cloudflare cron was killed by the Free plan's
+  CPU limit).
   The schedule knows NYSE holidays and early closes
   ([[stock-search-and-price-schedule]]).
 - **Any NASDAQ/NYSE stock** (about 6,400) can be searched, opened, charted

@@ -53,7 +53,7 @@ The Worker upload is about 3.9 MB gzipped (the Next server bundle plus Prisma's 
 
 `wrangler dev` over plain http doesn't send `x-forwarded-proto`, and Auth.js then assumes `https` in the proxy and looks for the `__Secure-` session cookie, while the route handler sets the unprefixed one. Signed-in requests look signed out. Put `AUTH_URL=http://localhost:8787` in `.dev.vars`. Production is https on both sides, so it needs no `AUTH_URL`.
 
-The Worker needs `DATABASE_URL`, `AUTH_SECRET`, `TWELVE_DATA_API_KEY`, and `CRON_SECRET` set as Cloudflare secrets. Since [[stock-search-and-price-schedule]], `main` is `custom-worker.ts`, which wraps `.open-next/worker.js` to add the Cron Trigger. Test the trigger locally with `wrangler dev --test-scheduled` and `curl 'http://localhost:8787/__scheduled?cron=*/5+*+*+*+*'`.
+The Worker needs `DATABASE_URL`, `AUTH_SECRET`, `TWELVE_DATA_API_KEY`, and `CRON_SECRET` set as Cloudflare secrets. `main` is `.open-next/worker.js`. From 2026-10-01 to 2026-10-07 it was `custom-worker.ts`, which wrapped it to add a Cron Trigger; see below for why that went. The same `CRON_SECRET` is also a GitHub Actions secret.
 
 ## Production runtime failures (2026-09-30)
 
@@ -182,6 +182,18 @@ progress.
   wrangler OAuth token gets "Authentication error" on both, so the plan
   couldn't be read directly.
 
-**Fix.** Pending the user's choice: the Workers Paid plan (cron CPU limit
-30 s), or an external scheduler that calls `/api/cron/prices` as a normal
-request.
+**Fix.** The user chose to stay on the Free plan. Rejected: Workers Paid
+($5 a month, 30 s of CPU for cron runs).
+- `.github/workflows/price-job.yml` calls `/api/cron/prices` every 5
+  minutes with `CRON_SECRET`. A second live tail confirmed that requests to
+  the route finish (about 650 ms CPU, 9 s wall). Not every cron run is
+  killed (one survived with 1.1 s CPU), but too few survive to rely on.
+- The Cron Trigger is removed (`"crons": []`), along with
+  `custom-worker.ts`. A run killed partway can reserve credits and leave a
+  sync half done.
+- `CRON_SECRET` was rotated, because a Cloudflare secret can't be read
+  back. The new value is set on the Worker and in the repo's Actions
+  secrets, and nothing else uses it.
+- GitHub can delay scheduled runs by a few minutes, and the job catches up.
+  GitHub also disables scheduled workflows in a public repo after 60 days
+  without commits; re-enable it from the Actions tab if that happens.

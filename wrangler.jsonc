@@ -1,16 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gowatchlist",
-  "main": "custom-worker.ts",
+  "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // The price job; see src/lib/price-job.ts.
+  // No Cron Trigger: on the Free plan scheduled runs are killed at 10 ms of CPU.
+  // The price job runs from .github/workflows/price-job.yml instead. An empty
+  // list removes the trigger from the deployed Worker.
   "triggers": {
-    "crons": ["*/5 * * * *"]
+    "crons": []
   },
   // `pnpm run build` produces .open-next; `wrangler deploy` hands off to `opennextjs-cloudflare deploy`.
   "observability": {

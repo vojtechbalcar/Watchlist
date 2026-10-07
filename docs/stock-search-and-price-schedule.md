@@ -49,7 +49,8 @@ reservation would cross its limit:
 | Scheduled job | 6 | 600 |
 | Search | 8 (whatever the job left) | 800 |
 
-The job runs every 5 minutes on a Cloudflare Cron Trigger. Each run spends at
+The job runs every 5 minutes from a GitHub Actions workflow (until 2026-10-07 a
+Cloudflare Cron Trigger; see [[cloudflare-workers-deploy]]). Each run spends at
 most 6 credits, in this order:
 
 1. The symbol list, when the last sync is over 20 hours old (1 credit).
@@ -68,9 +69,8 @@ which leaves over 200 for search.
 - `src/lib/api-budget.ts`: the `ApiUsage` ledger and per-caller limits.
 - `src/lib/price-schedule.ts`: market clock (New York time, EDT/EST) and what is due.
 - `src/lib/price-job.ts`, behind `/api/cron/prices` (`CRON_SECRET` bearer).
-- `custom-worker.ts`: wraps `.open-next/worker.js` and adds `scheduled()`,
-  which calls the route. `wrangler.jsonc` points `main` at it and sets the
-  `*/5 * * * *` trigger. The pattern follows OpenNext's custom-worker how-to.
+- `.github/workflows/price-job.yml` calls the route every 5 minutes. It replaced
+  `custom-worker.ts` and its Cron Trigger on 2026-10-07.
 - `/api/stocks` (`src/lib/stock-directory.ts`) and `/api/stocks/quotes`
   (`src/lib/stock-quotes.ts`), both signed-in only; see "Faster search" below.
 - `src/components/stock-search.tsx`: the combobox on Explore and the sector

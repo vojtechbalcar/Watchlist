@@ -22,7 +22,7 @@
 
 - [[landing-page-design]] — full landing-page direction and the user's correction to replace literal screenshots with minimal product illustrations.
 
-- [[landing-hero]] — October 2026 feedback requests a full-width square grid, a more creative benchmark panel, and a clearer or minimal main visual while keeping the dark CTA; visual direction is pending.
+- [[landing-hero]] — approved full-width editorial hero with square panels and a linked market reveal; keep the dark CTA. Implementation tracked in [[landing-hero-editorial-plan]].
 
 - [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
 

@@ -14,7 +14,15 @@ The sections below the hero and rejection of literal screenshot previews are rec
 
 The user finds the hero underwhelming and explicitly requested a hero revision. Their proposed direction is a full-width grid with square corners, keeping the dark CTA substantially the same. The “Measured against the market” panel feels like part of the application rather than a hero element; replace its presentation with something more creative, potentially with interaction connecting the panels. The large illustration does not communicate enough: replace it with a clearer visual metaphor or remove its clutter for a minimal composition.
 
-Rejected in this feedback: the current hero's rounded, inset treatment, the application-like benchmark panel, and the unclear large illustration. The choice between a minimal composition and a replacement illustration is still open. Do not treat either proposed alternative as approved yet. This request concerns the hero; the lower-page direction remains recorded in [[landing-page-design]].
+Rejected in this feedback: the current hero's rounded, inset treatment, the application-like benchmark panel, and the unclear large illustration. The user selected **minimal editorial + linked reveal** over a sculptural replacement with linked motion. This request concerns the hero; the lower-page direction remains recorded in [[landing-page-design]].
+
+## Approved editorial direction
+
+Use a full-width, contiguous grid with square corners: a large neutral headline/graphic field, a maroon perspective panel, and the existing dark registration CTA. Keep “Both green. One losing.” and the established Helvetica typography. Replace the isometric board and dense benchmark chart with two simple return rules sharing a zero and scale. The stock's +18.7% appears initially; “Reveal the market” adds the S&P 500's +22.1% and the derived −3.4 percentage-point gap. The reveal can be reversed.
+
+The perspective panel reads “Compared to what?” and controls the graphic through one native button. Use local React state, accessible expanded state and a polite result announcement; support touch, keyboard, and reduced motion. On mobile the perspective control precedes the graphic. Illustrative values come from the existing `landing-comparison.ts` fixture; no price requests or new data sources. Account CTAs continue to `/register`.
+
+Rejected: another dashboard-like chart, decorative stock tiles, new sculptural artwork, hover-only interaction, and automatic cycling. See [[landing-hero-editorial-plan]] for implementation and verification.
 
 The three-card landing hero at `/landing` was merged through PR #1 in `4dd51d7`. The dashboard remains at `/`. The tile refinements below build on that merged design on `feat/landing-tile-details`; the earlier design decisions remain as history.
 

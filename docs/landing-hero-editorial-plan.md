@@ -1,10 +1,12 @@
 ---
 type: plan
 updated: 2026-10-07
-status: in-progress
+status: superseded
 ---
 
 # Editorial hero implementation plan
+
+> Superseded 7 October 2026: the user rejected panelled heroes altogether. See the open hero in [[landing-hero]].
 
 Related: [[landing-hero]], [[landing-page-design]], [[git-commit-workflow]]
 

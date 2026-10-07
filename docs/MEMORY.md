@@ -22,7 +22,7 @@
 
 - [[landing-page-design]] — full landing-page direction and the user's correction to replace literal screenshots with minimal product illustrations.
 
-- [[landing-hero]] — approved full-width editorial hero with square panels and a linked market reveal; keep the dark CTA. Implementation tracked in [[landing-hero-editorial-plan]].
+- [[landing-hero]] — open hero with no panels: huge headline, two drawn return lines and the gap between them. Panelled heroes were rejected; [[landing-hero-editorial-plan]] is superseded.
 
 - [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
 

@@ -8,7 +8,25 @@ status: current
 
 Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
 
-The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The October 2026 request below supersedes the earlier instruction to preserve the three-card hero unchanged.
+The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The open hero below is current; every section after it is history.
+
+## Current: open hero, no panels — 7 October 2026
+
+The user rejected the panelled hero outright: "abandon the whole 3 part design of the hero and go with something that can breathe." Two attempts led there. The minimal editorial grid (a lone return rule behind a "Reveal the market" button) read as empty, not eye-catching. Its replacement, three contiguous panels with heavy stock/S&P columns, a hatched shortfall block and a year slider, was called crude and cramped. The lesson: the panels themselves were the problem. Boxing the hero, whatever goes inside, is what made it feel tight.
+
+What replaced it, in `src/components/landing-hero.tsx`:
+
+- No panels, borders or tinted fields. The hero sits directly on the white page.
+- The oversized headline, "Both green. One losing.", sits on the left. The two-line description, the maroon "Go to watchlist" button and the source link sit on the right, bottom-aligned with it. They stack only below 860px, so the lines stay above the fold on tablets.
+- Below it, two smooth lines climb from one shared start dot across about three quarters of the width. Your stock is solid green. The S&P 500 is a lighter green, because both are up ("Both green."). The band between them is a faint loss tint, showing what the stock missed all year. A soft green fade sits under the stock line.
+- A small legend stack sits at the line ends: +22.1% S&P 500 above, a red bracket with −3.4 pp behind the market between, and +18.7% Your stock below. Labels sit beside the lines, never on them.
+- On load, the lines draw left to right and the gap opens up, then the legend fades in. This is CSS only and switched off for reduced motion. There is no client state, so `/landing` prerenders as static content.
+
+Rejected: any boxed or panelled hero (bento cards, editorial grid, three-panel layout), bar columns, the year slider, and the separate dark CTA tile. The account CTA is the single maroon button beside the headline. Data still comes from `landing-comparison.ts`, labelled illustrative. There are no price requests.
+
+Verified: typecheck, scoped ESLint and a Webpack production build pass. Checked in Chrome at 1990 × 1040, 1440 × 900, 1024 × 768 and 390 × 844, with no horizontal overflow and no overlap between labels and lines.
+
+## Superseded: editorial revision request — October 2026
 
 ## Current revision request — October 2026
 

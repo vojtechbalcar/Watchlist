@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-07
+updated: 2026-10-08
 status: current
 ---
 
@@ -8,9 +8,34 @@ status: current
 
 Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
 
-The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The open hero below is current; every section after it is history.
+The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The race hero below is current; every section after it is history.
 
-## Current: open hero, no panels — 7 October 2026
+## Current: race the market — 8 October 2026
+
+The user found the open hero bland: "make the landing header look much better please, it looks bland i want it to be more visually appealing while still communicating the idea of the app, go with something more fun, you can deviate from this design as much as necessary." The two thin lines were honest but timid: pale strokes, small labels, and nothing to watch after the first draw.
+
+The new idea is the app's own question taken literally. Beating the benchmark is a race, so the hero runs one: your stock and the S&P 500 leave the same start line, both run forward all year ("Both green."), and the market finishes ahead ("One losing."). In `src/components/landing-hero.tsx`:
+
+- The headline, copy and maroon "Go to watchlist" button keep their places. "green" is set in the up colour. When the race ends, a red underline wipes in under "losing", so the race proves the headline.
+- Below sits a full-bleed dark track, running off both edges of the screen. It has a faint grain, chalk lane lines, painted lane numbers, a start line and ticks every 5%. Lane 1 is the S&P 500 and lane 2 is your stock. The x axis is return, from 0% to 25%, on one scale for both lanes.
+- Each runner is a bib whose front edge sits exactly on its return, trailing a green line back to the start. Your stock's bib is chalk with a green figure. The market's bib is outlined, with a lighter green figure. Both readouts tick up as they run.
+- The race plays the illustrative year in about 3.4 s. The path is a Catmull-Rom curve through every month-end, so the runners dip when the data dips. Speed lines and a slight stride show only while running, and a J–D month clock above the start area tracks the year.
+- The finish plays in order. A dashed line drops where the market finished, a hatched red shortfall fills the stock's lane up to it, and "−3.4 pp behind the market" hangs from a bracket under the track. Then the headline underline appears.
+- "Replay the year" winds the runners back along the track, the month clock running backwards, and races again. The finish markings clear at once rather than waiting out their entrance delays.
+
+Colour rules still hold. The track is ink, a brand neutral. Green and red are brightened for the dark surface but still mean direction only, and maroon stays on the period and the CTA. A maroon track was considered and rejected: maroon sits too close to the loss red on a graphic about gains and losses.
+
+Mechanics. The server renders the finished race hidden, and the browser decides whether to run it, so the result never flashes before the start. The race begins once half the track is on screen. Per-frame values (positions, readouts, the month clock) are written straight to the DOM. React state changes only in callbacks and the click handler: the `react-hooks/set-state-in-effect` lint rule rejects setState in an effect body. With reduced motion the finished race shows at once and Replay is hidden. Without JavaScript, `@media (scripting: none)` shows the finished race. `/landing` still prerenders as static content, and the data still comes from `landing-comparison.ts`, labelled illustrative, with no price requests.
+
+Also rejected:
+
+- Lane numbers rotated to face the runners, as real tracks paint them. They read as wrong glyphs.
+- A "flip to a down year" toggle ("Both red. One winning."). It would compete with the race as a second interaction and rewrite the user's headline.
+- Confetti, which reads as gamified trading.
+
+Verified: typecheck, scoped ESLint and a Webpack production build pass. Checked in Chrome at 1990 × 1040, 1440 × 900, 1024 × 768, 800 × 700, 768 × 1024, 390 × 844 and 320 × 667 with no horizontal overflow. The phases run idle → ready → running → finished, and Replay goes through rewinding back to finished. Reduced motion and disabled JavaScript both show the finished race.
+
+## Superseded: open hero, no panels — 7 October 2026
 
 The user rejected the panelled hero outright: "abandon the whole 3 part design of the hero and go with something that can breathe." Two attempts led there. The minimal editorial grid (a lone return rule behind a "Reveal the market" button) read as empty, not eye-catching. Its replacement, three contiguous panels with heavy stock/S&P columns, a hatched shortfall block and a year slider, was called crude and cramped. The lesson: the panels themselves were the problem. Boxing the hero, whatever goes inside, is what made it feel tight.
 

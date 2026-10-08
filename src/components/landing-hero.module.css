@@ -1,13 +1,25 @@
-/* One open composition: no panels. The headline and two lines carry the hero. */
+/* A one-year race on one track: the market and your stock leave the same line, both go forward, one finishes behind. */
 .hero {
-  padding: clamp(40px, 8vh, 112px) 8px clamp(64px, 10vh, 120px);
   --ease-out: cubic-bezier(.22, 1, .36, 1);
-  --market-color: color-mix(in oklab, var(--color-up) 48%, var(--color-surface-raised));
+  --bleed: calc(var(--gutter, 24px) + 8px);
+  --track: var(--color-ink);
+  --chalk: var(--color-brand-foreground);
+  /* Green and red that hold up on the dark track. Still direction only. */
+  --up-bright: color-mix(in oklab, var(--color-up), white 34%);
+  --market-green: color-mix(in oklab, var(--color-up) 45%, white);
+  --down-bright: color-mix(in oklab, var(--color-down), white 18%);
+  --start: 236px;
+  --lane: clamp(68px, 9.5vh, 92px);
+  padding: clamp(32px, 6vh, 88px) 8px clamp(40px, 6vh, 72px);
 }
 
 .lead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); align-items: end; gap: 40px 64px; }
-.lead h1 { font-size: clamp(60px, 10.2vw, 172px); line-height: .9; letter-spacing: -.07em; font-weight: 500; }
-.lead h1 > span { color: var(--color-brand); }
+.lead h1 { font-size: clamp(60px, 9.8vw, 164px); line-height: .9; letter-spacing: -.07em; font-weight: 500; }
+.green { color: var(--color-up); }
+.period { color: var(--color-brand); }
+.losing { position: relative; }
+.losing::after { content: ""; position: absolute; left: .03em; right: .01em; bottom: -.12em; height: .07em; border-radius: 1em; background: var(--color-down-deep); transform: scaleX(0); transform-origin: left; transition: transform 250ms ease; }
+
 .aside { padding-bottom: .4em; }
 .aside p { font-size: clamp(17px, 1.4vw, 21px); line-height: 1.45; letter-spacing: -.02em; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin-top: 28px; }
@@ -17,48 +29,103 @@
 .source:hover { color: var(--color-brand); }
 .primary svg, .source svg { transition: transform 180ms ease; }
 .primary:hover svg, .source:hover svg { transform: translate(2px, -2px); }
-.primary:focus-visible, .source:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 5px; }
+.primary:focus-visible, .source:focus-visible, .replay:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 5px; }
 
-/* ---- Two lines, one start ------------------------------------------------- */
-.race { margin-top: clamp(96px, 15vh, 168px); }
-/* The lines stop short of the edge so the gap has room to speak for itself. */
-.plot { position: relative; width: 74%; height: clamp(200px, 30vh, 340px); border-bottom: 1px solid var(--color-line); }
-.plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: draw 1500ms cubic-bezier(.65, 0, .35, 1) 150ms both; }
-.stockLine, .marketLine { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.stockLine { stroke: var(--color-up); stroke-width: 3.5; }
-.marketLine { stroke: var(--market-color); stroke-width: 2.5; }
-.shortfall { fill: color-mix(in oklab, var(--color-down) 18%, transparent); }
-.stockArea { fill: url(#hero-stock-fade); }
-.fadeTop { stop-color: var(--color-up); stop-opacity: .12; }
-.fadeBottom { stop-color: var(--color-up); stop-opacity: 0; }
+/* ---- The race ------------------------------------------------------------- */
+/* Two columns all the way down: the start area behind the line, then the course from 0% to the finish scale. */
+.race { display: grid; grid-template-columns: var(--start) minmax(0, 1fr); margin-top: clamp(48px, 9vh, 112px); }
+.race > div { grid-column: 1 / -1; }
 
-.origin, .dot { position: absolute; border-radius: 50%; }
-.origin { left: 0; bottom: 0; width: 9px; height: 9px; background: var(--color-ink); transform: translate(-50%, 50%); }
-.dot { left: 100%; width: 12px; height: 12px; box-shadow: 0 0 0 4px var(--color-surface-raised); transform: translate(-50%, -50%); animation: appear 400ms var(--ease-out) 1450ms both; }
-.marketDot { top: var(--market-y); background: var(--market-color); }
-.stockDot { top: var(--stock-y); background: var(--color-up); }
+.above { display: grid; grid-template-columns: var(--start) minmax(0, 1fr); align-items: end; height: 30px; padding-bottom: 12px; }
+.months { display: flex; gap: 10px; list-style: none; font-size: 11px; line-height: 1; font-weight: 500; }
+/* A whole year until the race loop says otherwise. */
+.months li { width: 1ch; text-align: center; color: var(--color-text-secondary); transition: color 150ms ease; }
+.months [data-state="next"] { color: color-mix(in oklab, var(--color-text-faint) 55%, transparent); }
+.months [data-state="current"] { color: var(--color-ink); }
+.scale { position: relative; grid-column: 2; height: 11px; list-style: none; font-size: 11px; line-height: 1; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.scale li { position: absolute; bottom: 0; left: calc(var(--at) / var(--finish) * 100%); transform: translateX(-50%); }
 
-/* A legend at the lines' ends: market above, the gap between, the stock below. */
-.marketEnd, .stockEnd, .gap { position: absolute; left: calc(100% + 24px); white-space: nowrap; animation: appear 500ms var(--ease-out) 1350ms both; }
-.marketEnd, .stockEnd { display: flex; align-items: baseline; gap: 12px; font-size: clamp(28px, 2.6vw, 44px); line-height: 1; letter-spacing: -.05em; color: var(--color-up); font-variant-numeric: tabular-nums; }
-.marketEnd span, .stockEnd span { font-size: 12px; line-height: 1.5; letter-spacing: 0; color: var(--color-text-secondary); }
-.marketEnd { top: var(--market-y); transform: translateY(calc(-100% - 16px)); }
-.stockEnd { top: var(--stock-y); transform: translateY(16px); }
+/* Full bleed: the track runs off both edges of the screen, with a little grain like a real surface. */
+.track {
+  position: relative;
+  margin-inline: calc(-1 * var(--bleed));
+  overflow: clip;
+  background-color: var(--track);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.overlay { position: absolute; inset: 0; display: grid; grid-template-columns: var(--start) minmax(0, 1fr); padding-inline: var(--bleed); pointer-events: none; }
+.overlayCourse { position: relative; grid-column: 2; }
+.tick { position: absolute; top: 0; bottom: 0; left: calc(var(--at) / var(--finish) * 100%); width: 1px; background: color-mix(in oklab, var(--chalk) 16%, transparent); }
+.tick:first-child { width: 4px; margin-left: -2px; background: var(--chalk); }
 
-/* A bracket holding both endpoints: the one number the hero is about. */
-.gap { top: var(--market-y); height: calc(var(--stock-y) - var(--market-y)); display: flex; align-items: center; gap: 10px; padding-left: 22px; font-size: 12px; line-height: 1.4; color: var(--color-text-secondary); animation-delay: 1650ms; }
-.gap::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 9px; border: 1.5px solid var(--color-down-deep); border-left: 0; }
-.gap strong { font-size: clamp(22px, 2vw, 34px); line-height: 1; font-weight: 500; letter-spacing: -.045em; color: var(--color-down-deep); font-variant-numeric: tabular-nums; }
+.lanes { list-style: none; border-block: 3px solid color-mix(in oklab, var(--chalk) 80%, transparent); }
+.lane { position: relative; display: grid; grid-template-columns: var(--start) minmax(0, 1fr); height: var(--lane); padding-inline: var(--bleed); }
+.lane + .lane { border-top: 2px solid color-mix(in oklab, var(--chalk) 45%, transparent); }
+.market { --line: var(--market-green); }
+.stock { --line: var(--up-bright); }
+.laneNumber { align-self: center; font-size: calc(var(--lane) * .46); line-height: 1; font-weight: 500; letter-spacing: -.04em; color: var(--chalk); }
+.course { position: relative; }
 
-.race figcaption { margin-top: 18px; font-size: 11px; line-height: 1.5; color: var(--color-text-secondary); }
+/* --x is the runner's return so far, written by the race loop. The bib's front edge sits exactly on it. */
+.covered { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: var(--line); transform: scaleX(calc(var(--x) / var(--finish))); transform-origin: left; }
+.runner { position: absolute; inset: 0; transform: translateX(calc(var(--x) / var(--finish) * 100%)); }
+.bib { position: absolute; right: 100%; top: 50%; display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 184px; height: calc(var(--lane) - 20px); padding: 0 24px 0 22px; border-radius: 999px; transform: translateY(-50%); white-space: nowrap; }
+.bibLabel { font-size: 11px; line-height: 1; letter-spacing: .01em; }
+.bib strong { font-size: 28px; line-height: 1; font-weight: 500; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
+.stock .bib { background: var(--chalk); color: var(--color-ink); }
+.stock .bib strong { color: var(--color-up); }
+.market .bib { background: var(--track); box-shadow: inset 0 0 0 2px var(--chalk); color: var(--chalk); }
+.market .bib strong { color: var(--market-green); }
 
-/* Drawn left to right: both rise together, and the space between them opens up. */
-@keyframes draw { from { clip-path: inset(-20% 100% -20% -5%); } to { clip-path: inset(-20% -5% -20% -5%); } }
-@keyframes appear { from { opacity: 0; } }
+/* Speed lines trail whichever way the runners are going; each one bobs at its own stride. */
+.bib::before { content: ""; position: absolute; right: calc(100% + 10px); top: 26%; bottom: 26%; width: 48px; background: repeating-linear-gradient(to bottom, var(--line) 0 2px, transparent 2px 7px); mask-image: linear-gradient(to right, transparent, #000); opacity: 0; transition: opacity 400ms ease; }
+.hero[data-phase="rewinding"] .bib::before { right: auto; left: calc(100% + 10px); mask-image: linear-gradient(to left, transparent, #000); }
+.hero:is([data-phase="running"], [data-phase="rewinding"]) .bib::before { opacity: .9; }
+.hero:is([data-phase="running"], [data-phase="rewinding"]) .bib { animation: stride 170ms ease-in-out infinite alternate; }
+.hero:is([data-phase="running"], [data-phase="rewinding"]) .stock .bib { animation-duration: 150ms; }
+@keyframes stride { to { translate: 0 -2px; } }
+
+/* ---- The finish ----------------------------------------------------------- */
+/* Where the market finished, dropped across both lanes. */
+.marker { position: absolute; top: 0; bottom: 0; left: calc(var(--market-end) / var(--finish) * 100%); margin-left: -1px; border-left: 2px dashed var(--chalk); transform: scaleY(0); transform-origin: top; transition: transform 200ms ease; }
+/* What the stock missed: from its finish to the market's. */
+.shortfall { position: absolute; top: 50%; left: calc(var(--stock-end) / var(--finish) * 100%); width: calc((var(--market-end) - var(--stock-end)) / var(--finish) * 100%); height: 14px; margin-top: -7px; background: repeating-linear-gradient(-45deg, var(--down-bright) 0 2px, transparent 2px 6px); box-shadow: inset 0 0 0 2px var(--down-bright); transform: scaleX(0); transform-origin: left; transition: transform 200ms ease; }
+/* The gap note hangs from a bracket under the shortfall. */
+.below { position: relative; }
+.gap { position: absolute; top: 14px; left: calc(var(--start) + (100% - var(--start)) * var(--stock-end) / var(--finish)); display: flex; flex-direction: column; align-items: flex-start; width: calc((100% - var(--start)) * (var(--market-end) - var(--stock-end)) / var(--finish)); padding-top: 22px; white-space: nowrap; opacity: 0; transform: translateY(-4px); transition: opacity 200ms ease, transform 200ms ease; }
+.gap::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; border: 2px solid var(--color-down-deep); border-top: 0; }
+.gap strong { font-size: clamp(24px, 2.2vw, 34px); line-height: 1; font-weight: 500; letter-spacing: -.045em; color: var(--color-down-deep); font-variant-numeric: tabular-nums; }
+.gap span { margin-top: 6px; font-size: 12px; color: var(--color-text-secondary); }
+
+/* At the finish, in order: the market's line, the shortfall, the gap, then the word it proves. A replay clears them at once. */
+.hero[data-phase="finished"] .marker { transform: none; transition: transform 450ms var(--ease-out); }
+.hero[data-phase="finished"] .shortfall { transform: none; transition: transform 600ms var(--ease-out) 350ms; }
+.hero[data-phase="finished"] .gap { opacity: 1; transform: none; transition: opacity 400ms ease 700ms, transform 600ms var(--ease-out) 700ms; }
+.hero[data-phase="finished"] .losing::after { transform: none; transition: transform 700ms var(--ease-out) 900ms; }
+
+.race figcaption { grid-column: 2; grid-row: 2; min-height: 92px; padding: 20px 30% 0 0; font-size: 11px; line-height: 1.5; color: var(--color-text-secondary); }
+.replay { grid-column: 1; grid-row: 2; align-self: start; justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 8px; font-size: 12px; color: var(--color-text-secondary); transition: color 150ms ease; }
+.replay:hover { color: var(--color-brand); }
+.replay svg { transition: transform 300ms var(--ease-out); }
+.replay:hover svg { transform: rotate(-60deg); }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Hidden until the page knows whether to race, so the finished result never flashes first. */
+.runner, .covered { transition: opacity 300ms ease; }
+.hero[data-phase="idle"] :is(.runner, .covered) { opacity: 0; }
+
+@media (scripting: none) {
+  .hero[data-phase="idle"] :is(.runner, .covered) { opacity: 1; }
+  .hero :is(.marker, .shortfall, .gap), .hero .losing::after { transform: none; opacity: 1; }
+  .replay { display: none; }
+}
 
 @media (max-width: 1100px) {
+  .hero { --start: 196px; }
   .lead { gap: 32px 40px; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); }
-  .plot { width: 70%; }
+  .months { gap: 6px; }
+  .bib { width: 156px; padding-inline: 18px; }
+  .bib strong { font-size: 23px; }
 }
 
 @media (max-width: 860px) {
@@ -68,24 +135,31 @@
 }
 
 @media (max-width: 760px) {
-  .hero { padding: 32px 0 56px; }
+  .hero { --bleed: var(--gutter, 24px); --start: 100px; --lane: 64px; padding: 32px 0 48px; }
   .lead { gap: 28px; }
   .lead h1 { font-size: clamp(54px, 15.5vw, 104px); }
   .aside p { font-size: 18px; }
   .actions { margin-top: 24px; gap: 12px 24px; }
-  .race { margin-top: 112px; }
-  .plot { width: 62%; height: 210px; }
-  .marketEnd, .stockEnd, .gap { left: calc(100% + 16px); }
-  .marketEnd, .stockEnd { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 26px; }
-  .marketEnd span, .stockEnd span { font-size: 11px; }
-  .gap { padding-left: 16px; }
-  .gap::before { width: 7px; }
-  /* No room beside the lines on a phone; the bracket and number carry it, screen readers keep the words. */
-  .gap span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .gap strong { font-size: 20px; }
+  /* The gap note gets its own row beside the replay button, the caption the row after. */
+  .race { grid-template-rows: auto 72px auto; margin-top: 64px; }
+  /* No room for the month clock beside the scale; the caption still says it is one year. */
+  .months { display: none; }
+  .scale li:nth-child(even) { display: none; }
+  .laneNumber { font-size: 22px; }
+  .bib { width: 92px; height: 46px; gap: 3px; padding-inline: 13px 10px; }
+  .bibLabel { font-size: 9px; }
+  .bib strong { font-size: 16px; letter-spacing: -.03em; }
+  .bib::before { width: 28px; right: calc(100% + 6px); }
+  .hero[data-phase="rewinding"] .bib::before { left: calc(100% + 6px); }
+  .gap { align-items: flex-end; }
+  .gap strong { font-size: 22px; }
+  .gap span { font-size: 11px; }
+  .replay { min-height: 44px; margin-top: 6px; }
+  .replayYear { display: none; }
+  .race figcaption { grid-column: 1 / -1; grid-row: 3; min-height: 0; padding: 26px 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .plot svg, .dot, .marketEnd, .stockEnd, .gap { animation: none; }
-  .primary, .source, .primary svg, .source svg { transition: none; }
+  .hero *, .hero *::before, .hero *::after { transition: none !important; }
+  .replay { display: none; }
 }

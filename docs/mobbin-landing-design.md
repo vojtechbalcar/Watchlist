@@ -10,14 +10,14 @@ Related: [[landing-hero]], [[landing-page-design]], [[landing-entry-routing]], [
 
 On 12 October 2026 the user asked for the landing page to be rebuilt from Mobbin's design language. `npx getdesign@latest add mobbin` installed it as `DESIGN.md` at the repo root. The user first mentioned connecting "the MCP", then said the MCP was not needed: "just use the design.md from mobbin". getdesign has no MCP of its own. Mobbin's official MCP (`https://api.mobbin.com/mcp`) needs a browser OAuth sign-in, and it was not set up.
 
-`DESIGN.md` applies to `/landing` only. The signed-in app keeps [[neutral-page-design]].
+The initial scope was `/landing`. On the same day, the user extended `DESIGN.md` to the whole app; see [[mobbin-app-design]]. The earlier [[neutral-page-design]] is superseded.
 
 ## How Watchlist adapts Mobbin
 
 - **Palette.** Ink `#141414` on white, with the neutral tint ladder (`#f3f3f3`, `#f0f0f0`, `#e0e0e0`) instead of shadows. The tokens are scoped to `.page` in `src/app/landing/landing.module.css`.
 - **Accent.** Mobbin's one accent, electric blue, is replaced by Watchlist maroon. It appears only on the wordmark and the terminal periods of the hero and closing headlines. Primary actions are ink pills, as Mobbin specifies; maroon never marks a button, a gain or a loss.
 - **Content colours.** Green and red stay market direction only. In Mobbin's terms they are the content that supplies the colour.
-- **Type.** Saans is commercial. Helvetica Neue stands in for it (it is in DESIGN.md's own fallback stack): Bold 700 for headings, Medium 500 for labels and links, Light 300 for lead paragraphs. Letter-spacing is zero. The Light cut is declared in `src/app/landing/layout.tsx` so only `/landing` preloads it. `next/font/local` throws outside Next's compiler, and `tests/landing-entry.test.mjs` renders the page in plain Node, so the font cannot live in `page.tsx`.
+- **Type.** Saans is commercial. Helvetica Neue stands in for it (it is in DESIGN.md's own fallback stack): Bold 700 for headings, Medium 500 for labels and links, Light 300 for lead paragraphs. Letter-spacing is zero. The Light cut was initially declared only in `src/app/landing/layout.tsx`; the full-app extension now also includes it in the shared font family. `next/font/local` throws outside Next's compiler, and `tests/landing-entry.test.mjs` renders the page in plain Node, so the font cannot live in `page.tsx`.
 - **Shapes.** Every control is a stadium pill (`src/components/landing-buttons.module.css`). Containers have 24px corners, media tiles 16px, and company tiles 30% squircles.
 - **Structure.** Sections are centred lockups separated by space, not rules. Uppercase tracked eyebrows are gone; DESIGN.md forbids all-caps and tracking.
 

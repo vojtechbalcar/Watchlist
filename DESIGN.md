@@ -276,13 +276,16 @@ components:
 
 ## Watchlist adaptation
 
-This system applies to the landing page (`/landing`) only; the signed-in app keeps its own neutral design. Watchlist's hard rules override it where they meet:
+This system applies to the whole Watchlist app: landing, authentication, setup, dashboard, watchlist, Explore, Compare, stock details, settings, and recovery screens. Watchlist's hard rules override it where they meet:
 
 - Maroon (`--color-brand`) takes the place of `{colors.accent}` as the single accent, and marks the brand only: the wordmark and terminal headline periods. Primary actions stay `{colors.primary}` ink pills.
 - Green and red are content colours: market direction only, never decoration.
 - Helvetica Neue substitutes for Saans: Bold 700 for 652, Roman 400 for 456, Light 300 for 300, Medium 500 for 600.
+- Keep compact utility labels readable and sentence case. Ticker symbols and standard market abbreviations retain their conventional capitalization.
+- Preserve the landing page's compact soft footer. Signed-in workspaces do not need a marketing footer.
+- Tables may scroll horizontally on small screens so prices and comparisons stay readable. All primary navigation and actions remain available on phones.
 
-Decisions and history: `docs/mobbin-landing-design.md`.
+Decisions and history: `docs/mobbin-landing-design.md` and `docs/mobbin-app-design.md`.
 
 ## Overview
 

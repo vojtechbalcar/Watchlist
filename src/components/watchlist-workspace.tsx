@@ -18,7 +18,7 @@ export function WatchlistWorkspace({ dashboard = false, continueSetup = false }:
   const state = useWatchlist();
   const ready = useWatchlistReady();
   if (!ready) return dashboard
-    ? <><PageHeadingSkeleton /><OverviewCardSkeleton /><div className="mt-10"><WatchlistTableSkeleton compact /></div></>
+    ? <><PageHeadingSkeleton /><OverviewCardSkeleton /><div className="dashboard-watchlist"><WatchlistTableSkeleton compact /></div></>
     : <WatchlistTableSkeleton />;
   return <ReadyWorkspace key={continueSetup ? "entry" : "workspace"} state={state} dashboard={dashboard} continueSetup={continueSetup} />;
 }
@@ -80,6 +80,6 @@ function ReadyWorkspace({ state, dashboard, continueSetup }: { state: WatchlistS
       <div className="page-heading"><div><p className="eyebrow">Your market at a glance</p><h1 className="page-title">Overview</h1></div><div className="page-actions"><Link href="/compare">Compare stocks &nbsp; ↗</Link><Link href="/explore" className="primary-action">＋ Add stocks</Link></div></div>
       <OverviewCard holdings={rows} />
     </>}
-    <div className={dashboard ? "mt-10" : undefined}><WatchlistTable holdings={rows} benchmarkLabel={market.benchmark.label} compact={dashboard} initialFilter={created ? "All stocks" : undefined} /></div>
+    <div className={dashboard ? "dashboard-watchlist" : undefined}><WatchlistTable holdings={rows} benchmarkLabel={market.benchmark.label} compact={dashboard} initialFilter={created ? "All stocks" : undefined} /></div>
   </>;
 }

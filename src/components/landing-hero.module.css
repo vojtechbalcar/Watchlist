@@ -1,165 +1,88 @@
-/* A one-year race on one track: the market and your stock leave the same line, both go forward, one finishes behind. */
+/* The hero sits inside the market's orbit: an illustration drawn once on load, then still. */
 .hero {
   --ease-out: cubic-bezier(.22, 1, .36, 1);
-  --bleed: calc(var(--gutter, 24px) + 8px);
-  --track: var(--color-ink);
-  --chalk: var(--color-brand-foreground);
-  /* Green and red that hold up on the dark track. Still direction only. */
-  --up-bright: color-mix(in oklab, var(--color-up), white 34%);
-  --market-green: color-mix(in oklab, var(--color-up) 45%, white);
-  --down-bright: color-mix(in oklab, var(--color-down), white 18%);
-  --start: 236px;
-  --lane: clamp(68px, 9.5vh, 92px);
-  padding: clamp(32px, 6vh, 88px) 8px clamp(40px, 6vh, 72px);
-}
-
-.lead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); align-items: end; gap: 40px 64px; }
-.lead h1 { font-size: clamp(60px, 9.8vw, 164px); line-height: .9; letter-spacing: -.07em; font-weight: 500; }
-.green { color: var(--color-up); }
-.period { color: var(--color-brand); }
-.losing { position: relative; }
-.losing::after { content: ""; position: absolute; left: .03em; right: .01em; bottom: -.12em; height: .07em; border-radius: 1em; background: var(--color-down-deep); transform: scaleX(0); transform-origin: left; transition: transform 250ms ease; }
-
-.aside { padding-bottom: .4em; }
-.aside p { font-size: clamp(17px, 1.4vw, 21px); line-height: 1.45; letter-spacing: -.02em; }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin-top: 28px; }
-.primary { display: inline-flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 46px; padding: 12px 18px; border-radius: 5px; background: var(--color-brand); color: var(--color-brand-foreground); font-size: 15px; transition: background 150ms ease; }
-.primary:hover { background: #743047; }
-.source { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 12px; transition: color 150ms ease; }
-.source:hover { color: var(--color-brand); }
-.primary svg, .source svg { transition: transform 180ms ease; }
-.primary:hover svg, .source:hover svg { transform: translate(2px, -2px); }
-.primary:focus-visible, .source:focus-visible, .replay:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 5px; }
-
-/* ---- The race ------------------------------------------------------------- */
-/* Two columns all the way down: the start area behind the line, then the course from 0% to the finish scale. */
-.race { display: grid; grid-template-columns: var(--start) minmax(0, 1fr); margin-top: clamp(48px, 9vh, 112px); }
-.race > div { grid-column: 1 / -1; }
-
-.above { display: grid; grid-template-columns: var(--start) minmax(0, 1fr); align-items: end; height: 30px; padding-bottom: 12px; }
-.months { display: flex; gap: 10px; list-style: none; font-size: 11px; line-height: 1; font-weight: 500; }
-/* A whole year until the race loop says otherwise. */
-.months li { width: 1ch; text-align: center; color: var(--color-text-secondary); transition: color 150ms ease; }
-.months [data-state="next"] { color: color-mix(in oklab, var(--color-text-faint) 55%, transparent); }
-.months [data-state="current"] { color: var(--color-ink); }
-.scale { position: relative; grid-column: 2; height: 11px; list-style: none; font-size: 11px; line-height: 1; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-.scale li { position: absolute; bottom: 0; left: calc(var(--at) / var(--finish) * 100%); transform: translateX(-50%); }
-
-/* Full bleed: the track runs off both edges of the screen, with a little grain like a real surface. */
-.track {
+  /* Orbit geometry: the market's radius and the spacing between rings, scaled with the viewport. */
+  --core: clamp(160px, 18vw, 320px);
+  --gap: clamp(80px, 8.4vw, 152px);
   position: relative;
-  margin-inline: calc(-1 * var(--bleed));
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: clamp(700px, calc(100svh - 80px), 980px);
+  padding: clamp(64px, 10vh, 120px) var(--gutter) 0;
   overflow: clip;
-  background-color: var(--track);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-.overlay { position: absolute; inset: 0; display: grid; grid-template-columns: var(--start) minmax(0, 1fr); padding-inline: var(--bleed); pointer-events: none; }
-.overlayCourse { position: relative; grid-column: 2; }
-.tick { position: absolute; top: 0; bottom: 0; left: calc(var(--at) / var(--finish) * 100%); width: 1px; background: color-mix(in oklab, var(--chalk) 16%, transparent); }
-.tick:first-child { width: 4px; margin-left: -2px; background: var(--chalk); }
-
-.lanes { list-style: none; border-block: 3px solid color-mix(in oklab, var(--chalk) 80%, transparent); }
-.lane { position: relative; display: grid; grid-template-columns: var(--start) minmax(0, 1fr); height: var(--lane); padding-inline: var(--bleed); }
-.lane + .lane { border-top: 2px solid color-mix(in oklab, var(--chalk) 45%, transparent); }
-.market { --line: var(--market-green); }
-.stock { --line: var(--up-bright); }
-.laneNumber { align-self: center; font-size: calc(var(--lane) * .46); line-height: 1; font-weight: 500; letter-spacing: -.04em; color: var(--chalk); }
-.course { position: relative; }
-
-/* --x is the runner's return so far, written by the race loop. The bib's front edge sits exactly on it. */
-.covered { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: var(--line); transform: scaleX(calc(var(--x) / var(--finish))); transform-origin: left; }
-.runner { position: absolute; inset: 0; transform: translateX(calc(var(--x) / var(--finish) * 100%)); }
-.bib { position: absolute; right: 100%; top: 50%; display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 184px; height: calc(var(--lane) - 20px); padding: 0 24px 0 22px; border-radius: 999px; transform: translateY(-50%); white-space: nowrap; }
-.bibLabel { font-size: 11px; line-height: 1; letter-spacing: .01em; }
-.bib strong { font-size: 28px; line-height: 1; font-weight: 500; letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
-.stock .bib { background: var(--chalk); color: var(--color-ink); }
-.stock .bib strong { color: var(--color-up); }
-.market .bib { background: var(--track); box-shadow: inset 0 0 0 2px var(--chalk); color: var(--chalk); }
-.market .bib strong { color: var(--market-green); }
-
-/* Speed lines trail whichever way the runners are going; each one bobs at its own stride. */
-.bib::before { content: ""; position: absolute; right: calc(100% + 10px); top: 26%; bottom: 26%; width: 48px; background: repeating-linear-gradient(to bottom, var(--line) 0 2px, transparent 2px 7px); mask-image: linear-gradient(to right, transparent, #000); opacity: 0; transition: opacity 400ms ease; }
-.hero[data-phase="rewinding"] .bib::before { right: auto; left: calc(100% + 10px); mask-image: linear-gradient(to left, transparent, #000); }
-.hero:is([data-phase="running"], [data-phase="rewinding"]) .bib::before { opacity: .9; }
-.hero:is([data-phase="running"], [data-phase="rewinding"]) .bib { animation: stride 170ms ease-in-out infinite alternate; }
-.hero:is([data-phase="running"], [data-phase="rewinding"]) .stock .bib { animation-duration: 150ms; }
-@keyframes stride { to { translate: 0 -2px; } }
-
-/* ---- The finish ----------------------------------------------------------- */
-/* Where the market finished, dropped across both lanes. */
-.marker { position: absolute; top: 0; bottom: 0; left: calc(var(--market-end) / var(--finish) * 100%); margin-left: -1px; border-left: 2px dashed var(--chalk); transform: scaleY(0); transform-origin: top; transition: transform 200ms ease; }
-/* What the stock missed: from its finish to the market's. */
-.shortfall { position: absolute; top: 50%; left: calc(var(--stock-end) / var(--finish) * 100%); width: calc((var(--market-end) - var(--stock-end)) / var(--finish) * 100%); height: 14px; margin-top: -7px; background: repeating-linear-gradient(-45deg, var(--down-bright) 0 2px, transparent 2px 6px); box-shadow: inset 0 0 0 2px var(--down-bright); transform: scaleX(0); transform-origin: left; transition: transform 200ms ease; }
-/* The gap note hangs from a bracket under the shortfall. */
-.below { position: relative; }
-.gap { position: absolute; top: 14px; left: calc(var(--start) + (100% - var(--start)) * var(--stock-end) / var(--finish)); display: flex; flex-direction: column; align-items: flex-start; width: calc((100% - var(--start)) * (var(--market-end) - var(--stock-end)) / var(--finish)); padding-top: 22px; white-space: nowrap; opacity: 0; transform: translateY(-4px); transition: opacity 200ms ease, transform 200ms ease; }
-.gap::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; border: 2px solid var(--color-down-deep); border-top: 0; }
-.gap strong { font-size: clamp(24px, 2.2vw, 34px); line-height: 1; font-weight: 500; letter-spacing: -.045em; color: var(--color-down-deep); font-variant-numeric: tabular-nums; }
-.gap span { margin-top: 6px; font-size: 12px; color: var(--color-text-secondary); }
-
-/* At the finish, in order: the market's line, the shortfall, the gap, then the word it proves. A replay clears them at once. */
-.hero[data-phase="finished"] .marker { transform: none; transition: transform 450ms var(--ease-out); }
-.hero[data-phase="finished"] .shortfall { transform: none; transition: transform 600ms var(--ease-out) 350ms; }
-.hero[data-phase="finished"] .gap { opacity: 1; transform: none; transition: opacity 400ms ease 700ms, transform 600ms var(--ease-out) 700ms; }
-.hero[data-phase="finished"] .losing::after { transform: none; transition: transform 700ms var(--ease-out) 900ms; }
-
-.race figcaption { grid-column: 2; grid-row: 2; min-height: 92px; padding: 20px 30% 0 0; font-size: 11px; line-height: 1.5; color: var(--color-text-secondary); }
-.replay { grid-column: 1; grid-row: 2; align-self: start; justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 8px; font-size: 12px; color: var(--color-text-secondary); transition: color 150ms ease; }
-.replay:hover { color: var(--color-brand); }
-.replay svg { transition: transform 300ms var(--ease-out); }
-.replay:hover svg { transform: rotate(-60deg); }
-.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-
-/* Hidden until the page knows whether to race, so the finished result never flashes first. */
-.runner, .covered { transition: opacity 300ms ease; }
-.hero[data-phase="idle"] :is(.runner, .covered) { opacity: 0; }
-
-@media (scripting: none) {
-  .hero[data-phase="idle"] :is(.runner, .covered) { opacity: 1; }
-  .hero :is(.marker, .shortfall, .gap), .hero .losing::after { transform: none; opacity: 1; }
-  .replay { display: none; }
 }
 
-@media (max-width: 1100px) {
-  .hero { --start: 196px; }
-  .lead { gap: 32px 40px; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); }
-  .months { gap: 6px; }
-  .bib { width: 156px; padding-inline: 18px; }
-  .bib strong { font-size: 23px; }
-}
+/* ---- Copy ---------------------------------------------------------------- */
+.lead { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+/* A clearing in the orbit, so no ring runs through the words. */
+.lead::before { content: ""; position: absolute; inset: -22% -18%; z-index: -1; background: radial-gradient(closest-side, var(--canvas) 64%, transparent); }
+.lead h1 { font-size: clamp(46px, 6vw, 80px); font-weight: 700; line-height: 1; color: var(--ink); }
+.period { color: var(--color-brand); }
+.lead p { max-width: 30ch; margin-top: 24px; font-family: var(--font-light); font-size: clamp(18px, 1.5vw, 20px); font-weight: 300; line-height: 1.38; color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 36px; }
 
+/* ---- The orbit ------------------------------------------------------------ */
+/* Everything is placed from one point: the bottom centre of the hero, where the market sits. */
+.orbit { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.ring, .fan, .hubLabel, .tile { position: absolute; left: 50%; }
+.ring { bottom: 0; width: calc(2 * (var(--core) + var(--ring) * var(--gap))); aspect-ratio: 1; border: 1px solid var(--hairline); border-radius: 50%; translate: -50% 50%; }
+
+/* The fan: twelve petals stepping down Mobbin's tint ladder, from the lightest grey in January to ink in December. */
+.fan { bottom: 0; width: calc(2 * var(--core)); height: var(--core); overflow: visible; translate: -50% 0; }
+.petal { fill: color-mix(in oklab, var(--ink) var(--shade), var(--canvas-soft)); stroke: var(--canvas); stroke-width: 3px; stroke-linejoin: round; }
+.hub { fill: var(--canvas); stroke: var(--hairline); stroke-width: 1px; }
+.hubLabel { bottom: calc(var(--core) * .1); translate: -50% 0; font-size: clamp(12px, 1vw, 14px); font-weight: 500; line-height: 1; white-space: nowrap; }
+
+/* A tile's ring and angle place it exactly on its orbit. */
+.tile {
+  --placed-ring: var(--ring);
+  --placed-angle: var(--angle);
+  --radius: calc(var(--core) + var(--placed-ring) * var(--gap));
+  left: calc(50% + var(--radius) * sin(var(--placed-angle)));
+  bottom: calc(var(--radius) * cos(var(--placed-angle)));
+  display: grid;
+  place-items: center;
+  width: var(--tile);
+  aspect-ratio: 1;
+  border: 1px solid var(--hairline);
+  border-radius: 30%;
+  background: var(--canvas);
+  translate: -50% 50%;
+}
+.tile[data-size="s"] { --tile: clamp(44px, 4.3vw, 64px); }
+.tile[data-size="m"] { --tile: clamp(52px, 5.1vw, 76px); }
+.tile[data-size="l"] { --tile: clamp(60px, 6.2vw, 92px); }
+.tile img { width: 44%; height: 44%; object-fit: contain; filter: brightness(0); }
+.tile[data-fit="compact"] img { width: 38%; height: 38%; }
+.tile[data-fit="wide"] img { width: 58%; height: 58%; }
+
+/* On load the year opens petal by petal, the rings ripple out from it, and the companies settle into place. */
+.petal { transform-origin: 0 0; animation: unfold 700ms var(--ease-out) both; animation-delay: calc(120ms + var(--month) * 55ms); }
+.hub, .hubLabel { animation: fade 500ms ease both; }
+.ring { animation: ripple 1200ms var(--ease-out) both; animation-delay: calc(300ms + var(--ring) * 90ms); }
+.tile { animation: settle 800ms var(--ease-out) both; animation-delay: calc(700ms + var(--order) * 55ms); }
+@keyframes unfold { from { opacity: 0; transform: scale(.2); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes ripple { from { opacity: 0; scale: .94; } }
+@keyframes settle { from { opacity: 0; scale: .7; } }
+
+/* One column: the orbit tightens below the copy, and a few companies move to places that clear it. */
 @media (max-width: 860px) {
-  .lead { grid-template-columns: minmax(0, 1fr); }
-  .aside { max-width: 460px; padding-bottom: 0; }
-  .lead h1 { font-size: clamp(60px, 13vw, 112px); }
+  .hero { --core: clamp(120px, 34vw, 180px); --gap: clamp(50px, 13vw, 92px); min-height: 0; padding-bottom: calc(var(--core) + 2.4 * var(--gap)); }
+  .tile { --placed-ring: var(--narrow-ring); --placed-angle: var(--narrow-angle); }
+  .tile:not([data-narrow]) { display: none; }
+  .tile[data-size="s"] { --tile: clamp(38px, 10vw, 56px); }
+  .tile[data-size="m"] { --tile: clamp(42px, 11.5vw, 64px); }
+  .tile[data-size="l"] { --tile: clamp(44px, 13vw, 76px); }
 }
 
-@media (max-width: 760px) {
-  .hero { --bleed: var(--gutter, 24px); --start: 100px; --lane: 64px; padding: 32px 0 48px; }
-  .lead { gap: 28px; }
-  .lead h1 { font-size: clamp(54px, 15.5vw, 104px); }
-  .aside p { font-size: 18px; }
-  .actions { margin-top: 24px; gap: 12px 24px; }
-  /* The gap note gets its own row beside the replay button, the caption the row after. */
-  .race { grid-template-rows: auto 72px auto; margin-top: 64px; }
-  /* No room for the month clock beside the scale; the caption still says it is one year. */
-  .months { display: none; }
-  .scale li:nth-child(even) { display: none; }
-  .laneNumber { font-size: 22px; }
-  .bib { width: 92px; height: 46px; gap: 3px; padding-inline: 13px 10px; }
-  .bibLabel { font-size: 9px; }
-  .bib strong { font-size: 16px; letter-spacing: -.03em; }
-  .bib::before { width: 28px; right: calc(100% + 6px); }
-  .hero[data-phase="rewinding"] .bib::before { left: calc(100% + 6px); }
-  .gap { align-items: flex-end; }
-  .gap strong { font-size: 22px; }
-  .gap span { font-size: 11px; }
-  .replay { min-height: 44px; margin-top: 6px; }
-  .replayYear { display: none; }
-  .race figcaption { grid-column: 1 / -1; grid-row: 3; min-height: 0; padding: 26px 0 0; }
+@media (max-width: 480px) {
+  .lead p { margin-top: 20px; }
+  .actions { flex-direction: column; align-items: stretch; width: min(100%, 320px); margin-top: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero *, .hero *::before, .hero *::after { transition: none !important; }
-  .replay { display: none; }
+  .petal, .hub, .hubLabel, .ring, .tile { animation: none; }
 }

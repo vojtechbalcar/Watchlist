@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, Minus, Equal } from "lucide-react";
 import { Wordmark } from "@/components/wordmark";
 import { LandingHero } from "@/components/landing-hero";
 import { LandingAppTour } from "@/components/landing-app-tour";
 import { WatchlistEntryLink } from "@/components/watchlist-entry-link";
-import { landingComparison } from "@/lib/landing-comparison";
-import { formatPct } from "@/lib/format";
+import buttons from "@/components/landing-buttons.module.css";
 import styles from "./landing.module.css";
 
 export const metadata: Metadata = {
@@ -15,6 +13,17 @@ export const metadata: Metadata = {
 };
 
 const sourceUrl = "https://github.com/vojtechbalcar/Watchlist";
+
+// New accounts return to the same setup entry as every watchlist call to action.
+const registerUrl = `/register?${new URLSearchParams({ callbackUrl: "/watchlist?setup=continue" })}`;
+
+type FooterLink = { label: string; href: string; external?: boolean };
+
+const footerGroups: { title: string; links: FooterLink[] }[] = [
+  { title: "On this page", links: [{ label: "The app", href: "#inside-watchlist" }, { label: "How it works", href: "#getting-started" }] },
+  { title: "Account", links: [{ label: "Sign in", href: "/login" }, { label: "Create an account", href: registerUrl }] },
+  { title: "Project", links: [{ label: "Source code", href: sourceUrl, external: true }, { label: "Report an issue", href: `${sourceUrl}/issues`, external: true }] },
+];
 
 const steps = [
   { title: "Make it yours.", text: "Create an account and start with the companies you want to follow." },
@@ -26,69 +35,77 @@ export default function LandingPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link href="/landing" aria-label="Watchlist home"><Wordmark className={styles.wordmark} /></Link>
-        <nav className={styles.navigation} aria-label="Landing navigation">
-          <a href={sourceUrl}>Source code <span aria-hidden="true">↗</span></a>
+        <nav className={styles.nav} aria-label="Landing navigation">
+          <Link href="/landing" aria-label="Watchlist home" className={styles.home}><Wordmark className={styles.wordmark} /></Link>
+          <div className={styles.links}>
+            <a href="#inside-watchlist" className={styles.wideLink}>The app</a>
+            <a href={sourceUrl} className={styles.wideLink}>Source code <span aria-hidden="true">↗</span></a>
+            <Link href="/login" className={styles.signIn}>Sign in</Link>
+          </div>
+          <WatchlistEntryLink className={`${buttons.pill} ${buttons.primary} ${styles.navCta}`}>Go to watchlist</WatchlistEntryLink>
         </nav>
-        <div className={styles.headerActions}>
-          <Link href="/login" className={styles.signIn}>Sign in</Link>
-          <WatchlistEntryLink className={styles.headerCta}>Go to watchlist <span aria-hidden="true">↗</span></WatchlistEntryLink>
-        </div>
       </header>
 
       <main id="main-content">
         <LandingHero />
 
-        <section className={styles.context} aria-labelledby="context-title">
-          <div className={styles.contextCopy}>
-            <p className={styles.eyebrow}>It’s all relative</p>
-            <h2 id="context-title">A return is only<br />half the story.</h2>
-            <p>A stock can be up and still fall behind. The benchmark tells you the difference.</p>
-          </div>
-          <div className={styles.equationWrap}>
-            <div className={styles.equation}>
-              <dl><dt>Your stock</dt><dd className={styles.positive}>{formatPct(landingComparison.stockReturn, 1)}</dd></dl>
-              <Minus className={styles.operator} size={20} aria-hidden="true" />
-              <dl><dt>S&amp;P 500</dt><dd className={styles.positive}>{formatPct(landingComparison.benchmarkReturn, 1)}</dd></dl>
-              <Equal className={styles.operator} size={20} aria-hidden="true" />
-              <dl className={styles.gapMetric}><dt>Behind the market</dt><dd>−{Math.abs(landingComparison.gapPp).toFixed(1)}<small> pp</small></dd></dl>
-            </div>
-            <p className={styles.exampleNote}>Same year. Same starting point. <span>Illustrative returns.</span></p>
+        <section className={styles.section} aria-labelledby="context-title">
+          <div className={styles.statement}>
+            <h2 id="context-title">A return is only half the story.</h2>{" "}
+            <p>A stock can be up and still fall behind. Watchlist sets each one against its benchmark, so you can see who’s leading and who’s only moving with the market.</p>
           </div>
         </section>
 
         <LandingAppTour />
 
-        <section id="getting-started" className={styles.gettingStarted} aria-labelledby="getting-started-title">
-          <div className={styles.stepsHeading}>
-            <p className={styles.eyebrow}>A simpler routine</p>
-            <h2 id="getting-started-title">Less noise.<br />More perspective.</h2>
-          </div>
+        <section id="getting-started" className={styles.section} aria-labelledby="getting-started-title">
+          <h2 id="getting-started-title" className={styles.heading}>Less noise. More perspective.</h2>
           <ol className={styles.steps}>
             {steps.map((step, index) => (
               <li key={step.title}>
-                <span className={styles.stepNumber} aria-hidden="true">0{index + 1}</span>
-                <div><h3>{step.title}</h3><p>{step.text}</p></div>
+                <span className={styles.stepNumber} aria-hidden="true">{index + 1}</span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
               </li>
             ))}
           </ol>
         </section>
 
-        <section className={styles.closing} aria-labelledby="closing-title">
-          <div><p className={styles.closingLabel}>Your next move starts with context.</p><h2 id="closing-title">See the difference<br />for yourself<span>.</span></h2></div>
-          <div className={styles.closingActions}>
-            <WatchlistEntryLink className={styles.lightCta}>Create your watchlist <ArrowUpRight size={20} aria-hidden="true" /></WatchlistEntryLink>
-            <p>Already have an account? <Link href="/login">Sign in</Link></p>
-          </div>
+        <section className={`${styles.section} ${styles.closing}`} aria-labelledby="closing-title">
+          <h2 id="closing-title" className={styles.closingTitle}>See the difference for yourself<span className={styles.period}>.</span></h2>
+          <p className={styles.sectionLead}>Your next move starts with context.</p>
+          <WatchlistEntryLink className={`${buttons.pill} ${buttons.large} ${buttons.primary} ${styles.closingCta}`}>Create your watchlist</WatchlistEntryLink>
+          <p className={styles.signInNote}>Already have an account? <Link href="/login">Sign in</Link></p>
         </section>
       </main>
 
       <footer className={styles.footer}>
-        <div className={styles.footerTop}>
-          <div><Link href="/landing" aria-label="Watchlist home"><Wordmark className={styles.footerWordmark} /></Link><p>Your stocks. In context.</p></div>
-          <nav aria-label="Footer navigation"><a href="#inside-watchlist">The app</a><Link href="/login">Sign in</Link><a href={sourceUrl}>View source <ArrowUpRight size={14} aria-hidden="true" /></a></nav>
+        <div className={styles.footerMain}>
+          <div className={styles.footerBrand}>
+            <Link href="/landing" aria-label="Watchlist home" className={styles.home}><Wordmark className={styles.wordmark} /></Link>
+            <p>Your stocks. In context.</p>
+          </div>
+          <nav className={styles.footerLinks} aria-label="Footer navigation">
+            {footerGroups.map((group) => (
+              <div key={group.title}>
+                <p className={styles.footerTitle}>{group.title}</p>
+                <ul>
+                  {group.links.map((link) => (
+                    <li key={link.label}>
+                      {link.href.startsWith("/")
+                        ? <Link href={link.href}>{link.label}</Link>
+                        : <a href={link.href}>{link.label}{link.external ? <> <span aria-hidden="true">↗</span></> : null}</a>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
-        <div className={styles.footerBottom}><span>Made for a little more perspective.</span><span>Product visuals use illustrative data.</span></div>
+        <div className={styles.footerBottom}>
+          <p>Product visuals use illustrative data. Company logos belong to their owners.</p>
+          <p>Made for a little more perspective.</p>
+        </div>
       </footer>
     </div>
   );

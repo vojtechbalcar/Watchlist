@@ -1,0 +1,23 @@
+/* The landing page's one button shape: a stadium pill. Ink for the primary action, a soft tint for everything else. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: var(--pill);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 150ms ease;
+}
+.large { height: 52px; padding: 0 26px; }
+.primary { background: var(--ink); color: var(--canvas); }
+.primary:hover { background: var(--ink-soft); }
+.soft { background: var(--canvas-soft); color: var(--ink); }
+.soft:hover { background: var(--canvas-soft-hover); }
+.pill:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) { .pill { transition: none; } }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent, type TouchEvent } from "react";
+import { Check } from "lucide-react";
 import { WatchlistEntryLink } from "./watchlist-entry-link";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { LandingProductPreview } from "./landing-product-preview";
+import buttons from "./landing-buttons.module.css";
 import styles from "./landing-app-tour.module.css";
 
 const pages = [
@@ -80,14 +81,9 @@ export function LandingAppTour() {
   }
 
   return (
-    <section id="inside-watchlist" className={styles.tour} aria-labelledby="app-tour-title" aria-roledescription="carousel">
-      <div className={styles.intro}>
-        <div>
-          <p className={styles.eyebrow}>Inside Watchlist</p>
-          <h2 id="app-tour-title">Everything in view.<br />Nothing in the way.</h2>
-        </div>
-        <p className={styles.introduction}>One watchlist.<br />Four useful perspectives.</p>
-      </div>
+    <section id="inside-watchlist" className={styles.tour} aria-labelledby="app-tour-title">
+      <h2 id="app-tour-title">Everything in view. Nothing in the way.</h2>
+      <p className={styles.introduction}>One watchlist. Four useful perspectives.</p>
 
       <div className={styles.tabs} role="tablist" aria-label="App previews">
         {pages.map((page, index) => (
@@ -103,7 +99,6 @@ export function LandingAppTour() {
             onClick={() => setActiveIndex(index)}
             onKeyDown={(event) => handleTabKey(event, index)}
           >
-            <span className={styles.tabNumber} aria-hidden="true">0{index + 1}</span>
             {page.label}
           </button>
         ))}
@@ -120,14 +115,12 @@ export function LandingAppTour() {
           className={styles.panel}
         >
           <div className={styles.copy}>
-            <div className={styles.copyBody}>
-              <h3>{page.title}</h3>
-              <p className={styles.description}>{page.description}</p>
-              <ul className={styles.details}>
-                {page.details.map((detail) => <li key={detail}>{detail}</li>)}
-              </ul>
-              <WatchlistEntryLink className={styles.cta}>Make it your watchlist <ArrowUpRight size={18} aria-hidden="true" /></WatchlistEntryLink>
-            </div>
+            <h3>{page.title}</h3>
+            <p className={styles.description}>{page.description}</p>
+            <ul className={styles.details}>
+              {page.details.map((detail) => <li key={detail}><Check size={16} strokeWidth={2} aria-hidden="true" />{detail}</li>)}
+            </ul>
+            <WatchlistEntryLink className={`${buttons.pill} ${buttons.primary} ${styles.cta}`}>Make it your watchlist</WatchlistEntryLink>
           </div>
 
           <figure
@@ -136,20 +129,13 @@ export function LandingAppTour() {
             onTouchEnd={handleTouchEnd}
             onTouchCancel={() => { touchStart.current = null; }}
           >
-            <div className={styles.previewField}><LandingProductPreview page={page.id} /></div>
-            <figcaption><span className="sr-only">{page.alt} </span>Simplified view <span aria-hidden="true">·</span> Illustrative data</figcaption>
+            <LandingProductPreview page={page.id} />
+            <figcaption><span className="sr-only">{page.alt} </span>Simplified view with illustrative data.</figcaption>
           </figure>
         </div>
       ))}
 
-      <div className={styles.navigation} role="group" aria-label="Preview navigation">
-        <div className={styles.arrowButtons}>
-          <button type="button" onClick={() => move(-1)} aria-label="Previous app preview"><ArrowLeft size={20} strokeWidth={1.5} aria-hidden="true" /></button>
-          <button type="button" onClick={() => move(1)} aria-label="Next app preview"><ArrowRight size={20} strokeWidth={1.5} aria-hidden="true" /></button>
-        </div>
-        <p className={styles.counter} aria-hidden="true"><span>0{activeIndex + 1}</span><span className={styles.counterLine} />04</p>
-        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{pages[activeIndex].label}, {activeIndex + 1} of {pages.length}</p>
-      </div>
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{pages[activeIndex].label}, {activeIndex + 1} of {pages.length}</p>
     </section>
   );
 }

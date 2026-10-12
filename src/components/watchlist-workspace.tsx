@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ListPlus } from "lucide-react";
 import { restartWatchlistSetup, useWatchlist, useWatchlistReady } from "./watchlist-store";
-import { emptySetupDraft, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
+import { emptySetupDraft, shouldOpenWatchlistSetup, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
 import { watchlistRows } from "@/lib/watchlist-catalog";
 import { WatchlistSetup } from "./watchlist-setup";
 import { WatchlistTable } from "./watchlist-table";
@@ -14,18 +14,18 @@ import { useWatchlistStocks } from "./watchlist-listings";
 import { OverviewCardSkeleton, PageHeadingSkeleton, WatchlistTableSkeleton } from "./skeletons";
 import styles from "./watchlist-setup.module.css";
 
-export function WatchlistWorkspace({ dashboard = false }: { dashboard?: boolean }) {
+export function WatchlistWorkspace({ dashboard = false, continueSetup = false }: { dashboard?: boolean; continueSetup?: boolean }) {
   const state = useWatchlist();
   const ready = useWatchlistReady();
   if (!ready) return dashboard
     ? <><PageHeadingSkeleton /><OverviewCardSkeleton /><div className="mt-10"><WatchlistTableSkeleton compact /></div></>
     : <WatchlistTableSkeleton />;
-  return <ReadyWorkspace state={state} dashboard={dashboard} />;
+  return <ReadyWorkspace key={continueSetup ? "entry" : "workspace"} state={state} dashboard={dashboard} continueSetup={continueSetup} />;
 }
 
-function ReadyWorkspace({ state, dashboard }: { state: WatchlistState; dashboard: boolean }) {
-  const [editing, setEditing] = useState(!state.tickers.length && !state.setupDraft && !state.setupDismissed && !state.setupCompleted);
-  const [initialDraft, setInitialDraft] = useState<SetupDraft | null>(null);
+function ReadyWorkspace({ state, dashboard, continueSetup }: { state: WatchlistState; dashboard: boolean; continueSetup: boolean }) {
+  const [editing, setEditing] = useState(() => shouldOpenWatchlistSetup(state, continueSetup));
+  const [initialDraft, setInitialDraft] = useState<SetupDraft | null>(() => continueSetup ? state.setupDraft : null);
   const [focusSetup, setFocusSetup] = useState(false);
   const [restartError, setRestartError] = useState(false);
   const [created, setCreated] = useState(false);

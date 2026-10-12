@@ -7,6 +7,12 @@ export const emptySetupDraft: SetupDraft = { version: 1, step: 0, interests: [],
 export type WatchlistState = { tickers: string[]; setupDismissed: boolean; setupCompleted: boolean; setupDraft: SetupDraft | null };
 export const emptyWatchlist: WatchlistState = { tickers: [], setupDismissed: false, setupCompleted: false, setupDraft: null };
 
+/** Landing entry resumes unfinished setup; ordinary visits keep the resume choice. */
+export function shouldOpenWatchlistSetup(state: WatchlistState, continueSetup: boolean): boolean {
+  if (state.setupCompleted || state.setupDismissed || state.tickers.length) return false;
+  return continueSetup || !state.setupDraft;
+}
+
 /** What may be saved: a fixed list, or a rule such as "any well-formed ticker". */
 export type Available = readonly string[] | ((ticker: string) => boolean);
 

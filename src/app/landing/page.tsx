@@ -4,6 +4,7 @@ import { ArrowUpRight, Minus, Equal } from "lucide-react";
 import { Wordmark } from "@/components/wordmark";
 import { LandingHero } from "@/components/landing-hero";
 import { LandingAppTour } from "@/components/landing-app-tour";
+import { WatchlistEntryLink } from "@/components/watchlist-entry-link";
 import { landingComparison } from "@/lib/landing-comparison";
 import { formatPct } from "@/lib/format";
 import styles from "./landing.module.css";
@@ -14,8 +15,6 @@ export const metadata: Metadata = {
 };
 
 const sourceUrl = "https://github.com/vojtechbalcar/Watchlist";
-// Temporary entry point until auth and onboarding state determine the destination.
-const watchlistEntryUrl = "/register";
 
 const steps = [
   { title: "Make it yours.", text: "Create an account and start with the companies you want to follow." },
@@ -33,7 +32,7 @@ export default function LandingPage() {
         </nav>
         <div className={styles.headerActions}>
           <Link href="/login" className={styles.signIn}>Sign in</Link>
-          <Link href={watchlistEntryUrl} className={styles.headerCta}>Go to watchlist <span aria-hidden="true">↗</span></Link>
+          <WatchlistEntryLink className={styles.headerCta}>Go to watchlist <span aria-hidden="true">↗</span></WatchlistEntryLink>
         </div>
       </header>
 
@@ -78,7 +77,7 @@ export default function LandingPage() {
         <section className={styles.closing} aria-labelledby="closing-title">
           <div><p className={styles.closingLabel}>Your next move starts with context.</p><h2 id="closing-title">See the difference<br />for yourself<span>.</span></h2></div>
           <div className={styles.closingActions}>
-            <Link href={watchlistEntryUrl} className={styles.lightCta}>Create your watchlist <ArrowUpRight size={20} aria-hidden="true" /></Link>
+            <WatchlistEntryLink className={styles.lightCta}>Create your watchlist <ArrowUpRight size={20} aria-hidden="true" /></WatchlistEntryLink>
             <p>Already have an account? <Link href="/login">Sign in</Link></p>
           </div>
         </section>

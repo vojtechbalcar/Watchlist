@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import Link from "next/link";
+import { WatchlistEntryLink } from "./watchlist-entry-link";
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import { landingComparison } from "@/lib/landing-comparison";
 import { formatPct } from "@/lib/format";
@@ -129,7 +129,7 @@ export function LandingHero() {
         <div className={styles.aside}>
           <p>Up feels like winning.<br />Until you see what the market did.</p>
           <div className={styles.actions}>
-            <Link href="/register" className={styles.primary}>Go to watchlist <ArrowUpRight size={19} aria-hidden="true" /></Link>
+            <WatchlistEntryLink className={styles.primary}>Go to watchlist <ArrowUpRight size={19} aria-hidden="true" /></WatchlistEntryLink>
             <a href="https://github.com/vojtechbalcar/Watchlist" className={styles.source}>View source code <ArrowUpRight size={15} aria-hidden="true" /></a>
           </div>
         </div>

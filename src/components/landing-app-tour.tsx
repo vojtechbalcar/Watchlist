@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent, type TouchEvent } from "react";
-import Link from "next/link";
+import { WatchlistEntryLink } from "./watchlist-entry-link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { LandingProductPreview } from "./landing-product-preview";
 import styles from "./landing-app-tour.module.css";
@@ -126,7 +126,7 @@ export function LandingAppTour() {
               <ul className={styles.details}>
                 {page.details.map((detail) => <li key={detail}>{detail}</li>)}
               </ul>
-              <Link href="/register" className={styles.cta}>Make it your watchlist <ArrowUpRight size={18} aria-hidden="true" /></Link>
+              <WatchlistEntryLink className={styles.cta}>Make it your watchlist <ArrowUpRight size={18} aria-hidden="true" /></WatchlistEntryLink>
             </div>
           </div>
 

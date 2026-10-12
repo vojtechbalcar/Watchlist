@@ -7,13 +7,14 @@ export const metadata = {
   title: "Watchlist",
 };
 
-export default function WatchlistPage() {
+export default async function WatchlistPage({ searchParams }: PageProps<"/watchlist">) {
+  const { setup } = await searchParams;
   return (
     <>
       <SiteHeader active="Watchlist" />
 
       <main className="page-shell">
-        <Suspense fallback={<WatchlistTableSkeleton />}><WatchlistWorkspace /></Suspense>
+        <Suspense fallback={<WatchlistTableSkeleton />}><WatchlistWorkspace continueSetup={setup === "continue"} /></Suspense>
       </main>
     </>
   );

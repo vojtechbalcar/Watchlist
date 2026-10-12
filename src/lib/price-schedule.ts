@@ -5,7 +5,7 @@
  * Unscheduled closures, like a national day of mourning, aren't modelled.
  */
 
-const MARKET_OPEN = 9 * 60 + 30;
+export const MARKET_OPEN = 9 * 60 + 30;
 const MARKET_CLOSE = 16 * 60;
 const EARLY_CLOSE = 13 * 60;
 /** Twelve Data settles the day's bar shortly after the close. */

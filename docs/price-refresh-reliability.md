@@ -74,6 +74,30 @@ so a complete production timestamp audit was unavailable. Production logs suppli
 the evidence above. Historical Cloudflare log queries also require permissions
 beyond the current OAuth token; live tails work.
 
+## Noticing failures (2026-10-12)
+
+Until now a failed run was visible only in Cloudflare's logs, which nobody
+reads and the OAuth token can't query historically.
+
+- `/api/cron/prices` records its outcome in `JobState`: `price-job` on
+  success, `price-job-failed` on failure. That needed no schema change.
+- `/api/cron/health` (needs `CRON_SECRET`) answers 200 when prices are as
+  fresh as the schedule promises, and 503 with the problems when they aren't.
+  The rules are in `src/lib/price-health.ts`:
+  - No success in 30 minutes.
+  - During market hours, a quote not refreshed for 150 minutes, counted from
+    the open so the first rotation isn't flagged. The budget allows about
+    100 minutes for 60 instruments.
+  - Three hours after a session settles, any final quote or close check
+    still missing.
+- `.github/workflows/price-health.yml` calls it hourly. A failed scheduled
+  workflow emails the repository owner, so a broken job reaches an inbox.
+  GitHub's unreliable schedule (above) only delays the alert by hours. It
+  doesn't hide an outage.
+
+Rejected: having the scheduler Worker raise the alert, because its
+failures land in the same unread logs; and a paid uptime monitor.
+
 ## References
 
 - [GitHub schedule limitations](https://docs.github.com/en/actions/how-tos/troubleshoot-workflows)

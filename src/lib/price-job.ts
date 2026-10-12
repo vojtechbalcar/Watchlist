@@ -8,6 +8,19 @@ import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured }
 
 const LISTING_CHUNK = 1000;
 
+/** What the job knows about each tracked instrument; also read by the health check. */
+export async function readTrackedStates(db: PrismaClient): Promise<TrackedState[]> {
+  const instruments = await db.instrument.findMany({
+    select: { ticker: true, closesCheckedAt: true, quote: { select: { fetchedAt: true } }, closes: { select: { date: true }, orderBy: { date: "desc" }, take: 1 } },
+  });
+  return instruments.map(instrument => ({
+    ticker: instrument.ticker,
+    latestClose: instrument.closes[0]?.date.toISOString().slice(0, 10) ?? null,
+    closesCheckedAt: instrument.closesCheckedAt,
+    quoteFetchedAt: instrument.quote?.fetchedAt ?? null,
+  }));
+}
+
 /**
  * One run of the scheduled price job. It first classifies a batch of listings
  * by sector from the SEC, which is free. Then it spends at most the job's
@@ -46,15 +59,7 @@ export async function runPriceJob(db: PrismaClient, now = new Date()) {
     report.listings = stocks.length;
   }
 
-  const instruments = await db.instrument.findMany({
-    select: { ticker: true, closesCheckedAt: true, quote: { select: { fetchedAt: true } }, closes: { select: { date: true }, orderBy: { date: "desc" }, take: 1 } },
-  });
-  const states: TrackedState[] = instruments.map(instrument => ({
-    ticker: instrument.ticker,
-    latestClose: instrument.closes[0]?.date.toISOString().slice(0, 10) ?? null,
-    closesCheckedAt: instrument.closesCheckedAt,
-    quoteFetchedAt: instrument.quote?.fetchedAt ?? null,
-  }));
+  const states = await readTrackedStates(db);
 
   const due = closesDue(states, now);
   const session = latestSettledSession(now).ymd;

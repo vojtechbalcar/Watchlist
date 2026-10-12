@@ -7,9 +7,9 @@ test("Cloudflare builds with database credentials apply pending migrations", () 
   assert.equal(migrationStep({ CI: "true", DATABASE_URL: "postgres://x" }), "migrate");
 });
 
-test("a Cloudflare build without credentials warns instead of failing the deploy", () => {
-  assert.equal(migrationStep({ WORKERS_CI: "1" }), "warn");
-  assert.equal(migrationStep({ WORKERS_CI: "1", DATABASE_URL: "" }), "warn");
+test("a Cloudflare build without credentials fails rather than deploy unmigrated code", () => {
+  assert.equal(migrationStep({ WORKERS_CI: "1" }), "fail");
+  assert.equal(migrationStep({ WORKERS_CI: "1", DATABASE_URL: "" }), "fail");
 });
 
 test("local builds never touch the database, even with credentials in the shell", () => {

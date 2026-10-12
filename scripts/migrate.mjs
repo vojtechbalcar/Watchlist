@@ -5,15 +5,19 @@
  * database (use `pnpm db:deploy` for that). Migrations are additive by
  * convention, so the code still running until the deploy finishes keeps
  * working against the new schema.
+ *
+ * A Cloudflare build without DATABASE_URL fails: deploying code whose
+ * migration never ran breaks it in production, while a failed build leaves
+ * the previous version serving and shows up as a failed check on the commit.
  */
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-/** "migrate", "warn" (a Cloudflare build without credentials), or "skip" (local). */
+/** "migrate", "fail" (a Cloudflare build without credentials), or "skip" (local). */
 export function migrationStep(env) {
   const onCloudflare = Boolean(env.WORKERS_CI) || (Boolean(env.CI) && env.CI !== "false");
   if (!onCloudflare) return "skip";
-  return env.DATABASE_URL ? "migrate" : "warn";
+  return env.DATABASE_URL ? "migrate" : "fail";
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -22,7 +26,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const result = spawnSync("npx", ["prisma", "migrate", "deploy"], { stdio: "inherit" });
     process.exit(result.status ?? 1);
   }
-  if (step === "warn") {
-    console.warn("⚠ DATABASE_URL isn't set for this build, so migrations were NOT applied. Add it under the Worker's Settings → Build → Variables and secrets, or run `pnpm db:deploy` before deploying a schema change.");
+  if (step === "fail") {
+    console.error("✘ DATABASE_URL isn't set for this build, so migrations can't be applied and the deploy is stopped. Add it under the Worker's Settings → Build → Variables and secrets.");
+    process.exit(1);
   }
 }

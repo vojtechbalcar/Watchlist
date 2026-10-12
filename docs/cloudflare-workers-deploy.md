@@ -1,6 +1,6 @@
 ---
 type: troubleshooting
-updated: 2026-10-01
+updated: 2026-10-12
 status: current
 ---
 
@@ -156,6 +156,22 @@ then, migrations were applied by hand (`SavedWatchlist`, `SavedPreferences`).
 Verified locally: plain build skips; `WORKERS_CI=1` without the URL warns
 and exits 0; `WORKERS_CI=1` with the URL reported "No pending migrations
 to apply."
+
+### A build without `DATABASE_URL` now fails (2026-10-12)
+
+Reversed the warning above. The account-security migration added
+`User.sessionVersion`, which sign-in reads, so deploying it unmigrated would
+break login in production. The earlier reason for only warning ("nothing is
+pending today") no longer held. A failed build leaves the previous version
+serving and shows as a failed "Workers Builds" check on the GitHub commit.
+
+The build logs aren't readable from here: the wrangler OAuth token gets
+"Forbidden" from the Workers Builds API, and the GitHub check runs only link
+to the dashboard. Whether the build variable exists was therefore tested by
+pushing this change alone, before any commit that needs a migration.
+
+Two Workers build from this repo: `gowatchlist` (serves the domain) and the
+older `watchlist`. Each needs its own build variable, or its builds now fail.
 
 ## Cron runs killed at 10 ms of CPU (2026-10-07)
 

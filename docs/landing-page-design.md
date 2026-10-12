@@ -1,12 +1,15 @@
 ---
 type: decision
-updated: 2026-09-09
+updated: 2026-10-12
 status: current
 ---
 
 # Landing page design
 
-Related: [[landing-hero]], [[neutral-page-design]], [[watchlist-placeholder-data]], [[git-commit-workflow]]
+Related: [[landing-hero]], [[neutral-page-design]], [[watchlist-placeholder-data]], [[git-commit-workflow]], [[mobbin-landing-design]]
+
+> [!info] Mobbin redesign — 2026-10-12
+> The whole landing page now follows Mobbin's `DESIGN.md`; see [[mobbin-landing-design]]. The benchmark explanation's large return equation became a two-tone statement, after the user said the returns did not fit the minimalistic vibe. The product tour uses a segmented control and lost its arrows and counter. The ink-panel closing became a centred lockup, and the footer is a compact soft card. The rules below still hold: simplified illustrations rather than screenshots, labelled illustrative data, no price requests, and account-first entry.
 
 ## User correction
 

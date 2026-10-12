@@ -22,7 +22,9 @@
 
 - [[landing-page-design]] — full landing-page direction and the user's correction to replace literal screenshots with minimal product illustrations.
 
-- [[landing-hero]] — the hero is a one-year race on a full-bleed track: your stock and the S&P 500 both run forward, and the market finishes ahead. It replaced the open line-chart hero, which the user called bland. Panelled heroes were rejected; [[landing-hero-editorial-plan]] is superseded.
+- [[mobbin-landing-design]] — the landing page rebuilt from Mobbin's `DESIGN.md`: the Watchlist adaptations (maroon as the single accent, Helvetica Neue in place of Saans), the minimal statement, the soft footer card, and the user's corrections along the way.
+
+- [[landing-hero]] — the hero is an illustration: company tiles orbiting the S&P 500, drawn as a fan of twelve monthly petals. It replaced the race hero, which the user rejected for an illustration that breathes; that replaced the open line-chart hero, called bland. Panelled heroes were rejected; [[landing-hero-editorial-plan]] is superseded.
 
 - [[repository-hygiene]] — ignore local tool settings while keeping shared instructions and project notes tracked.
 

@@ -1,16 +1,30 @@
 ---
 type: decision
-updated: 2026-10-08
+updated: 2026-10-12
 status: current
 ---
 
 # Landing hero
 
-Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]]
+Related: [[neutral-page-design]], [[git-commit-workflow]], [[watchlist-placeholder-data]], [[mobbin-landing-design]]
 
-The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The race hero below is current; every section after it is history.
+The sections below the hero and rejection of literal screenshot previews are recorded in [[landing-page-design]]. The orbit hero below is current; every section after it is history.
 
-## Current: race the market — 8 October 2026
+## Current: the market's orbit — 12 October 2026
+
+The hero was rebuilt with the landing page in Mobbin's design language ([[mobbin-landing-design]]). The user rejected the race: "no i dont like the race hero idea go a different more of a ilustration route like make it breathe more and be more vissually appealing even if it doesnt comunicate its message as good." So the hero is now an illustration first and an explanation second.
+
+In `src/components/landing-hero.tsx`, a Server Component with no client JavaScript:
+
+- A centred lockup on white: "Both green. One losing." in Helvetica Neue Bold with a maroon final period, a Light lead line, an ink "Go to watchlist" pill and a soft "View source code" pill. The green word colour and the red underline went with the race.
+- Behind it, four hairline orbit rings centred on the bottom of the hero, with a soft white clearing behind the copy so no ring runs through the words.
+- Eleven familiar companies sit on those rings as white 30% squircle tiles with their monochrome marks (`stockLogoSrc`). CSS `sin()`/`cos()` place each tile exactly on its ring at any width. Below 860px each company has its own narrow placement, and only four that clear the copy remain.
+- At the centre, the S&P 500 is a fan of twelve petals: its illustrative year from `landing-comparison.ts`, January on the left to December on the right. Each petal is as long as the year's return so far and a step darker on Mobbin's tint ladder, from light grey to ink. Tips are softly rounded, like a deck of swatches. A white hub carries the "S&P 500" label.
+- One entrance sequence on load: the petals unfold from left to right, the rings ripple out, then the companies settle. Nothing moves afterwards. Reduced motion shows the finished illustration immediately.
+
+The first orbit version put a solid ink semicircle at the centre. The user found it "a bit bland" and asked for something more original, which became the fan. The hero tiles are illustration, not data, and show no figures. `/landing` still prerenders as static content and makes no price requests.
+
+## Superseded: race the market — 8 October 2026
 
 The user found the open hero bland: "make the landing header look much better please, it looks bland i want it to be more visually appealing while still communicating the idea of the app, go with something more fun, you can deviate from this design as much as necessary." The two thin lines were honest but timid: pale strokes, small labels, and nothing to watch after the first draw.
 

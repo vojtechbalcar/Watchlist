@@ -21,11 +21,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = String(credentials.password ?? "");
         if (!email || !password) return null;
         const db = getDb();
-        const [byEmail, byAddress] = await Promise.all([allowAttempt(db, "loginEmail", email), allowAttempt(db, "loginAddress", clientAddress(request.headers))]);
-        if (!byEmail || !byAddress) throw new TooManyAttempts();
-        const user = await db.user.findUnique({ where: { email } });
-        if (!user || !(await verifyPassword(password, user.passwordHash))) return null;
-        return { id: user.id, email: user.email, name: user.name, sessionVersion: user.sessionVersion };
+        try {
+          const [byEmail, byAddress] = await Promise.all([allowAttempt(db, "loginEmail", email), allowAttempt(db, "loginAddress", clientAddress(request.headers))]);
+          if (!byEmail || !byAddress) throw new TooManyAttempts();
+          const user = await db.user.findUnique({ where: { email } });
+          if (!user || !(await verifyPassword(password, user.passwordHash))) return null;
+          return { id: user.id, email: user.email, name: user.name, sessionVersion: user.sessionVersion };
+        } catch (error) {
+          // Auth.js logs only a bare CallbackRouteError when the cause isn't a plain Error; keep the real one.
+          if (!(error instanceof TooManyAttempts)) console.error("[auth] authorize failed", error instanceof Error ? error.stack : error, JSON.stringify(error, Object.getOwnPropertyNames(error ?? {})));
+          throw error;
+        }
       },
     }),
   ],

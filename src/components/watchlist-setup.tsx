@@ -124,7 +124,7 @@ export function WatchlistSetup({ initialDraft = null, focusOnMount = false, onCo
     <ol className={styles.steps} aria-label="Setup progress">{stepNames.map((name, index) => <li key={name} aria-current={index === step ? "step" : undefined} data-complete={index < step}><span>{index < step ? <Check size={13} aria-hidden="true" /> : `0${index + 1}`}</span>{name}</li>)}</ol>
     <div className={styles.layout}>
       <div className={styles.main}>
-        <p className={styles.stepCount}>STEP {step + 1} OF 3</p>
+        <p className={styles.stepCount}>Step {step + 1} of 3</p>
         <h2 ref={title} tabIndex={-1}>{titles[step]}</h2><p className={styles.description}>{descriptions[step]}</p>
 
         {step === 0 && <div className={styles.sectors}>{sectors.map(sector => <label key={sector} className={styles.sector} data-selected={interests.includes(sector)}><input type="checkbox" className="sr-only" checked={interests.includes(sector)} onChange={() => toggleInterest(sector)} /><span className={styles.sectorTop}><strong>{sector}</strong><span className={styles.checkBox} aria-hidden="true">{interests.includes(sector) && <Check size={12} />}</span></span><span className={styles.sectorDescription}>{sectorDescriptions[sector]}</span></label>)}</div>}

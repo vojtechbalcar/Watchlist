@@ -75,8 +75,8 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
   </div>;
 
   return <>
-    <div className="comparison-selection">
-      <div className="selection-stocks">
+    <div className={`comparison-selection ${styles.selection}`}>
+      <div className={`selection-stocks ${styles.stocks}`}>
         <span className="control-label">Stocks</span>
         {active.map(item => <span key={item.ticker} className={`selection-chip ${styles.chip}`}>
           <i style={{ background: compareColors[item.colorSlot] }} aria-hidden="true" />{item.ticker}
@@ -94,7 +94,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           </select>
         </label>
       </div>
-      <div className="selection-benchmark"><span className="control-label">Benchmark</span><span><i aria-hidden="true">┄</i> {compareBenchmark.label}</span></div>
+      <div className={`selection-benchmark ${styles.benchmark}`}><span className="control-label">Benchmark</span><span><i aria-hidden="true">┄</i> {compareBenchmark.label}</span></div>
     </div>
     <p id="comparison-hint" className={styles.hint}>{full ? "Compare up to 3 saved stocks at a time. Remove one to choose another." : "Choose up to 3 stocks from your watchlist. Removing a comparison keeps the stock saved."}</p>
     <p className="sr-only" role="status">{selected.length ? `Comparing ${selected.join(", ")} over ${range}.` : "No stocks selected for comparison."}</p>
@@ -109,7 +109,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
         <div className="overview-main">
           <div className="overview-top"><h2>Relative performance</h2>{rangeControl}</div>
           {unavailable.length > 0 && <p className={styles.notice} role="status">{range} returns are unavailable for {unavailable.join(", ")}. Try another period to include {unavailable.length === 1 ? "this stock" : "these stocks"}.</p>}
-          <dl className="comparison-metrics">{rows.map(row => <div key={row.series.ticker}>
+          <dl className={`comparison-metrics ${styles.metrics}`}>{rows.map(row => <div key={row.series.ticker}>
             <dt><i style={{ background: row.series.colorVar }} aria-hidden="true" />{row.series.ticker}</dt>
             <dd>{formatPct(row.returnPct)}</dd><small><Gap value={row.vsBenchmarkPct} /> vs. market</small>
           </div>)}</dl>
@@ -123,7 +123,7 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
             <div className="beating-bars" aria-hidden="true">{rows.map(row => <i key={row.series.ticker} style={{ background: (row.vsBenchmarkPct ?? 0) > 0 ? "var(--color-up)" : (row.vsBenchmarkPct ?? 0) < 0 ? "var(--color-down)" : "var(--color-text-faint)" }} />)}</div>
             <div className={`beating-key ${styles.key}`}><span>• {beating} ahead</span><span>• {behind} behind</span>{neutral > 0 && <span>• {neutral} in line</span>}</div>
           </div>
-          <div className="comparison-ranking">
+          <div className={`comparison-ranking ${styles.ranking}`}>
             <div className="aside-heading"><h3>Performance ranking</h3><span className="period-tag">{range}</span></div>
             {ranked.map((row, i) => <div className="ranking-row" key={row.series.ticker}>
               <span className="rank-number">{String(i + 1).padStart(2, "0")}</span><StockLink stock={row.holding} /><span>{formatPct(row.returnPct)}</span>
@@ -131,9 +131,9 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           </div>
         </aside>
       </section>
-      <section className="comparison-detail">
+      <section className={`comparison-detail ${styles.detail}`}>
         <div className="section-heading"><h2>Side by side <small>{rows.length} stocks</small></h2><span className="text-sm text-text-muted">{range}</span></div>
-        <div className="stock-table-scroll"><table className="comparison-table">
+        <div className={`stock-table-scroll ${styles.tableScroll}`}><table className={`comparison-table ${styles.table}`}>
           <caption className="sr-only">Returns and differences between selected stocks, in percentage points</caption>
           <thead><tr><th scope="col">Company</th><th scope="col">Return</th><th scope="col">vs. {compareBenchmark.label}</th>{rows.map(row => <th scope="col" key={row.series.ticker}>vs. {row.series.ticker}</th>)}</tr></thead>
           <tbody>{rows.map(row => <tr key={row.series.ticker}>

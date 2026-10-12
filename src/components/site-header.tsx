@@ -11,14 +11,14 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ active = "Dashboard" }: SiteHeaderProps) {
   return (
-    <header className="site-header border-b border-line bg-surface-raised">
-      <div className="header-inner mx-auto flex max-w-(--container-page) items-center gap-8 px-5 sm:px-8 xl:gap-12">
-        <Link href="/" className="shrink-0">
+    <header className="site-header">
+      <div className="header-inner">
+        <Link href="/" className="header-home" aria-label="Watchlist home">
           <Wordmark className="h-auto w-[122px]" />
         </Link>
 
         <nav
-          className="flex min-w-0 items-center gap-8 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="header-nav"
           aria-label="Primary"
         >
           {navItems.map((item) => {
@@ -28,12 +28,6 @@ export function SiteHeader({ active = "Dashboard" }: SiteHeaderProps) {
                 key={item.label}
                 href={item.href}
                 active={isActive}
-                className={[
-                  "relative shrink-0 py-1 text-lg transition-colors",
-                  isActive
-                    ? "font-bold text-ink"
-                    : "font-medium text-text-muted hover:text-ink",
-                ].join(" ")}
               >
                 {item.label}
               </NavLink>
@@ -41,8 +35,8 @@ export function SiteHeader({ active = "Dashboard" }: SiteHeaderProps) {
           })}
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-6">
-          <MarketAsOf className="hidden text-sm font-medium text-text-muted md:inline" />
+        <div className="header-utilities">
+          <MarketAsOf className="header-asof" />
           <ProfileMenu />
         </div>
       </div>

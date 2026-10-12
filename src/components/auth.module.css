@@ -1,0 +1,81 @@
+.shell {
+  width: 100%;
+  max-width: 1360px;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 24px 32px 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-ink, #141414);
+}
+
+.shell :is(a, button, input):focus-visible { outline: 2px solid var(--color-ink, #141414); outline-offset: 4px; }
+.header { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 24px; border-radius: 9999px; background: #f3f3f3; }
+.header > a { display: inline-flex; align-items: center; min-height: 44px; border-radius: 9999px; }
+.wordmark { display: block; width: 122px; height: auto; }
+.demoLink { gap: 12px; padding: 8px 16px; font-size: 14px; font-weight: 500; }
+.demoLink:hover { background: #e0e0e0; }
+.main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: center; padding: 64px 0; }
+.intro { align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: clamp(32px, 4vw, 64px); border-radius: 24px; background: #f3f3f3; }
+.eyebrow { font-size: 14px; font-weight: 400; color: #707070; }
+.intro h2 { margin: 32px 0 24px; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.05; font-weight: 700; text-wrap: balance; }
+.period { color: var(--color-brand, #8c3b52); }
+.introCopy { max-width: 360px; font-size: 20px; font-weight: 300; line-height: 1.45; color: #707070; }
+.introFoot { margin-top: 64px; font-size: 14px; line-height: 1.5; color: #707070; }
+.formPanel { display: flex; justify-content: center; padding: 32px 24px; min-width: 0; }
+.formSection { width: 100%; max-width: 400px; }
+.formSection h1 { margin: 16px 0; font-size: clamp(32px, 3vw, 40px); line-height: 1.13; font-weight: 700; text-wrap: balance; }
+.description { color: #707070; font-size: 16px; line-height: 1.5; font-weight: 300; }
+.form { margin-top: 32px; display: flex; flex-direction: column; gap: 24px; }
+.field { display: flex; flex-direction: column; gap: 10px; }
+.field label { font-size: 14px; font-weight: 500; }
+.field input { width: 100%; min-width: 0; min-height: 56px; border: 0; border-radius: 16px; background: #f0f0f0; padding: 16px; font-size: 16px; color: #141414; }
+.field input::placeholder { color: #707070; }
+.password { position: relative; }
+.password input { padding-right: 80px; }
+.password button { position: absolute; right: 6px; top: 6px; min-width: 60px; min-height: 44px; padding: 0 12px; font-size: 13px; color: #707070; cursor: pointer; border-radius: 9999px; }
+.password button:hover { color: #141414; background: #e0e0e0; }
+.hint { font-size: 12px; color: #707070; }
+.submit { display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 52px; padding: 14px 24px; margin-top: 8px; border-radius: 9999px; background: #141414; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; transition: background .15s; }
+.submit:hover { background: #262626; }
+.submit:disabled { opacity: .65; cursor: progress; }
+.notice { font-size: 14px; line-height: 1.5; color: #141414; }
+.notice:empty { display: none; }
+.notice:not(:empty) { padding: 16px; border-radius: 16px; background: #f3f3f3; }
+.switch { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 24px; font-size: 14px; line-height: 1.5; color: #707070; }
+.switch a { display: inline-flex; align-items: center; min-height: 44px; color: #141414; font-weight: 500; border-radius: 9999px; text-underline-offset: 4px; }
+.switch a:hover { text-decoration: underline; }
+.footer { padding: 0 16px 24px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #707070; }
+
+@media (max-width: 900px) {
+  .main { gap: 24px; }
+  .intro { padding: 32px; }
+  .formPanel { padding-inline: 8px; }
+}
+
+@media (max-width: 700px) {
+  .shell { padding: 16px 20px 0; }
+  .header { min-height: 64px; gap: 8px; padding: 8px 16px; }
+  .demoLink { font-size: 12px; padding-inline: 8px; }
+  .main { grid-template-columns: minmax(0, 1fr); padding: 40px 0 48px; gap: 40px; }
+  .intro { padding: 28px; }
+  .intro h2 { margin: 20px 0 16px; font-size: 40px; }
+  .introCopy { max-width: none; font-size: 18px; }
+  .introFoot { display: none; }
+  .formPanel { padding: 0 8px; }
+  .footer { padding-inline: 8px; }
+}
+
+@media (max-width: 380px) {
+  .shell { padding-inline: 16px; }
+  .header { padding-inline: 12px; }
+  .wordmark { width: 104px; }
+  .demoLink { gap: 6px; }
+  .intro { padding: 24px; }
+  .intro h2 { font-size: 36px; }
+  .formPanel { padding: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit { transition: none; }
+}

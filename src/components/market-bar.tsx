@@ -7,29 +7,29 @@ import { useMarket } from "./market-provider";
 export function MarketBar() {
   const { indices } = useMarket();
   return (
-    <div className="market-summary-bar h-marketbar border-b border-line bg-surface-sunken">
-      <div className="mx-auto flex h-full max-w-(--container-page) items-center px-8">
-        <span className="shrink-0 pr-8 text-base tracking-ticker text-text-faint">
-          MARKETS
+    <div className="market-summary-bar">
+      <div className="market-summary-inner">
+        <span className="market-summary-label">
+          Markets
         </span>
 
-        <dl className="flex h-[28px] min-w-0 flex-1 items-center justify-between overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <dl className="market-summary-grid" aria-label="Market indices">
           {indices.map((index) => {
             const direction = index.changePct === null ? null : directionOf(index.changePct);
             return (
               <div
                 key={index.label}
-                className="flex shrink-0 items-baseline gap-3 border-l border-line px-6 whitespace-nowrap"
+                className="market-summary-item"
               >
-                <dt className="font-data text-base font-semibold tracking-ticker text-text-ticker">
+                <dt>
                   {index.label}
                 </dt>
-                <dd className="font-data text-base tracking-ticker text-text-numeric" title={`Through the ${index.ticker} ETF`}>
+                <dd className="market-summary-price" title={`Through the ${index.ticker} ETF`}>
                   {index.price === null ? "—" : `${index.ticker} ${formatPrice(index.price)}`}
                 </dd>
                 <dd
                   className={[
-                    "font-data text-base font-semibold tracking-ticker",
+                    "market-summary-change",
                     direction === null ? "text-text-muted" : direction === "up" ? "text-up" : "text-down",
                   ].join(" ")}
                 >

@@ -37,7 +37,7 @@ export function CompareChart({ rows, benchmarkLabel, range, extraSeries = {} }: 
     .filter(value => value === 0 || Math.abs(comparisonY(value, domain) - comparisonY(0, domain)) >= 16);
 
   return <figure className="comparison-chart"><svg ref={svg} viewBox={`0 0 ${width} 250`} preserveAspectRatio="none" role="img" aria-label={`${range} returns for ${rows.map(r => r.series.ticker).join(", ")} and ${benchmarkLabel}`}>
-    {ticks.map(value => <g key={value}><line x1="8" x2={right} y1={comparisonY(value, domain)} y2={comparisonY(value, domain)} stroke="var(--color-line-soft)" strokeDasharray="4 6" /><text x={width - 4} y={comparisonY(value, domain) + 4} textAnchor="end" fill="var(--color-text-muted)" fontSize="11">{value}%</text></g>)}
+    {ticks.map(value => <g key={value}><line x1="8" x2={right} y1={comparisonY(value, domain)} y2={comparisonY(value, domain)} stroke="var(--color-chart-grid)" strokeDasharray="4 6" /><text x={width - 4} y={comparisonY(value, domain) + 4} textAnchor="end" fill="var(--color-text-muted)" fontSize="11">{value}%</text></g>)}
     <line x1="8" x2={right} y1={comparisonY(0, domain)} y2={comparisonY(0, domain)} stroke="var(--color-line)" />
     {!ticks.includes(0) && <text x={width - 4} y={comparisonY(0, domain) + 4} textAnchor="end" fill="var(--color-text-muted)" fontSize="11">0%</text>}
     {axis.length > 1 ? <>
@@ -45,7 +45,7 @@ export function CompareChart({ rows, benchmarkLabel, range, extraSeries = {} }: 
       {rows.map((row, index) => {
         const line = stockLines[index];
         const last = line.findLast(value => value !== null);
-        return <g key={row.series.ticker}><polyline points={points(line)} fill="none" stroke={row.series.colorVar} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />{last !== undefined && last !== null && <circle cx={right} cy={comparisonY(last, domain)} r="3" fill={row.series.colorVar} />}</g>;
+        return <g key={row.series.ticker}><polyline points={points(line)} fill="none" stroke={row.series.colorVar} strokeDasharray={[undefined, "10 5", "2 4"][index]} strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />{last !== undefined && last !== null && <circle cx={right} cy={comparisonY(last, domain)} r="3" fill={row.series.colorVar} />}</g>;
       })}
       {axisLabels(axis).map(({ index, label }, i, all) => <text key={index} x={x(index)} y="246" textAnchor={i === 0 ? "start" : i === all.length - 1 ? "end" : "middle"} fill="var(--color-text-muted)" fontSize="10">{label}</text>)}
     </> : <text x={width / 2} y="120" textAnchor="middle" fill="var(--color-text-muted)" fontSize="12">{lines ? "The chart appears once prices for this period are in." : "Loading chart…"}</text>}

@@ -1,10 +1,13 @@
 ---
 type: decision
 updated: 2026-09-11
-status: current
+status: superseded
 ---
 
 # Neutral page design
+
+> [!info] Superseded — 2026-10-12
+> The user now requires the Mobbin system across the whole app. See [[mobbin-app-design]] and root `DESIGN.md`. The earlier palette, density, and geometry below are historical.
 
 > [!info] Explore update — 2026-09-11
 > The user replaced Explore’s summary-and-table layout with four-card sector rows and dedicated category pages, and explicitly removed the hero/highlights. See [[explore-sector-pages]]. The neutral palette, typography, and compact page structure still apply; the earlier rejection of cards is superseded for Explore.

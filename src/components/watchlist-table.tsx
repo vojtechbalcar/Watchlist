@@ -65,7 +65,7 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
     {removeFailed && <p role="alert" className="mb-4 text-xs text-text-secondary">Your browser couldn’t save that change. Allow site storage and try again.</p>}
     {undo.undoFailed && <p role="alert" className="mb-4 text-xs text-text-secondary">Your browser couldn’t bring {undo.pending?.ticker} back. Allow site storage, then try Undo again.</p>}
     {compact ? <div className="section-heading"><h2>Your watchlist <small>{live.length} stocks</small></h2><Link href="/watchlist">Full watchlist ↗</Link></div> :
-      <div className="page-heading"><div><p className="eyebrow">YOUR STOCKS, IN PERSPECTIVE</p><h1 className="page-title">Watchlist</h1><p className="mt-3 text-sm text-text-muted">{live.length} stocks · {ahead} ahead of {benchmarkLabel}</p></div><Link href="/explore" className="primary-action">＋ Add stocks</Link></div>}
+      <div className="page-heading"><div><p className="eyebrow">Your stocks, in perspective</p><h1 className="page-title">Watchlist</h1><p className="mt-3 text-sm text-text-muted">{live.length} stocks · {ahead} ahead of {benchmarkLabel}</p></div><Link href="/explore" className="primary-action">＋ Add stocks</Link></div>}
     <div className="stock-toolbar">
       <div className="stock-tabs" role="tablist" aria-label="Filter stocks">
         {(["All stocks", "Ahead", "Behind"] as const).map((tab, i) => <button key={tab} role="tab" aria-selected={filter === tab} onClick={() => { dismissUndo(); setFilter(tab); }}>{tab}<span>{[live.length, ahead, live.filter(h => h.vsBenchmarkPct !== null && h.vsBenchmarkPct <= 0).length][i]}</span></button>)}
@@ -87,7 +87,7 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
             : <td className={h.changePct >= 0 ? "text-up" : "text-down"}>{formatPct(h.changePct)}{h.changeAbs !== null && <small>{h.changeAbs >= 0 ? "+" : "−"}{formatPrice(Math.abs(h.changeAbs))}</small>}</td>}
           {h.vsBenchmarkPct === null ? <td className="text-text-muted">—</td>
             : <td className={h.vsBenchmarkPct >= 0 ? "text-up" : "text-down"}><span className="benchmark-cell"><span>{h.vsBenchmarkPct >= 0 ? "+" : "−"}{Math.abs(h.vsBenchmarkPct).toFixed(2)} <small>pp</small></span><span className="gap-bar" aria-hidden="true"><i style={{width: Math.min(Math.abs(h.vsBenchmarkPct) / 2.5 * 50, 50) + "%", left: h.vsBenchmarkPct >= 0 ? "50%" : undefined, right: h.vsBenchmarkPct < 0 ? "50%" : undefined}} /></span></span></td>}
-          {!compact && <td className="pl-4"><button className="text-text-faint hover:text-ink p-2" data-remove={h.ticker} aria-label={"Remove " + h.ticker + " from watchlist"} onClick={() => removeStock(h, rows.indexOf(h))}>×</button></td>}
+          {!compact && <td className="pl-4"><button className="stock-remove" data-remove={h.ticker} aria-label={"Remove " + h.ticker + " from watchlist"} onClick={() => removeStock(h, rows.indexOf(h))}>×</button></td>}
         </tr>)}
         {rows.length === 0 && !removed && <tr><td colSpan={compact ? 4 : 5} className="!text-center text-text-muted">{live.length === 0 ? "Your watchlist is empty. Explore stocks to get started." : "No stocks match your filters."}</td></tr>}
         </tbody>

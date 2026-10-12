@@ -1,23 +1,24 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
+import styles from "@/components/auth.module.css";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="auth-shell">
-      <header className="auth-header">
-        <Link href="/landing" aria-label="Watchlist home"><Wordmark className="h-auto w-[122px]" /></Link>
-        <Link href="/landing" className="auth-demo-link">About watchlist <span aria-hidden="true">↗</span></Link>
+    <div className={styles.shell}>
+      <header className={styles.header}>
+        <Link href="/landing" aria-label="Watchlist home"><Wordmark className={styles.wordmark} /></Link>
+        <Link href="/landing" className={styles.demoLink}>About watchlist <span aria-hidden="true">↗</span></Link>
       </header>
-      <main className="auth-main">
-        <div className="auth-intro">
-          <p className="eyebrow">A clearer view of the market</p>
-          <h2>Moving up.<br />But <span>beating<br className="auth-heading-break" /> the market?</span></h2>
-          <p className="auth-intro-copy">See how the stocks you follow measure up against their benchmark. Keep the bigger picture in view.</p>
-          <div className="auth-intro-foot"><span className="auth-brand-rule" />Your stocks. In context.</div>
+      <main className={styles.main}>
+        <div className={styles.intro}>
+          <p className={styles.eyebrow}>A clearer view of the market</p>
+          <h2>Your stocks.<br />In context<span className={styles.period}>.</span></h2>
+          <p className={styles.introCopy}>See how the stocks you follow measure up against their benchmark. Keep the bigger picture in view.</p>
+          <p className={styles.introFoot}>A little less noise.<br />A little more perspective.</p>
         </div>
-        <div className="auth-form-panel">{children}</div>
+        <div className={styles.formPanel}>{children}</div>
       </main>
-      <footer className="auth-footer"><span>A little less noise. A little more perspective.</span><span>watchlist</span></footer>
+      <footer className={styles.footer}><span>Made for watching.</span><span>watchlist</span></footer>
     </div>
   );
 }

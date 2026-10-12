@@ -1,7 +1,7 @@
 ---
 type: decision
 updated: 2026-10-12
-status: in-progress
+status: current
 ---
 
 # Price refresh reliability
@@ -42,11 +42,37 @@ own CPU limit; the relay does not increase that limit.
 - [x] Reproduce missed triggers using GitHub run timestamps and stored quote ages.
 - [x] Add scheduler tests for authentication, transient errors, retry limits,
   invalid reports, and missing secrets; implement the minimal relay.
-- [ ] Run tests, ESLint and Wrangler's dry-run build.
-- [ ] Deploy the separate Worker, securely synchronize `CRON_SECRET` with the
+- [x] Run tests, ESLint and Wrangler's dry-run build.
+- [x] Deploy the separate Worker, securely synchronize `CRON_SECRET` with the
   app and manual Actions workflow, then verify real scheduled invocations.
-- [ ] Remove GitHub's automatic schedule after the relay works; commit and push.
-- [ ] Verify that overdue quotes catch up without bypassing the credit budget.
+- [x] Remove GitHub's automatic schedule after the relay works; commit and push.
+- [x] Observe a real scheduled batch refreshing quotes through the existing credit budget.
+
+## Production verification — October 12, 15:42 UTC
+
+The scheduler was already deployed, despite the unfinished checklist above.
+Its deployed source matches the repository, its five-minute trigger is present,
+and `CRON_SECRET` is configured. No credential rotation or redeployment was needed.
+The scheduled invocation at 15:42:23 UTC completed successfully in 17 seconds,
+with 0 ms reported CPU. It refreshed PLD, EQIX, O, SPG, QQQ, and SOXX.
+The corresponding app request returned HTTP 200 with no logged exceptions.
+The app request used 1,341 ms CPU; the lightweight relay avoids the scheduled
+invocation limit but does not eliminate the app's own CPU-limit risk.
+
+28 schedule, budget, API-parser, and relay tests pass, as do scoped ESLint and
+Wrangler's dry-run build. GitHub's automatic trigger is removed; its manual
+workflow remains available.
+
+The job reserves at most six credits per minute and 600 per UTC day. A run every
+five minutes therefore refreshes at most six quotes, not every tracked quote.
+With 60 instruments, a quotes-only rotation takes about 50 minutes. Daily-close
+updates and listing synchronization also consume the same allowance.
+
+This verifies successful live batch updates, not that every stored quote is fresh.
+The current local database credential reaches a database without the app tables,
+so a complete production timestamp audit was unavailable. Production logs supplied
+the evidence above. Historical Cloudflare log queries also require permissions
+beyond the current OAuth token; live tails work.
 
 ## References
 

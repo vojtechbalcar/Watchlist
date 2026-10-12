@@ -2,9 +2,9 @@ import { getDb } from "@/lib/db";
 import { runPriceJob } from "@/lib/price-job";
 
 /**
- * The scheduled price job. A GitHub Actions workflow
- * (.github/workflows/price-job.yml) calls it every 5 minutes; CRON_SECRET
- * keeps everyone else out.
+ * The scheduled price job. The lightweight workers/price-scheduler Worker
+ * calls it every five minutes; GitHub Actions is manual recovery only.
+ * CRON_SECRET keeps everyone else out.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;

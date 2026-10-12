@@ -1,17 +1,12 @@
-# Runs the price job (src/lib/price-job.ts) every 5 minutes by calling its
-# route as an ordinary request. Cloudflare's own Cron Trigger was dropped:
-# on the Workers Free plan, scheduled invocations are mostly killed at 10 ms
-# of CPU, while requests to the route finish (see
-# docs/cloudflare-workers-deploy.md). GitHub may delay scheduled runs by a
-# few minutes, which the job tolerates: it catches up on whatever is due.
+# Manual recovery for the price job. The lightweight Cloudflare Worker in
+# workers/price-scheduler invokes it every five minutes; GitHub's automatic
+# schedule was too infrequent. See docs/price-refresh-reliability.md.
 name: Price job
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
 
-# One run at a time; a delayed run doesn't pile up behind a slow one.
+# One manual run at a time. The database credit budget also covers the scheduler.
 concurrency:
   group: price-job
   cancel-in-progress: false

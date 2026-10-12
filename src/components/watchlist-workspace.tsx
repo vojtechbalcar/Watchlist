@@ -52,7 +52,7 @@ function ReadyWorkspace({ state, dashboard, continueSetup }: { state: WatchlistS
   const resume = state.setupDraft && <section className={styles.resume} aria-label="Saved setup progress">
     <p className="eyebrow">Right where you left off</p>
     <ResumeHeading className={rows.length ? undefined : "page-title"}>Continue building your watchlist</ResumeHeading>
-    <p>Your choices are saved in this browser. Pick up at step {state.setupDraft.step + 1} of 3, or start fresh.</p>
+    <p>Your choices are saved to your account. Pick up at step {state.setupDraft.step + 1} of 3, or start fresh.</p>
     <p className={styles.resumeSummary}>{state.setupDraft.interests.length ? `${state.setupDraft.interests.length} ${state.setupDraft.interests.length === 1 ? "sector" : "sectors"}` : "All sectors"} · {state.setupDraft.selected.length} {state.setupDraft.selected.length === 1 ? "stock" : "stocks"} selected</p>
     {state.setupDraft.selected.length > 0 && <p className={styles.resumeStocks}>{state.setupDraft.selected.slice(0, 5).join(" · ")}{state.setupDraft.selected.length > 5 && ` · +${state.setupDraft.selected.length - 5} more`}</p>}
     <div className={styles.resumeActions}>

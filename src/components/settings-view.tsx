@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Cloud, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
 import { profileInitials, profileName, type Preferences } from "@/lib/preferences";
 import { useAccount } from "./account-provider";
 import { logout } from "@/app/(auth)/actions";
@@ -37,7 +37,7 @@ export function SettingsView() {
   const [failed, setFailed] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  function report(success: boolean, message = "Saved in this browser.") {
+  function report(success: boolean, message = "Saved to your account.") {
     setFailed(!success);
     setStatus(success ? message : "Your browser blocked saving. Allow site storage and try again.");
   }
@@ -63,7 +63,7 @@ export function SettingsView() {
   }
 
   return <>
-    <div className="page-heading settings-heading"><div><p className="eyebrow">A little more you</p><h1 className="page-title">Settings</h1><p className="settings-intro">Your view of the market. Your preferences.</p></div><span className="settings-storage"><Monitor size={14} aria-hidden="true" />Saved on this browser</span></div>
+    <div className="page-heading settings-heading"><div><p className="eyebrow">A little more you</p><h1 className="page-title">Settings</h1><p className="settings-intro">Your view of the market. Your preferences.</p></div><span className="settings-storage"><Cloud size={14} aria-hidden="true" />Synced to your account</span></div>
     <fieldset className="min-w-0" disabled={!ready} aria-label="Settings preferences">
     <div className="settings-layout">
       <aside className="settings-sidebar"><nav aria-label="Settings sections">{sections.map(({ id, label, icon: Icon }) => <a key={id} href={`#${id}`}><Icon size={16} aria-hidden="true" /><span>{label}</span><ChevronRight size={12} aria-hidden="true" /></a>)}</nav><p>Small adjustments.<br />A clearer perspective.</p></aside>
@@ -76,9 +76,9 @@ export function SettingsView() {
             update("displayName", name);
           }}>
             <span className="profile-avatar settings-avatar" aria-hidden="true">{profileInitials(profileName(preferences.displayName, account))}</span>
-            <div className="settings-name"><label htmlFor="display-name">Display name</label><div><input id="display-name" name="displayName" autoComplete="nickname" maxLength={60} defaultValue={preferences.displayName} placeholder="Your name" aria-describedby="display-name-hint" /><button type="submit" className="settings-button">Save name</button></div><p id="display-name-hint">Used for your profile initials. Visible only in this browser.</p></div>
+            <div className="settings-name"><label htmlFor="display-name">Display name</label><div><input id="display-name" name="displayName" autoComplete="nickname" maxLength={60} defaultValue={preferences.displayName} placeholder="Your name" aria-describedby="display-name-hint" /><button type="submit" className="settings-button">Save name</button></div><p id="display-name-hint">Used for your profile initials on every device you sign in to.</p></div>
           </form>
-          <div className="settings-account"><div><strong>Signed in as {account.email}</strong><p>Your account signs you in on any device. Preferences and your watchlist are still saved in this browser for now.</p></div><form action={logout}><button type="submit">Log out <ArrowUpRight size={14} aria-hidden="true" /></button></form></div>
+          <div className="settings-account"><div><strong>Signed in as {account.email}</strong><p>Your watchlist and preferences are saved to this account and follow you to any device you sign in on.</p></div><form action={logout}><button type="submit">Log out <ArrowUpRight size={14} aria-hidden="true" /></button></form></div>
         </section>
 
         <section className="settings-section" id="appearance" aria-labelledby="appearance-heading">
@@ -103,13 +103,13 @@ export function SettingsView() {
         <section className="settings-section" id="data" aria-labelledby="data-heading">
           <div className="settings-section-heading"><span>04</span><div><h2 id="data-heading">Data & preferences</h2><p>A fresh start, or a copy to keep.</p></div></div>
           <SettingRow id="export-settings" title="Export settings" description="Download your display name and preferences as a JSON file."><button id="export-settings" className="settings-button" onClick={exportSettings}><ArrowDownToLine size={14} aria-hidden="true" />Export settings</button></SettingRow>
-          <SettingRow id="reset-settings" title="Reset preferences" description="Restore the defaults and clear your local display name."><button id="reset-settings" className="settings-button" aria-expanded={confirmReset} aria-controls="reset-confirmation" onClick={() => setConfirmReset(!confirmReset)}>Reset to defaults</button></SettingRow>
+          <SettingRow id="reset-settings" title="Reset preferences" description="Restore the defaults and clear your display name."><button id="reset-settings" className="settings-button" aria-expanded={confirmReset} aria-controls="reset-confirmation" onClick={() => setConfirmReset(!confirmReset)}>Reset to defaults</button></SettingRow>
           {confirmReset && <div className="settings-reset" id="reset-confirmation"><div><strong>Reset your settings?</strong><p>Your display name will be cleared and all preferences restored. This does not change stock selections.</p></div><div><button className="settings-button" onClick={() => setConfirmReset(false)}>Keep settings</button><button className="primary-action" onClick={() => {
             const success = resetPreferences();
             report(success, "Default settings restored.");
             if (success) setConfirmReset(false);
           }}>Reset preferences</button></div></div>}
-          <div className="settings-note"><strong>Local to this browser</strong><p>Preferences stay on this device and aren’t synced to an account. Clearing site data resets them. Market figures are illustrative demo data; price alerts and email notifications aren’t available yet.</p></div>
+          <div className="settings-note"><strong>Saved to your account</strong><p>Changes save in this browser right away and sync to your account, so clearing site data won’t lose them. Prices are real market data, refreshed through the trading day; price alerts and email notifications aren’t available yet.</p></div>
         </section>
         <div className="settings-endnote"><span>Display preferences save automatically.</span><Link href="/watchlist">Back to your watchlist <ArrowUpRight size={13} aria-hidden="true" /></Link></div>
       </div>

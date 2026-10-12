@@ -30,7 +30,9 @@
 
 - [[account-watchlist]] — the watchlist saved per account in Postgres, with the browser copy kept as the instant working copy.
 
-- [[account-pages]] — email/password accounts with Auth.js, gated market pages, and what is still browser-only.
+- [[account-pages]] — email/password accounts with Auth.js and gated market pages.
+
+- [[account-security]] — password change, account deletion, session revocation via `sessionVersion`, and sign-in/registration rate limits; password reset still needs an email provider.
 
 - [[checkpoint-2026-10-06]] — current state: what works, what's blocked on the Worker secrets, and what's next.
 - [[checkpoint-2026-09-06]] — earlier checkpoint, superseded.

@@ -52,6 +52,20 @@
 .settings-reset { padding: 24px; margin-top: 16px; background: #f3f3f3; border-radius: 24px; }
 .settings-reset > div:last-child { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 .settings-reset .settings-button { background: #fff; }
+.settings-security-form { display: grid; gap: 16px; max-width: 560px; padding: 8px 0 24px; border-bottom: 1px solid #f0f0f0; }
+.settings-reset.settings-security-form { max-width: none; padding: 24px; border-bottom: 0; }
+.settings-reset.settings-security-form > div:last-child { margin-top: 8px; }
+.settings-security-hint { margin-top: -8px; font-size: 14px; line-height: 1.5; color: var(--color-text-secondary); }
+.settings-field { display: grid; gap: 8px; }
+.settings-field label { font-size: 14px; font-weight: 500; }
+.settings-field p { font-size: 14px; line-height: 1.5; color: var(--color-text-secondary); }
+.settings-field input { width: 100%; min-width: 0; min-height: 48px; border: 0; border-radius: 16px; background: #f0f0f0; padding: 12px 16px; font-size: 16px; color: var(--color-ink); }
+.settings-reset .settings-field input { background: #fff; }
+.settings-button-ink { background: #141414; color: #fff; }
+.settings-button-ink:hover { background: #262626; }
+.settings-button:disabled { opacity: .5; cursor: progress; }
+.settings-security-status { font-size: 14px; line-height: 1.5; }
+.settings-security-status:empty { display: none; }
 .settings-endnote { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 8px 0 24px; font-size: 12px; color: var(--color-text-secondary); }
 .settings-endnote a { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; padding: 12px 16px; border-radius: 9999px; background: #f3f3f3; font-size: 14px; color: var(--color-ink); }
 .settings-endnote a:hover { background: #e0e0e0; }

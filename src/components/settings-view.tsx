@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Cloud, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Cloud, KeyRound, Monitor, SlidersHorizontal, UserRound, Database } from "lucide-react";
 import { profileInitials, profileName, type Preferences } from "@/lib/preferences";
 import { useAccount } from "./account-provider";
+import { AccountSecurity } from "./account-security";
 import { logout } from "@/app/(auth)/actions";
 import { resetPreferences, savePreferences, usePreferences, usePreferencesReady } from "./preferences-provider";
 
@@ -27,6 +28,7 @@ const sections = [
   { id: "appearance", label: "Appearance", icon: Monitor },
   { id: "defaults", label: "Watchlist & comparison", icon: SlidersHorizontal },
   { id: "data", label: "Data & preferences", icon: Database },
+  { id: "account", label: "Account & security", icon: KeyRound },
 ];
 
 export function SettingsView() {
@@ -110,6 +112,11 @@ export function SettingsView() {
             if (success) setConfirmReset(false);
           }}>Reset preferences</button></div></div>}
           <div className="settings-note"><strong>Saved to your account</strong><p>Changes save in this browser right away and sync to your account, so clearing site data won’t lose them. Prices are real market data, refreshed through the trading day; price alerts and email notifications aren’t available yet.</p></div>
+        </section>
+
+        <section className="settings-section" id="account" aria-labelledby="account-heading">
+          <div className="settings-section-heading"><span>05</span><div><h2 id="account-heading">Account & security</h2><p>Your password, and the way out.</p></div></div>
+          <AccountSecurity email={account.email} />
         </section>
         <div className="settings-endnote"><span>Display preferences save automatically.</span><Link href="/watchlist">Back to your watchlist <ArrowUpRight size={13} aria-hidden="true" /></Link></div>
       </div>

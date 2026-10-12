@@ -118,15 +118,18 @@ model JobState {
 /// An account. Auth.js signs people in with email and password and keeps the
 /// session in a signed cookie, so this is the only auth table.
 model User {
-  id           String   @id @default(cuid())
+  id             String            @id @default(cuid())
   /// Stored lowercased, so sign-in is case-insensitive.
-  email        String   @unique
-  name         String?
+  email          String            @unique
+  name           String?
   /// scrypt, as `salt:hash` in hex.
-  passwordHash String
-  createdAt    DateTime @default(now())
-  watchlist    SavedWatchlist?
-  preferences  SavedPreferences?
+  passwordHash   String
+  /// Copied into the session cookie at sign-in. Raising it (a password change)
+  /// ends every session that carries an older one; see src/auth.ts.
+  sessionVersion Int               @default(0)
+  createdAt      DateTime          @default(now())
+  watchlist      SavedWatchlist?
+  preferences    SavedPreferences?
 }
 
 /// A user's watchlist, so it follows them across browsers and devices. The
@@ -146,6 +149,18 @@ model SavedPreferences {
   state     Json
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Attempts per key in a fixed window, e.g. sign-ins per email per 15
+/// minutes; see src/lib/rate-limit.ts. Rows outlive their window briefly and
+/// are pruned as new windows start.
+model RateLimit {
+  /// The limit's name, a hashed identifier, and the window's start.
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+
+  @@index([resetAt])
 }
 
 /// A response built ahead of time because assembling it per request is slow,

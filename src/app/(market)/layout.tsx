@@ -9,8 +9,9 @@ import { readMarket } from "@/lib/market-build";
 
 export default async function MarketLayout({ children }: { children: React.ReactNode }) {
   // src/proxy.ts already redirects signed-out visitors; this is the check that guarantees it.
+  // A session it let through can still be over (deleted account, changed password); clear its cookie.
   const session = await auth();
-  if (!session?.user?.email || !session.user.id) redirect("/login");
+  if (!session?.user?.email || !session.user.id) redirect("/api/account/session-ended");
   // One stored row (~10 KB) the price job keeps current; every page's prices and returns come from it.
   const market = await readMarket(getDb());
 

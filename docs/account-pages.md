@@ -22,7 +22,7 @@ Registration validates email and 8+ character passwords on the server, rejects e
 
 Rejected: database sessions and OAuth providers (Credentials requires JWT sessions, and email/password matches the existing UI); keeping the market pages as an open demo alongside accounts.
 
-Still browser-only: preferences and watchlist membership. Persisting them per user is next.
+Preferences and watchlist membership were browser-only at the time; both now sync to the account ([[account-watchlist]]). Password change, deletion, and rate limits: [[account-security]].
 
 Route groups separate the market snapshot footer from the account layout without changing existing URLs. We avoided hiding the global footer with route-dependent CSS.
 

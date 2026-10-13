@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { CompareRow, CompareRange } from "@/lib/compare-data";
 import type { SeriesPoint } from "@/lib/market";
-import { comparisonDomain, comparisonY } from "@/lib/compare-chart";
-import { alignTo, axisLabels } from "@/lib/chart-series";
-import { benchmarkTicker } from "@/lib/explore-data";
+import { comparisonY } from "@/lib/compare-chart";
+import { axisLabels } from "@/lib/chart-series";
+import { prepareBenchmarkChart } from "@/lib/benchmark-chart";
 import { useMarketSeries } from "./market-provider";
 
 /** Each selected stock's cumulative return against the benchmark's, on the benchmark's trading days. */
@@ -27,10 +27,10 @@ export function CompareChart({ rows, benchmarkLabel, range, extraSeries = {} }: 
   const plotWidth = Math.max(1, width - 78);
   const right = 8 + plotWidth;
 
-  const axis = lines?.series[benchmarkTicker(benchmarkLabel)]?.[range] ?? [];
-  const benchmark = axis.map(([, value]) => value);
-  const stockLines = rows.map(row => alignTo(axis, (lines?.series[row.series.ticker] ?? extraSeries[row.series.ticker])?.[range] ?? []));
-  const domain = comparisonDomain([...benchmark, ...stockLines.flat().filter((value): value is number => value !== null), ...rows.flatMap(row => row.returnPct ?? [])]);
+  const { axis, benchmark, stockLines, domain } = prepareBenchmarkChart({
+    series: lines?.series, extraSeries, benchmarkLabel, range,
+    stocks: rows.map(row => ({ ticker: row.series.ticker, returnPct: row.returnPct })),
+  });
   const x = (index: number) => 8 + (axis.length > 1 ? index / (axis.length - 1) : 1) * plotWidth;
   const points = (data: (number | null)[]) => data.flatMap((value, i) => value === null ? [] : [`${x(i)},${comparisonY(value, domain)}`]).join(" ");
   const ticks = Array.from({ length: 5 }, (_, i) => domain.min + (domain.max - domain.min) * i / 4)

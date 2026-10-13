@@ -56,7 +56,9 @@ test("login and registration preserve the entry callback in forms and account-sw
   for (const mode of ["login", "register"]) {
     const markup = renderToStaticMarkup(createElement(AuthForm, { mode, callbackUrl: entry }));
     assert.ok(markup.includes(`<input type="hidden" name="callbackUrl" value="${entry}"`));
-    const switchUrl = new URL(markup.match(/href="([^"]+)"/)[1], "http://localhost");
+    // The form also links to the privacy notice; the account switch is the link to the other auth page.
+    const switchHref = [...markup.matchAll(/href="([^"]+)"/g)].map(([, href]) => href.replaceAll("&amp;", "&")).find(href => /^\/(login|register)\b/.test(href));
+    const switchUrl = new URL(switchHref, "http://localhost");
     assert.equal(switchUrl.pathname, mode === "login" ? "/register" : "/login");
     assert.equal(switchUrl.searchParams.get("callbackUrl"), entry);
   }

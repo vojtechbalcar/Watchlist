@@ -22,7 +22,7 @@ type FooterLink = { label: string; href: string; external?: boolean };
 const footerGroups: { title: string; links: FooterLink[] }[] = [
   { title: "On this page", links: [{ label: "The app", href: "#inside-watchlist" }, { label: "How it works", href: "#getting-started" }] },
   { title: "Account", links: [{ label: "Sign in", href: "/login" }, { label: "Create an account", href: registerUrl }] },
-  { title: "Project", links: [{ label: "Source code", href: sourceUrl, external: true }, { label: "Report an issue", href: `${sourceUrl}/issues`, external: true }] },
+  { title: "Project", links: [{ label: "Source code", href: sourceUrl, external: true }, { label: "Report an issue", href: `${sourceUrl}/issues`, external: true }, { label: "Privacy", href: "/privacy" }] },
 ];
 
 const steps = [

@@ -41,7 +41,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2>Security records</h2>
-          <p>To slow down password guessing and bulk sign-ups, Watchlist counts sign-in and registration attempts per email address and per network address. Those counts expire after 15 minutes for sign-in and an hour for registration.</p>
+          <p>To slow down password guessing and bulk sign-ups, Watchlist counts sign-in, registration, and password-confirmation attempts per email address and per network address. Only a one-way hash of the email or address is stored, and each count expires after 15 minutes, or an hour for registration.</p>
         </section>
 
         <section>
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2>Deleting your data</h2>
-          <p>You can delete your account at any time in Settings, under Data &amp; preferences. That removes your account, watchlist, and preferences from the database at once. Signing out and clearing this site’s data removes the browser copy.</p>
+          <p>You can delete your account at any time in Settings, under Account &amp; security. That removes your account, watchlist, and preferences from the database at once. Signing out and clearing this site’s data removes the browser copy.</p>
           <p>Questions? Open an issue on <a href={`${sourceUrl}/issues`}>GitHub</a>.</p>
         </section>
       </main>

@@ -79,3 +79,4 @@
 @media (prefers-reduced-motion: reduce) {
   .submit { transition: none; }
 }
+.hint a, .footer a { color: #141414; text-decoration: underline; text-underline-offset: 3px; }

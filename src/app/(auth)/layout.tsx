@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className={styles.formPanel}>{children}</div>
       </main>
-      <footer className={styles.footer}><span>Made for watching.</span><span>watchlist</span></footer>
+      <footer className={styles.footer}><span>Made for watching.</span><Link href="/privacy">Privacy</Link></footer>
     </div>
   );
 }

@@ -111,7 +111,7 @@ export function SettingsView() {
             report(success, "Default settings restored.");
             if (success) setConfirmReset(false);
           }}>Reset preferences</button></div></div>}
-          <div className="settings-note"><strong>Saved to your account</strong><p>Changes save in this browser right away and sync to your account, so clearing site data won’t lose them. Prices are real market data, refreshed through the trading day; price alerts and email notifications aren’t available yet.</p></div>
+          <div className="settings-note"><strong>Saved to your account</strong><p>Changes save in this browser right away and sync to your account, so clearing site data won’t lose them. Prices are real market data, refreshed through the trading day; price alerts and email notifications aren’t available yet. The <Link href="/privacy">privacy notice</Link> lists everything Watchlist stores.</p></div>
         </section>
 
         <section className="settings-section" id="account" aria-labelledby="account-heading">

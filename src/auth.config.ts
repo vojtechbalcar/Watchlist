@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
 
 /** Pages a signed-out visitor may see. Everything else needs an account. */
-const publicPaths = new Set(["/landing", "/login", "/register"]);
+const publicPaths = new Set(["/landing", "/login", "/register", "/privacy"]);
 const accountPaths = new Set(["/login", "/register"]);
 
 /**

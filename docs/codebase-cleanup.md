@@ -20,7 +20,7 @@ The user chose all three opportunities in the architecture review: account saved
 ## Implementation plan
 
 - [x] Account copies: lifecycle regressions failed before the module existed; both stores now use the owned copy and storage tests exercise that interface. Typecheck, lint, and copy/reconciliation/storage/preferences tests pass.
-- [ ] Quotes: add concurrent consumer and response-order regressions, verify they fail, centralize requests/cache/notifications, verify debounce/failure/freshness behavior, typecheck and lint, commit and push.
+- [x] Quotes: nine regressions now cover shared consumers, response ordering, live/stored freshness, visible-live limits, stored batching, and failure/retry behavior. The hook only schedules consumer debounce and subscribes to the shared cache. Typecheck and lint pass; independent review found no blockers.
 - [ ] Charts: add complete chart-preparation tests, verify they fail, move repeated preparation into a pure module, verify missing/mixed/negative histories and migrate both callers, typecheck and lint, commit and push.
 - [ ] Final verification: inspect the full diff, run the complete suite, confirm existing user files are preserved, and verify GitHub has each completed commit.
 

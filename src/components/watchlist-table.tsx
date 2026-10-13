@@ -7,11 +7,11 @@ import { useRemovalUndo } from "./removal-undo";
 import type { Preferences } from "@/lib/preferences";
 import { StockLink } from "./stock-link";
 import { formatPrice, formatPct } from "@/lib/format";
-import type { Holding, WatchlistSummary } from "@/lib/watchlist-data";
+import type { Holding } from "@/lib/watchlist-data";
 
 type Sort = "ticker" | "price" | "changePct" | "vsBenchmarkPct";
 export function WatchlistTable({ holdings, benchmarkLabel, compact = false, initialFilter }: {
-  holdings: Holding[]; summary?: WatchlistSummary; benchmarkLabel: string; compact?: boolean; initialFilter?: Preferences["watchlistFilter"];
+  holdings: Holding[]; benchmarkLabel: string; compact?: boolean; initialFilter?: Preferences["watchlistFilter"];
 }) {
   const [query, setQuery] = useState("");
   const preferences = usePreferences();

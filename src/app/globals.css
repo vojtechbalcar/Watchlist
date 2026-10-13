@@ -125,8 +125,8 @@ button:not(:disabled), select { cursor: pointer; }
 .market-app[data-show-names="false"] .stock-company small,
 .market-app[data-show-gaps="false"] .gap-bar,
 .market-app[data-show-markets="false"] .market-summary-bar { display: none; }
-.market-app[data-density="compact"] :is(.stock-table, .comparison-table { height: 52px; }
-.market-app[data-density="compact"] :is(.stock-table, .comparison-table { width: 30px; height: 30px; }
+.market-app[data-density="compact"] :is(.stock-table, .comparison-table) tbody tr { height: 52px; }
+.market-app[data-density="compact"] :is(.stock-table, .comparison-table) .stock-logo { width: 30px; height: 30px; }
 .market-app[data-reduced-motion="true"] *, .market-app[data-reduced-motion="true"] *::before, .market-app[data-reduced-motion="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 @media (prefers-reduced-motion: reduce) {
   .market-app *, .market-app *::before, .market-app *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

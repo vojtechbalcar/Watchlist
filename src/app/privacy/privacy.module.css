@@ -1,0 +1,16 @@
+/* Mobbin's gallery-white system, as on the landing page: ink on white, soft tints, generous space. */
+.page { width: min(100% - 32px, 760px); min-height: 100svh; margin: 0 auto; display: flex; flex-direction: column; color: var(--color-ink); }
+.header { display: flex; align-items: center; min-height: 64px; margin-top: 16px; padding: 0 24px; border-radius: 9999px; background: var(--color-surface-sunken); }
+.wordmark { display: block; width: 116px; height: auto; }
+.main { flex: 1; padding: clamp(56px, 9vw, 112px) 0 64px; }
+.main h1 { font-size: clamp(40px, 6vw, 56px); font-weight: 700; line-height: 1; }
+.period { color: var(--color-brand); }
+.lead { margin-top: 20px; font-size: 20px; font-weight: 300; line-height: 1.4; color: var(--color-text-muted); }
+.main section { margin-top: 48px; }
+.main h2 { font-size: 24px; font-weight: 700; line-height: 1.25; }
+.main p, .main li { font-size: 16px; line-height: 1.55; color: var(--color-text-secondary); }
+.main section p { margin-top: 12px; }
+.main ul { margin-top: 12px; padding-left: 20px; display: grid; gap: 8px; list-style: disc; }
+.main a, .footer a { color: var(--color-ink); text-decoration: underline; text-underline-offset: 4px; }
+.footer { padding: 24px 0 40px; font-size: 14px; }
+.page a:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; border-radius: 4px; }

@@ -4,67 +4,28 @@ import { useEffect, useSyncExternalStore } from "react";
 import { isWatchlistTicker } from "@/lib/watchlist-catalog";
 import { sectors } from "@/lib/explore-data";
 import { completeSetupState, emptySetupDraft, emptyWatchlist, parseWatchlist, removeTickerState, restoreTickerState, WATCHLIST_KEY, type SetupDraft, type WatchlistState } from "@/lib/watchlist-state";
-import { writeWatchlistStorage } from "@/lib/watchlist-storage";
 import { reconcileWatchlist } from "@/lib/watchlist-sync";
+import { createAccountCopy } from "@/lib/account-copy";
 import { usePreferencesReady } from "./preferences-provider";
-import { createAccountSync } from "./account-sync";
 
-const changeEvent = "watchlist-stocks-change";
-let cachedRaw: string | null | undefined;
-let cachedState = emptyWatchlist;
-
-function getSnapshot() {
-  try {
-    const raw = localStorage.getItem(WATCHLIST_KEY);
-    if (raw !== cachedRaw) {
-      cachedRaw = raw;
-      cachedState = parseWatchlist(raw, isWatchlistTicker, sectors);
-    }
-  } catch { /* Browsing remains available when storage is blocked. */ }
-  return cachedState;
-}
-
-function subscribe(callback: () => void) {
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === WATCHLIST_KEY || event.key === null) callback();
-  };
-  window.addEventListener("storage", onStorage);
-  window.addEventListener(changeEvent, callback);
-  return () => {
-    window.removeEventListener("storage", onStorage);
-    window.removeEventListener(changeEvent, callback);
-  };
-}
-
-export function useWatchlist() {
-  return useSyncExternalStore(subscribe, getSnapshot, () => emptyWatchlist);
-}
-
-function writeState(update: (state: WatchlistState) => WatchlistState | null): boolean {
-  try {
-    if (!writeWatchlistStorage(localStorage, update)) return false;
-    window.dispatchEvent(new Event(changeEvent));
-    sync.changed();
-    return true;
-  } catch { return false; }
-}
-
-/** See createAccountSync and src/lib/watchlist-sync.ts for how the copies meet. */
-const sync = createAccountSync<WatchlistState>({
+const copy = createAccountCopy<WatchlistState>({
+  key: WATCHLIST_KEY,
   endpoint: "/api/watchlist",
   ownerKey: "watchlist.owner.v1",
-  read: getSnapshot,
-  replace(state) {
-    try { localStorage.setItem(WATCHLIST_KEY, JSON.stringify(state)); } catch { /* Blocked storage. */ }
-    window.dispatchEvent(new Event(changeEvent));
-  },
+  parse: raw => parseWatchlist(raw, isWatchlistTicker, sectors),
   reconcile: reconcileWatchlist,
   empty: emptyWatchlist,
 });
 
+export function useWatchlist() {
+  return useSyncExternalStore(copy.subscribe, copy.getSnapshot, copy.getServerSnapshot);
+}
+
+const writeState = copy.update;
+
 /** Mounted once in the (market) layout for the signed-in account. */
 export function WatchlistSync({ userId }: { userId: string }) {
-  useEffect(() => { void sync.start(userId); }, [userId]);
+  useEffect(() => { void copy.start(userId); }, [userId]);
   return null;
 }
 
@@ -74,7 +35,7 @@ export function WatchlistSync({ userId }: { userId: string }) {
  */
 export function useWatchlistReady() {
   const preferencesReady = usePreferencesReady();
-  return useSyncExternalStore(sync.subscribe, sync.isSynced, () => false) && preferencesReady;
+  return useSyncExternalStore(copy.subscribe, copy.isSynced, () => false) && preferencesReady;
 }
 
 export function toggleWatchlistStock(ticker: string) {

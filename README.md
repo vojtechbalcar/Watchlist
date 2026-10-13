@@ -73,14 +73,20 @@ Run the data, browser-state parsing, and comparison regression tests with Node.j
 node --experimental-strip-types --test tests/*.test.mjs
 ```
 
-## Next steps
+## Security
 
-- Connect authentication and Postgres.
-- Sync the browser-saved watchlist to an account when authentication is connected.
-- Add a cron job to ingest market data and replace demo charts with dated price histories.
-- Calculate stock and benchmark returns over matching date ranges.
+- Passwords are stored as salted scrypt hashes. Sessions are signed JWT cookies (Auth.js) that end when the password changes or the account is deleted.
+- Sign-in, registration, and in-app password checks are rate-limited (`src/lib/rate-limit.ts`).
+- Every API route checks the session; the scheduled routes check `CRON_SECRET` in constant time. Saved-state bodies are capped at 64 KB.
+- `next.config.ts` sends a Content Security Policy, HSTS, and anti-framing headers on every response.
+- Users can change their password and delete their account in Settings; `/privacy` lists everything stored.
 
-For the data integration, **all application price reads must come from Postgres. Only the cron job may call the stock API.**
+CI (`.github/workflows/ci.yml`) runs the typecheck, ESLint, and the Node tests on every push.
+
+## Not yet done
+
+- Password reset needs an email provider.
+- Unscheduled market closures aren't modelled; the price job wastes a few credits on them.
 
 ## Project conventions
 

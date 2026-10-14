@@ -76,24 +76,14 @@ export async function getListingDetail(db: PrismaClient, symbol: string, now = n
 
 export type WatchlistListing = { ticker: string; name: string; currency: string; logoUrl: string | null } & ReturnType<typeof listingFigures>;
 
-/** Enough for a large watchlist; each stale stock can spend a credit. */
+/** Bound the stored rows returned in one watchlist request. */
 export const WATCHLIST_LISTING_LIMIT = 40;
 
-/**
- * Watchlist rows for stocks outside the tracked set. Nothing schedules these:
- * viewing the watchlist refreshes each price older than 15 minutes, a missing
- * logo, and closes once per session, all within the on-demand budget. A
- * symbol that isn't a listing is left out, and the page keeps a gap row.
- */
-export async function getWatchlistListings(db: PrismaClient, symbols: string[], now = new Date()): Promise<WatchlistListing[]> {
+/** Stored watchlist rows; the scheduled job refreshes saved listings. */
+export async function getWatchlistListings(db: PrismaClient, symbols: string[]): Promise<WatchlistListing[]> {
   const wanted = symbols.filter(symbol => !trackedStocks.some(stock => stock.ticker === symbol)).slice(0, WATCHLIST_LISTING_LIMIT);
   if (!wanted.length) return [];
   const listings = await db.listing.findMany({ where: { symbol: { in: wanted } } });
-  await Promise.all([
-    refreshListingPrices(db, listings, now),
-    refreshListingLogos(db, listings, now),
-    ...listings.map(listing => refreshListingCloses(db, listing, now)),
-  ]);
   return listings.map(listing => ({
     ticker: listing.symbol,
     name: listing.name,

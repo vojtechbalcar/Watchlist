@@ -1,4 +1,5 @@
 import type { ExploreRange } from "./explore-performance";
+import { gapBetween } from "./standing";
 import type { Holding } from "./watchlist-data";
 
 /**
@@ -25,7 +26,7 @@ export function watchlistRows(stocks: WatchlistStock[], tickers: string[], range
       ticker: stock.ticker, name: stock.name, price: stock.price, currency: stock.currency,
       changePct: stock.changePct, changeAbs: stock.changeAbs,
       returnPct,
-      vsBenchmarkPct: returnPct === null || benchmarkReturn === null ? null : Number((returnPct - benchmarkReturn).toFixed(2)),
+      vsBenchmarkPct: gapBetween(returnPct, benchmarkReturn),
       logoSrc: stock.logoSrc,
       remoteLogo: stock.remoteLogo,
       untracked: stock.untracked,

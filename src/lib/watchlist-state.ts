@@ -1,3 +1,4 @@
+import { countStandings } from "./standing";
 import type { Holding } from "./watchlist-data";
 import type { Sector } from "./explore-data";
 
@@ -99,11 +100,11 @@ export function completeSetupState(state: WatchlistState, tickers: string[], ava
 export function watchlistSummary(rows: (Holding & { returnPct: number | null })[], benchmarkReturn: number | null) {
   const priced = rows.filter(row => row.returnPct !== null && row.vsBenchmarkPct !== null);
   const average = (values: number[]) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+  const counts = countStandings(priced.map(row => row.vsBenchmarkPct));
   return {
     total: priced.length,
-    beating: priced.filter(row => row.vsBenchmarkPct! > 0).length,
-    behind: priced.filter(row => row.vsBenchmarkPct! < 0).length,
-    leadPct: average(priced.map(row => row.vsBenchmarkPct!)),
+    beating: counts.ahead,
+    behind: counts.behind,
     watchlistPct: benchmarkReturn === null ? null : average(priced.map(row => row.returnPct!)),
   };
 }

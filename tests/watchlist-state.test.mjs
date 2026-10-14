@@ -36,11 +36,11 @@ test("skip and completion persist separately from membership", () => {
 
 test("dashboard averages only stocks with returns and distinguishes neutral ones", () => {
   const row = (returnPct, vsBenchmarkPct) => ({ returnPct, vsBenchmarkPct });
-  assert.deepEqual(watchlistSummary([row(13, 3), row(4, -6), row(10, 0)], 10), { total: 3, beating: 1, behind: 1, leadPct: -1, watchlistPct: 9 });
-  assert.deepEqual(watchlistSummary([], 10), { total: 0, beating: 0, behind: 0, leadPct: null, watchlistPct: null });
-  assert.deepEqual(watchlistSummary([row(-5, -15)], 10), { total: 1, beating: 0, behind: 1, leadPct: -15, watchlistPct: -5 });
+  assert.deepEqual(watchlistSummary([row(13, 3), row(4, -6), row(10, 0)], 10), { total: 3, beating: 1, behind: 1, watchlistPct: 9 });
+  assert.deepEqual(watchlistSummary([], 10), { total: 0, beating: 0, behind: 0, watchlistPct: null });
+  assert.deepEqual(watchlistSummary([row(-5, -15)], 10), { total: 1, beating: 0, behind: 1, watchlistPct: -5 });
   // A stock without data yet is left out rather than counted as zero.
-  assert.deepEqual(watchlistSummary([row(13, 3), row(null, null)], 10), { total: 1, beating: 1, behind: 0, leadPct: 3, watchlistPct: 13 });
+  assert.deepEqual(watchlistSummary([row(13, 3), row(null, null)], 10), { total: 1, beating: 1, behind: 0, watchlistPct: 13 });
   assert.equal(watchlistSummary([row(13, 3)], null).watchlistPct, null);
 });
 

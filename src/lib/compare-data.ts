@@ -1,4 +1,5 @@
 import { exploreRanges, type ExploreRange } from "./explore-performance";
+import { gapBetween } from "./standing";
 import { watchlistRows, type WatchlistRow, type WatchlistStock } from "./watchlist-catalog";
 
 export type CompareRange = ExploreRange;
@@ -33,7 +34,7 @@ export function compareRows(
     vsBenchmarkPct: holding.vsBenchmarkPct,
     vsPeers: Object.fromEntries(chosen.map(peer => [
       peer.ticker,
-      peer.ticker === holding.ticker || holding.returnPct === null || peer.returnPct === null ? null : Number((holding.returnPct - peer.returnPct).toFixed(2)),
+      peer.ticker === holding.ticker ? null : gapBetween(holding.returnPct, peer.returnPct),
     ])),
   }));
 }

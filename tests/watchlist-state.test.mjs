@@ -1,6 +1,9 @@
-import test from "node:test";
 import assert from "node:assert/strict";
-import { emptyWatchlist, parseWatchlist, validTickers, watchlistSummary, withoutTicker, withTickerAt } from "../src/lib/watchlist-state.ts";
+import { register } from "node:module";
+import test from "node:test";
+
+register("./resolve-typescript.mjs", import.meta.url);
+const { emptyWatchlist, parseWatchlist, validTickers, watchlistSummary, withoutTicker, withTickerAt } = await import("../src/lib/watchlist-state.ts");
 
 const available = ["AAPL", "MSFT", "NVDA"];
 

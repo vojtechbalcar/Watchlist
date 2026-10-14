@@ -6,6 +6,7 @@ import { ArrowDownToLine, ArrowUpRight, Check, ChevronRight, Cloud, KeyRound, Mo
 import { profileInitials, profileName, type Preferences } from "@/lib/preferences";
 import { useAccount } from "./account-provider";
 import { AccountSecurity } from "./account-security";
+import { SelectField } from "./select-field";
 import { logout } from "@/app/(auth)/actions";
 import { resetPreferences, savePreferences, usePreferences, usePreferencesReady } from "./preferences-provider";
 
@@ -20,7 +21,7 @@ function Toggle({ id, checked, onChange }: { id: string; checked: boolean; onCha
 function SelectSetting({ id, title, description, value, options, disabled, onChange }: {
   id: string; title: string; description: string; value: string; options: readonly (readonly [string, string])[]; disabled?: boolean; onChange: (value: string) => void;
 }) {
-  return <SettingRow id={id} title={title} description={description}><select id={id} value={value} disabled={disabled} aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint`} onChange={event => onChange(event.target.value)}>{options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></SettingRow>;
+  return <SettingRow id={id} title={title} description={description}><SelectField id={id} value={value} disabled={disabled} aria-labelledby={`${id}-label`} aria-describedby={`${id}-hint`} onChange={event => onChange(event.target.value)}>{options.map(([key, label]) => <option key={key} value={key}>{label}</option>)}</SelectField></SettingRow>;
 }
 
 const sections = [

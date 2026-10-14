@@ -6,7 +6,7 @@
 .watchlistLink:hover { background: var(--color-surface-sunken); }
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px; border-radius: var(--radius-card); background: var(--color-surface-sunken); }
 .toolbar > div:first-child { flex: 1; min-width: 0; }
-.search { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 14px 16px; border-radius: var(--radius-tile); background: var(--color-surface); color: var(--color-text-muted); }
+.search { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 12px 16px; border-radius: var(--radius-tile); background: var(--color-surface); color: var(--color-text-muted); }
 .search input { width: 100%; min-width: 0; font-size: 14px; outline: none; color: var(--color-ink); }
 .search:focus-within { outline: 2px solid var(--color-ink); outline-offset: 3px; }
 .search svg { flex-shrink: 0; }
@@ -94,8 +94,10 @@
 }
 @media (max-width: 900px) {
   .toolbar { align-items: stretch; flex-direction: column; gap: 20px; }
+  .toolbar > div:first-child { width: 100%; }
   .filters { justify-content: space-between; }
   .select { flex: 1; }
+  .select :global(.select-field) { width: 100%; }
   .select select { width: 100%; }
 }
 @media (max-width: 600px) {
@@ -109,6 +111,7 @@
   .search input { font-size: 16px; }
   .filters { align-items: stretch; flex-direction: column; gap: 16px; }
   .select { min-width: 0; gap: 6px; }
+  .select select { font-size: 16px; }
   .results { align-items: flex-start; flex-direction: column; gap: 8px; padding-bottom: 32px; }
   .grid { gap: 16px; }
   .sectorHeading { align-items: flex-start; gap: 16px; }

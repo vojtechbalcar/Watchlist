@@ -2,6 +2,8 @@
 
 ## Current state
 
+- [[ui-polish]] — native dropdown arrow alignment, responsive search/navigation, table sort icons, profile feedback, and isolated-browser verification.
+
 - [[codebase-cleanup]] — account saved-copy lifecycle, shared quote loading, and benchmark chart preparation; preserves the browser working copy and stored market data rules.
 
 - [[stock-table-navigation]] — company-cell detail links across stock tables and rankings, full-catalog SVG coverage, and refined icon sizing.

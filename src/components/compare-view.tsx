@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { usePreferences } from "./preferences-provider";
 import { CompareBodySkeleton } from "./skeletons";
 import { useWatchlist, useWatchlistReady } from "./watchlist-store";
 import { StockLink } from "./stock-link";
 import { CompareChart } from "./compare-chart";
+import { SelectField } from "./select-field";
 import { formatPct } from "@/lib/format";
 import { compareColors, compareRanges, compareRows, type CompareRange } from "@/lib/compare-data";
 import { useMarket } from "./market-provider";
@@ -39,6 +40,7 @@ export function CompareView() {
 }
 
 function SavedComparison({ tickers }: { tickers: string[] }) {
+  const pickerLabel = useId();
   const market = useMarket();
   // Saved stocks outside the tracked set load when viewed, as on the dashboard.
   const watchlist = useWatchlistStocks(tickers);
@@ -83,15 +85,15 @@ function SavedComparison({ tickers }: { tickers: string[] }) {
           <button aria-label={`Remove ${item.ticker} from comparison`} onClick={() => removeStock(item.ticker)}>×</button>
         </span>)}
         <label className={`selection-add ${styles.picker}`}>
-          <span className="sr-only">Add a saved stock to compare</span>
-          <select ref={picker} value="" disabled={full || available.length === 0} aria-describedby="comparison-hint"
+          <span className="sr-only" id={pickerLabel}>Add a saved stock to compare</span>
+          <SelectField ref={picker} aria-labelledby={pickerLabel} value="" disabled={full || available.length === 0} aria-describedby="comparison-hint"
             onChange={event => {
               const ticker = event.target.value;
               setSelection(previous => addComparisonStock(previous, ticker, tickers));
             }}>
             <option value="" disabled>{full ? "3 stocks selected" : available.length ? "＋ Add saved stock" : "All saved stocks selected"}</option>
             {available.map(stock => <option key={stock.ticker} value={stock.ticker}>{stock.ticker} · {stock.name}</option>)}
-          </select>
+          </SelectField>
         </label>
       </div>
       <div className={`selection-benchmark ${styles.benchmark}`}><span className="control-label">Benchmark</span><span><i aria-hidden="true">┄</i> {compareBenchmark.label}</span></div>

@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ExploreCard } from "./explore-card";
 import { StockSearch } from "./stock-search";
+import { SelectField } from "./select-field";
 import { formatAsOf, useMarket } from "./market-provider";
 import { SectorStockList } from "./sector-stock-list";
 import { useWatchlist, toggleWatchlistStock, useWatchlistReady } from "./watchlist-store";
@@ -28,6 +29,8 @@ export function ExploreView({
   category?: Sector;
 }) {
   const market = useMarket();
+  const performanceLabel = useId();
+  const sortLabel = useId();
   const { range, setRange } = useExplorePeriod();
   const { tickers: added } = useWatchlist();
   const ready = useWatchlistReady();
@@ -95,23 +98,23 @@ export function ExploreView({
           <StockSearch className={styles.search} />
           <div className={styles.filters}>
             <label className={styles.select}>
-              <span>Performance</span>
-              <select value={filter} onChange={event => setFilter(event.target.value)}>
+              <span id={performanceLabel}>Performance</span>
+              <SelectField aria-labelledby={performanceLabel} value={filter} onChange={event => setFilter(event.target.value)}>
                 <option value="all">All stocks</option>
                 <option value="ahead">Ahead of benchmark</option>
                 <option value="behind">Behind benchmark</option>
-              </select>
+              </SelectField>
             </label>
             <label className={styles.select}>
-              <span>Sort by</span>
-              <select value={sort} onChange={event => setSort(event.target.value)}>
+              <span id={sortLabel}>Sort by</span>
+              <SelectField aria-labelledby={sortLabel} value={sort} onChange={event => setSort(event.target.value)}>
                 <option value="default">Default order</option>
                 <option value="company">Ticker A–Z</option>
                 <option value="gap">Benchmark lead</option>
                 <option value="return">Period return</option>
                 <option value="day">Day change</option>
                 <option value="price">Highest price</option>
-              </select>
+              </SelectField>
             </label>
           </div>
         </div>

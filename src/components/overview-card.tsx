@@ -7,8 +7,7 @@ import type { Holding } from "@/lib/watchlist-data";
 import { watchlistRows } from "@/lib/watchlist-catalog";
 import { watchlistSummary } from "@/lib/watchlist-state";
 import { exploreRanges } from "@/lib/explore-performance";
-import { benchmarkTicker } from "@/lib/explore-data";
-import { alignTo, averageLines } from "@/lib/chart-series";
+import { prepareBenchmarkChart } from "@/lib/benchmark-chart";
 import { ReturnLinesChart } from "./return-lines-chart";
 import { useMarket, useMarketSeries } from "./market-provider";
 import { useWatchlistStocks } from "./watchlist-listings";
@@ -26,9 +25,10 @@ export function OverviewCard({ holdings }: { holdings: Holding[] }) {
   const total = summary.watchlistPct;
   const lead = total !== null && benchTotal !== null ? total - benchTotal : null;
 
-  // The benchmark's dates are the axis; the watchlist line is the equal-weight average of its stocks' lines.
-  const axis = lines?.series[benchmarkTicker(market.benchmark.label)]?.[range] ?? [];
-  const values = averageLines(rows.map(row => alignTo(axis, (lines?.series[row.ticker] ?? watchlist.series[row.ticker])?.[range] ?? [])));
+  const { axis, average } = prepareBenchmarkChart({
+    series: lines?.series, extraSeries: watchlist.series, stocks: rows,
+    benchmarkLabel: market.benchmark.label, range,
+  });
 
   const moving = holdings.filter((stock): stock is Holding & { changePct: number } => stock.changePct !== null);
   const gain = [...moving].sort((a, b) => b.changePct - a.changePct)[0];
@@ -41,7 +41,7 @@ export function OverviewCard({ holdings }: { holdings: Holding[] }) {
         <div><dt><span className="text-chart-benchmark">●</span> {summary.benchmarkLabel}</dt><dd className="text-chart-benchmark">{benchTotal === null ? "—" : formatPct(benchTotal)}</dd></div>
         <div><dt>vs. the market</dt><dd className={lead === null ? undefined : lead >= 0 ? "text-up" : "text-down"}>{lead === null ? "—" : <>{lead >= 0 ? "+" : "−"}{Math.abs(lead).toFixed(2)}<small> pp</small></>}</dd></div>
       </dl>
-      <ReturnLinesChart axis={axis} line={values} label={`Watchlist average and ${summary.benchmarkLabel} returns over ${range}`} empty={lines ? "The chart appears once prices for this period are in." : "Loading chart…"} />
+      <ReturnLinesChart axis={axis} line={average} label={`Watchlist average and ${summary.benchmarkLabel} returns over ${range}`} empty={lines ? "The chart appears once prices for this period are in." : "Loading chart…"} />
       <div className="chart-caption"><span className={lead === null ? "text-text-secondary" : lead > 0 ? "text-up" : lead < 0 ? "text-down" : "text-text-secondary"}>{lead === null ? "Comparison unavailable" : lead > 0 ? "Ahead of" : lead < 0 ? "Behind" : "In line with"} {lead !== null && summary.benchmarkLabel}</span><span>Equal-weight average · Daily closes</span></div>
     </div>
     <aside className="overview-aside">

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { decodeDirectory, type DirectoryPayload, type DirectoryStock, type StockQuote } from "@/lib/search-ranking";
+import { createQuoteCache } from "@/lib/quote-cache";
 
 /** Loaded once per page session and shared by search and the sector lists. */
 let directory: Promise<DirectoryStock[]> | null = null;
@@ -33,16 +34,13 @@ export function useStockDirectory() {
   return state;
 }
 
-/** Live answers are reused for a minute; stored-only ones, which change slower, for five. */
-const LIVE_FRESH_MS = 60 * 1000;
-const STORED_FRESH_MS = 5 * 60 * 1000;
-const quoteCache = new Map<string, { quote: StockQuote | null; at: number; live: boolean }>();
-
-function isFresh(symbol: string, live: boolean, now: number) {
-  const cached = quoteCache.get(symbol);
-  if (!cached || (live && !cached.live)) return false;
-  return now - cached.at < (live ? LIVE_FRESH_MS : STORED_FRESH_MS);
-}
+const quotes = createQuoteCache({
+  async fetchQuotes(symbols, live) {
+    const response = await fetch(`/api/stocks/quotes?symbols=${encodeURIComponent(symbols.join(","))}${live ? "&live=1" : ""}`);
+    if (!response.ok) throw new Error(`Quotes answered ${response.status}`);
+    return ((await response.json()) as { quotes: Record<string, StockQuote> }).quotes;
+  },
+});
 
 /**
  * Prices for `symbols`: undefined while loading, null when there is none.
@@ -52,30 +50,14 @@ function isFresh(symbol: string, live: boolean, now: number) {
  */
 export function useStockQuotes(symbols: string[], live: boolean, delay = 0) {
   const key = symbols.join(",");
-  const [, setVersion] = useState(0);
+  useSyncExternalStore(quotes.subscribe, quotes.getVersion, () => 0);
 
   useEffect(() => {
     if (!key) return;
-    const missing = key.split(",").filter(symbol => !isFresh(symbol, live, Date.now()));
-    if (missing.length === 0) return;
-    const controller = new AbortController();
-    const timer = setTimeout(() => {
-      fetch(`/api/stocks/quotes?symbols=${encodeURIComponent(missing.join(","))}${live ? "&live=1" : ""}`, { signal: controller.signal })
-        .then(response => (response.ok ? (response.json() as Promise<{ quotes: Record<string, StockQuote> }>) : Promise.reject(new Error(`Quotes answered ${response.status}`))))
-        .then(({ quotes }) => {
-          const at = Date.now();
-          for (const symbol of missing) quoteCache.set(symbol, { quote: quotes[symbol] ?? null, at, live });
-          setVersion(version => version + 1);
-        })
-        .catch(() => {
-          // Aborted or failed: rows keep showing their loading state until the next change.
-        });
-    }, delay);
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
+    const timer = setTimeout(() => void quotes.load(key.split(","), live), delay);
+    // Once started, a shared request belongs to the cache rather than this caller.
+    return () => clearTimeout(timer);
   }, [key, live, delay]);
 
-  return (symbol: string) => quoteCache.get(symbol)?.quote;
+  return quotes.quoteOf;
 }

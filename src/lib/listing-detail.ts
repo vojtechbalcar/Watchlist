@@ -4,6 +4,7 @@ import { trackedStocks } from "@/lib/explore-data";
 import { returnSeries, type SeriesPoint } from "@/lib/market";
 import { listingFigures } from "@/lib/watchlist-listing";
 import { parseStoredCloses, periodReturn, periods, type Period } from "@/lib/period-returns";
+import { gapBetween } from "@/lib/standing";
 
 /** Untracked stocks have no sector, so they are measured against the whole market. */
 const MARKET_BENCHMARK = "SPY";
@@ -67,7 +68,7 @@ export async function getListingDetail(db: PrismaClient, symbol: string, now = n
       const stock = periodReturn(closes, period);
       // Measured to the same day as the stock, so both cover the same period.
       const marketReturn = through ? periodReturn(market, period, through) : null;
-      return { period, stock, benchmark: marketReturn, gap: stock !== null && marketReturn !== null ? stock - marketReturn : null };
+      return { period, stock, benchmark: marketReturn, gap: gapBetween(stock, marketReturn) };
     }),
     series: Object.fromEntries(periods.map(period => [period, { stock: returnSeries(closes, period), benchmark: returnSeries(marketThrough, period) }])) as ListingDetail["series"],
   };

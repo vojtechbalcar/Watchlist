@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { Wordmark } from "./wordmark";
-import { navItems } from "@/lib/watchlist-data";
 import { ProfileMenu } from "./profile-menu";
 import { NavLink } from "./nav-link";
 import { MarketAsOf } from "./market-as-of";
+
+const navItems = [
+  { label: "Dashboard", href: "/" },
+  { label: "Watchlist", href: "/watchlist" },
+  { label: "Compare", href: "/compare" },
+  { label: "Explore", href: "/explore" },
+];
 
 type SiteHeaderProps = {
   active?: string;

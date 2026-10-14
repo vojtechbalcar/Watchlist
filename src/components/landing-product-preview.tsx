@@ -1,8 +1,7 @@
 import Image from "next/image";
 import { Search, Plus, Check, ArrowUpRight } from "lucide-react";
-import { holdings, overview } from "@/lib/watchlist-data";
 import { compareRows } from "@/lib/compare-data";
-import { landingBenchmark as compareBenchmark, landingStocks } from "@/lib/landing-demo";
+import { landingBenchmark as compareBenchmark, landingHoldings, landingStocks, landingWatchlistReturn } from "@/lib/landing-demo";
 import { landingComparison } from "@/lib/landing-comparison";
 import { formatPct } from "@/lib/format";
 import { stockLogoFit, stockLogoSrc } from "@/lib/stock-logos";
@@ -10,11 +9,11 @@ import styles from "./landing-app-tour.module.css";
 
 export type PreviewPage = "dashboard" | "watchlist" | "compare" | "explore";
 
-const sampleStocks = ["NVDA", "AAPL", "MSFT"].map((ticker) => holdings.find((stock) => stock.ticker === ticker)!);
+const sampleStocks = landingHoldings;
 const sampleComparison = compareRows(landingStocks, "YTD", ["NVDA", "MSFT"], compareBenchmark.returnByRange);
 // The two illustrations share one YTD benchmark so switching views stays coherent.
 const overviewBenchmark = compareBenchmark.returnByRange.YTD;
-const overviewGap = Math.round((overview.watchlistPct - overviewBenchmark) * 100) / 100;
+const overviewGap = Math.round((landingWatchlistReturn - overviewBenchmark) * 100) / 100;
 // The tour's fixtures always have figures; the types allow gaps because live rows can.
 const gapOf = (stock: { vsBenchmarkPct: number | null }) => stock.vsBenchmarkPct ?? 0;
 const signedGap = (value: number) => `${value < 0 ? "−" : "+"}${Math.abs(value).toFixed(2)}`;
@@ -27,7 +26,7 @@ export function LandingProductPreview({ page }: { page: PreviewPage }) {
       {page === "dashboard" ? <>
         <div className={styles.previewHeading}><span>Watchlist performance</span><span className={styles.rangeLabel}>YTD</span></div>
         <div className={styles.overviewMetrics}>
-          <div><span>Your watchlist</span><strong>{formatPct(overview.watchlistPct, 1)}</strong></div>
+          <div><span>Your watchlist</span><strong>{formatPct(landingWatchlistReturn, 1)}</strong></div>
           <div><span>S&amp;P 500</span><strong className={styles.mutedValue}>{formatPct(overviewBenchmark, 1)}</strong></div>
         </div>
         <MiniChart />
@@ -84,7 +83,7 @@ function CompanyTile({ ticker }: { ticker: string }) {
 function MiniChart({ compare = false }: { compare?: boolean }) {
   const totals = compare
     ? [...sampleComparison.map(row => row.returnPct ?? 0), compareBenchmark.returnByRange.YTD]
-    : [overview.watchlistPct, overviewBenchmark];
+    : [landingWatchlistReturn, overviewBenchmark];
   const max = compare ? 45 : 18;
   const paths = totals.map((total, index) => {
     const shape = index === 0 ? landingComparison.stockReturns : landingComparison.benchmarkReturns;

@@ -1,7 +1,4 @@
-/**
- * Returns over the app's periods, computed from stored daily closes rather
- * than the demo fixtures in explore-performance.ts.
- */
+/** Returns over the app's periods, computed from stored daily closes. */
 export const periods = ["1D", "1W", "1M", "YTD", "1Y"] as const;
 export type Period = (typeof periods)[number];
 

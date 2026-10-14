@@ -22,7 +22,8 @@
 .setting-copy p, .settings-name p { font-size: 14px; line-height: 1.5; color: var(--color-text-secondary); margin-top: 8px; }
 .setting-control { flex-shrink: 0; max-width: 100%; }
 .setting-control select, .settings-name input { min-height: 48px; border: 0; background: #f0f0f0; font-size: 14px; padding: 12px 16px; color: var(--color-ink); }
-.setting-control select { width: 220px; border-radius: 9999px; padding-right: 32px; }
+.setting-control .select-field { width: 220px; }
+.setting-control select { width: 100%; border-radius: var(--radius-pill); }
 .settings-name input { border-radius: 16px; font-size: 16px; }
 .settings-name input::placeholder { color: var(--color-text-secondary); }
 .setting-control select:disabled { opacity: .5; cursor: not-allowed; }
@@ -103,7 +104,7 @@
   .settings-name input { flex-basis: 100%; }
   .setting-row { gap: 16px; }
   .setting-row:has(select), .setting-row:has(.settings-button) { align-items: flex-start; flex-direction: column; gap: 16px; }
-  .setting-row:has(select) .setting-control, .setting-control select { width: 100%; }
+  .setting-row:has(select) .setting-control, .setting-control .select-field { width: 100%; }
   .setting-control select { font-size: 16px; }
   .settings-account, .settings-reset { padding: 20px; }
   .settings-endnote { align-items: flex-start; flex-direction: column; gap: 12px; }

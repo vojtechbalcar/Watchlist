@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { usePreferences } from "./preferences-provider";
 import { useRemovalUndo } from "./removal-undo";
 import type { Preferences } from "@/lib/preferences";
 import { StockLink } from "./stock-link";
 import { formatPrice, formatPct } from "@/lib/format";
-import type { Holding, WatchlistSummary } from "@/lib/watchlist-data";
+import type { Holding } from "@/lib/watchlist-data";
 
 type Sort = "ticker" | "price" | "changePct" | "vsBenchmarkPct";
 export function WatchlistTable({ holdings, benchmarkLabel, compact = false, initialFilter }: {
-  holdings: Holding[]; summary?: WatchlistSummary; benchmarkLabel: string; compact?: boolean; initialFilter?: Preferences["watchlistFilter"];
+  holdings: Holding[]; benchmarkLabel: string; compact?: boolean; initialFilter?: Preferences["watchlistFilter"];
 }) {
   const [query, setQuery] = useState("");
   const preferences = usePreferences();
@@ -75,7 +76,10 @@ export function WatchlistTable({ holdings, benchmarkLabel, compact = false, init
     <div className="stock-table-scroll">
       <table className="stock-table">
         <caption className="sr-only">Stocks compared with {benchmarkLabel}, year to date</caption>
-        <thead><tr>{([["ticker", "Company"], ["price", "Last price"], ["changePct", "Day change"], ["vsBenchmarkPct", "vs. " + benchmarkLabel + "  YTD"]] as const).map(([key, label]) => <th key={key} scope="col" aria-sort={sort === key ? ascending ? "ascending" : "descending" : "none"}><button onClick={() => changeSort(key)}>{label} <span aria-hidden="true" className="ml-1 opacity-50">{sort === key ? ascending ? "↑" : "↓" : "⇅"}</span></button></th>)}{!compact && <th scope="col"><span className="sr-only">Actions</span></th>}</tr></thead>
+        <thead><tr>{([["ticker", "Company"], ["price", "Last price"], ["changePct", "Day change"], ["vsBenchmarkPct", "vs. " + benchmarkLabel + "  YTD"]] as const).map(([key, label]) => {
+          const SortIcon = sort === key ? ascending ? ArrowUp : ArrowDown : ArrowUpDown;
+          return <th key={key} scope="col" aria-sort={sort === key ? ascending ? "ascending" : "descending" : "none"}><button onClick={() => changeSort(key)}>{label}<SortIcon size={14} aria-hidden="true" /></button></th>;
+        })}{!compact && <th scope="col"><span className="sr-only">Actions</span></th>}</tr></thead>
         <tbody>{entries.map(({ holding: h, isPlaceholder }) => isPlaceholder
           ? <tr key={"removed-" + h.ticker} className="removed-row">
               <td colSpan={compact ? 4 : 5}><span className="removed-note"><span role="status">{h.ticker} removed from your watchlist</span><button ref={undoButton} onClick={undoRemoval}>Undo</button></span></td>

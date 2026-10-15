@@ -31,6 +31,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   // These ship Workers builds under a `workerd` export (Prisma's .wasm loader, pg's socket).
   // Left external, OpenNext resolves them for workerd; bundled, Next would pick the Node build.
   serverExternalPackages: ["@prisma/client", ".prisma/client", "pg", "pg-cloudflare"],

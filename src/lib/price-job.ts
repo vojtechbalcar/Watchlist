@@ -29,12 +29,15 @@ async function readSavedListings(db: PrismaClient, tracked: TrackedState[]) {
 
 /** What the job knows about each tracked instrument; also read by the health check. */
 export async function readTrackedStates(db: PrismaClient): Promise<TrackedState[]> {
-  const instruments = await db.instrument.findMany({
-    select: { ticker: true, closesCheckedAt: true, quote: { select: { fetchedAt: true } }, closes: { select: { date: true }, orderBy: { date: "desc" }, take: 1 } },
-  });
+  // Two flat queries: a nested "latest close" per instrument cost about ten times the CPU.
+  const [instruments, latest] = await Promise.all([
+    db.instrument.findMany({ select: { ticker: true, closesCheckedAt: true, quote: { select: { fetchedAt: true } } } }),
+    db.dailyClose.groupBy({ by: ["ticker"], _max: { date: true } }),
+  ]);
+  const latestClose = new Map(latest.map(row => [row.ticker, row._max.date]));
   return instruments.map(instrument => ({
     ticker: instrument.ticker,
-    latestClose: instrument.closes[0]?.date.toISOString().slice(0, 10) ?? null,
+    latestClose: latestClose.get(instrument.ticker)?.toISOString().slice(0, 10) ?? null,
     closesCheckedAt: instrument.closesCheckedAt,
     quoteFetchedAt: instrument.quote?.fetchedAt ?? null,
   }));

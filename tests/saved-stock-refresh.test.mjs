@@ -19,9 +19,10 @@ function fixture(listings, tickers, instrument = []) {
       findMany: async ({ where }) => where.cik ? [] : listings.filter(row => where.symbol.in.includes(row.symbol)),
       update: async ({ where, data }) => { writes.push({ ticker: where.symbol, data }); Object.assign(listings.find(row => row.symbol === where.symbol), data); },
     },
-    instrument: { findMany: async ({ select }) => select.closes ? instrument : [], updateMany: async () => {} },
+    instrument: { findMany: async ({ select }) => select.closesCheckedAt ? instrument : [], updateMany: async () => {} },
     quote: { upsert: async ({ where, update }) => writes.push({ ticker: where.ticker, data: update }) },
-    dailyClose: { findMany: async () => [], createMany: async () => {} },
+    dailyClose: { groupBy: async () => instrument.map(row => ({ ticker: row.ticker, _max: { date: row.closes[0]?.date ?? null } })), createMany: async () => {} },
+    $queryRaw: async () => [],
     snapshot: { upsert: async () => {} },
     apiUsage: {
       deleteMany: async () => {},

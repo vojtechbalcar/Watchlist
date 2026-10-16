@@ -38,8 +38,9 @@
 
 - [[account-security]] — password change, account deletion, session revocation via `sessionVersion`, and sign-in/registration rate limits; password reset still needs an email provider.
 
-- [[checkpoint-2026-10-13]] — current state: what works, what needs the user, and what's not done.
+- [[checkpoint-2026-10-16]] — current state: what works, what needs the user, and what's not done.
 - [[security-hardening]] — security headers, constant-time cron secret, body caps, privacy notice, and CI; plus the duplicate work that wasn't merged.
+- [[checkpoint-2026-10-13]] — earlier checkpoint, superseded.
 - [[checkpoint-2026-10-06]] — earlier checkpoint, superseded.
 - [[checkpoint-2026-09-06]] — earlier checkpoint, superseded.
 - [[neutral-page-design]] — current visual rules and the correction that Compare and Explore need structural redesigns, not just new colors.
@@ -58,6 +59,6 @@ These notes retain the original Figma rationale. Their current-status callouts l
 
 ## Troubleshooting
 
-- [[cloudflare-workers-deploy]] — OpenNext on Workers: pg's workerd export, DB-free proxy, wasm-safe Prisma generator, per-request client.
+- [[cloudflare-workers-deploy]] — OpenNext on Workers: pg's workerd export, DB-free proxy, wasm-safe Prisma generator, per-request client; only `main` builds migrate, and local dev needs `pnpm db:deploy`.
 - [[prisma-build-without-database]] — client generation during installation must not require database credentials.
 - [[mcp-config-leading-space-gotcha]] — configuration filename issue and sensitive settings handling.

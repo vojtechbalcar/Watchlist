@@ -1,8 +1,8 @@
 /**
  * What the price job should fetch next, as pure functions of the stored state
  * and the time. The US market runs 9:30–16:00 New York time on weekdays,
- * except NYSE holidays and the three 13:00 early closes (see marketHours).
- * Unscheduled closures, like a national day of mourning, aren't modelled.
+ * except NYSE holidays, the three 13:00 early closes, and the announced
+ * unscheduled closures listed below (see marketHours).
  */
 
 export const MARKET_OPEN = 9 * 60 + 30;
@@ -73,6 +73,19 @@ function easter(year: number) {
   return { month, day: ((h + l - 7 * m + 114) % 31) + 1 };
 }
 
+/**
+ * Days the NYSE closed outside its rules: national days of mourning and
+ * emergencies. They can't be computed, but they are announced days ahead
+ * (President Carter's on December 30 for January 9), so add the next one here
+ * when it's announced. Without it, the job spends that day's credits on quotes
+ * that don't move and waits for a close that never comes.
+ */
+export const UNSCHEDULED_CLOSURES: ReadonlySet<string> = new Set([
+  "2012-10-29", "2012-10-30", // Hurricane Sandy
+  "2018-12-05", // President George H. W. Bush
+  "2025-01-09", // President Carter
+]);
+
 const holidayCache = new Map<number, Set<string>>();
 
 /** NYSE full-day holidays in a year. New Year's Day on a Saturday isn't observed the Friday before. */
@@ -105,7 +118,7 @@ function holidays(year: number) {
 export function marketHours(ymd: string) {
   const [year, month, day] = ymd.split("-").map(Number);
   const weekday = weekdayOf(year, month, day);
-  if (weekday === 0 || weekday === 6 || holidays(year).has(ymd)) return null;
+  if (weekday === 0 || weekday === 6 || holidays(year).has(ymd) || UNSCHEDULED_CLOSURES.has(ymd)) return null;
   const thanksgiving = Number(nthWeekday(year, 11, 4, 4).slice(8));
   const early = [ymdOf(year, 7, 3), ymdOf(year, 11, thanksgiving + 1), ymdOf(year, 12, 24)].includes(ymd);
   return early ? EARLY_CLOSE : MARKET_CLOSE;

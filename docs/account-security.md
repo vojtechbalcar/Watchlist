@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-12
+updated: 2026-10-16
 status: current
 ---
 
@@ -10,8 +10,8 @@ Related: [[account-pages]], [[settings-preferences]], [[cloudflare-workers-deplo
 
 Settings has a fifth section, **Account & security**, with a password change
 and account deletion. Sign-in, registration, and those two actions are
-rate-limited. Password reset is **not** built yet: it needs an email provider,
-which is still the user's decision.
+rate-limited. Password reset by email was added on 2026-10-16; see
+[[password-reset]].
 
 ## Ending sessions
 

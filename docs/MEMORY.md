@@ -36,7 +36,8 @@
 
 - [[account-pages]] — email/password accounts with Auth.js and gated market pages.
 
-- [[account-security]] — password change, account deletion, session revocation via `sessionVersion`, and sign-in/registration rate limits; password reset still needs an email provider.
+- [[account-security]] — password change, account deletion, session revocation via `sessionVersion`, and sign-in/registration rate limits.
+- [[password-reset]] — emailed single-use reset links through Postmark, hashed tokens, and why the link's host comes only from `Host`.
 
 - [[checkpoint-2026-10-13]] — current state: what works, what needs the user, and what's not done.
 - [[security-hardening]] — security headers, constant-time cron secret, body caps, privacy notice, and CI; plus the duplicate work that wasn't merged.

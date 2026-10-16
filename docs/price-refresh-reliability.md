@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-12
+updated: 2026-10-16
 status: current
 ---
 
@@ -98,11 +98,6 @@ reads and the OAuth token can't query historically.
 Rejected: having the scheduler Worker raise the alert, because its
 failures land in the same unread logs; and a paid uptime monitor.
 
-## References
-
-- [GitHub schedule limitations](https://docs.github.com/en/actions/how-tos/troubleshoot-workflows)
-- [Cloudflare scheduled handlers](https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/)
-
 ## Price job CPU (2026-10-16)
 
 The app request behind each scheduled run used 650–1,341 ms of CPU, which
@@ -137,3 +132,8 @@ not exist on your account", and the account's script list holds only
 stopped on 2026-10-12 when the scheduler replaced them, so nothing has been
 triggering the price job. Redeploying needs `CRON_SECRET` on the scheduler,
 and a Cloudflare secret can't be read back from the app Worker.
+
+## References
+
+- [GitHub schedule limitations](https://docs.github.com/en/actions/how-tos/troubleshoot-workflows)
+- [Cloudflare scheduled handlers](https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/)

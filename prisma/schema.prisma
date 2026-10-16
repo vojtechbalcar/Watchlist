@@ -130,6 +130,7 @@ model User {
   createdAt      DateTime          @default(now())
   watchlist      SavedWatchlist?
   preferences    SavedPreferences?
+  passwordResets PasswordReset[]
 }
 
 /// A user's watchlist, so it follows them across browsers and devices. The
@@ -170,4 +171,18 @@ model Snapshot {
   key     String   @id
   body    String
   builtAt DateTime
+}
+
+/// A single-use link to choose a new password, sent by email. Only a hash of
+/// the link's token is stored, so a database read can't be turned into a
+/// working link. A new request replaces the account's older links.
+model PasswordReset {
+  tokenHash String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }

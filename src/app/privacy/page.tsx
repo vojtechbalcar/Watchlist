@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         <section>
           <h2>What is stored with your account</h2>
           <ul>
-            <li>Your email address, used to sign you in.</li>
+            <li>Your email address, used to sign you in and, when you ask, to send a password reset link.</li>
             <li>Your password, stored only as a salted scrypt hash. Nobody can read it back.</li>
             <li>Your watchlist: the stocks you saved and any unfinished setup.</li>
             <li>Your preferences, including the optional display name you set in Settings.</li>
@@ -41,7 +41,13 @@ export default function PrivacyPage() {
 
         <section>
           <h2>Security records</h2>
-          <p>To slow down password guessing and bulk sign-ups, Watchlist counts sign-in, registration, and password-confirmation attempts per email address and per network address. Only a one-way hash of the email or address is stored, and each count expires after 15 minutes, or an hour for registration.</p>
+          <p>To slow down password guessing and bulk sign-ups, Watchlist counts sign-in, registration, password-confirmation, and password-reset attempts per email address and per network address. Only a one-way hash of the email or address is stored, and each count expires after 15 minutes, or an hour for registration and password resets.</p>
+          <p>A password reset link is stored only as a one-way hash. It works once, for an hour, and is deleted when it is used or replaced.</p>
+        </section>
+
+        <section>
+          <h2>Email</h2>
+          <p>Watchlist sends email only when you ask to reset your password. It goes through Postmark, which receives your address and the message. Open and link tracking are off.</p>
         </section>
 
         <section>

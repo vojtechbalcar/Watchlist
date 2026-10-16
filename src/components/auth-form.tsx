@@ -28,7 +28,9 @@ export function AuthForm({ mode, callbackUrl }: { mode: "login" | "register"; ca
             <input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete={registering ? "new-password" : "current-password"} placeholder={registering ? "Create a password" : "Enter your password"} minLength={registering ? 8 : undefined} aria-describedby={registering ? "password-hint" : undefined} required />
             <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}>{showPassword ? "Hide" : "Show"}</button>
           </div>
-          {registering && <p id="password-hint" className={styles.hint}>Use at least 8 characters. <Link href="/privacy">How your data is kept</Link></p>}
+          {registering
+            ? <p id="password-hint" className={styles.hint}>Use at least 8 characters. <Link href="/privacy">How your data is kept</Link></p>
+            : <p className={styles.hint}><Link href="/forgot-password">Forgot your password?</Link></p>}
         </div>
         <button type="submit" className={styles.submit} disabled={pending}>{pending ? (registering ? "Creating account…" : "Logging in…") : registering ? "Create account" : "Log in"}<span aria-hidden="true">↗</span></button>
         <p className={styles.notice} id="auth-error" role="alert">{state?.error}</p>

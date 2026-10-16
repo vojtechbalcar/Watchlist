@@ -9,14 +9,22 @@
  * A Cloudflare build without DATABASE_URL fails: deploying code whose
  * migration never ran breaks it in production, while a failed build leaves
  * the previous version serving and shows up as a failed check on the commit.
+ *
+ * Builds of any other branch skip migrations. They share the production
+ * database, so migrating there would apply a pull request's schema change to
+ * production before it is merged.
  */
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-/** "migrate", "fail" (a Cloudflare build without credentials), or "skip" (local). */
+const PRODUCTION_BRANCH = "main";
+
+/** "migrate", "fail" (a production build without credentials), or "skip" (local, or another branch). */
 export function migrationStep(env) {
   const onCloudflare = Boolean(env.WORKERS_CI) || (Boolean(env.CI) && env.CI !== "false");
   if (!onCloudflare) return "skip";
+  // Workers Builds names the branch; a build without one is treated as production.
+  if (env.WORKERS_CI_BRANCH && env.WORKERS_CI_BRANCH !== PRODUCTION_BRANCH) return "skip";
   return env.DATABASE_URL ? "migrate" : "fail";
 }
 

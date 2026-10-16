@@ -17,3 +17,13 @@ test("local builds never touch the database, even with credentials in the shell"
   assert.equal(migrationStep({ DATABASE_URL: "postgres://x" }), "skip");
   assert.equal(migrationStep({ CI: "false", DATABASE_URL: "postgres://x" }), "skip");
 });
+
+test("Cloudflare builds of other branches never migrate, so a pull request can't change the production database", () => {
+  assert.equal(migrationStep({ WORKERS_CI: "1", WORKERS_CI_BRANCH: "feature/x", DATABASE_URL: "postgres://x" }), "skip");
+  assert.equal(migrationStep({ WORKERS_CI: "1", WORKERS_CI_BRANCH: "feature/x" }), "skip");
+});
+
+test("Cloudflare builds of main migrate, or fail without credentials", () => {
+  assert.equal(migrationStep({ WORKERS_CI: "1", WORKERS_CI_BRANCH: "main", DATABASE_URL: "postgres://x" }), "migrate");
+  assert.equal(migrationStep({ WORKERS_CI: "1", WORKERS_CI_BRANCH: "main" }), "fail");
+});

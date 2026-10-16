@@ -47,7 +47,7 @@ export default function PrivacyPage() {
 
         <section>
           <h2>Email</h2>
-          <p>Watchlist sends email only when you ask to reset your password. It goes through Postmark, which receives your address and the message. Open and link tracking are off.</p>
+          <p>Watchlist sends email only when you ask to reset your password. It goes through Resend, which receives your address and the message. Open and link tracking are off.</p>
         </section>
 
         <section>

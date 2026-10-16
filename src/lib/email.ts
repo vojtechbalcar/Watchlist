@@ -1,29 +1,31 @@
 import { RESET_LINK_MINUTES } from "./password-reset";
 
 /**
- * Sends account email through Postmark's API. Needs POSTMARK_SERVER_TOKEN and
- * EMAIL_FROM, an address on a domain or sender signature confirmed in
- * Postmark. Link and open tracking stay off: tracking would rewrite the reset
- * link, and the privacy notice promises no tracking.
+ * Sends account email through Resend's API. Needs RESEND_API_KEY and
+ * EMAIL_FROM, an address on a domain verified in Resend. Leave the domain's
+ * click and open tracking off (Resend's default): tracking would rewrite the
+ * reset link, and the privacy notice promises no tracking.
  */
 async function send({ to, subject, text, html }: { to: string; subject: string; text: string; html: string }) {
-  const token = process.env.POSTMARK_SERVER_TOKEN;
+  const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
-  if (!token || !from) {
+  if (!key || !from) {
     // Local development works without an account: the link goes to the terminal.
     if (process.env.NODE_ENV === "development") {
-      console.info(`[email] Postmark isn't configured. To ${to}: ${subject}\n${text}`);
+      console.info(`[email] Resend isn't configured. To ${to}: ${subject}\n${text}`);
       return;
     }
-    throw new Error("POSTMARK_SERVER_TOKEN and EMAIL_FROM must be set to send email.");
+    throw new Error("RESEND_API_KEY and EMAIL_FROM must be set to send email.");
   }
-  const response = await fetch("https://api.postmarkapp.com/email", {
+  const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json", "X-Postmark-Server-Token": token },
-    body: JSON.stringify({ From: from, To: to, Subject: subject, TextBody: text, HtmlBody: html, MessageStream: "outbound", TrackLinks: "None", TrackOpens: false }),
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to: [to], subject, text, html }),
   });
-  const result = (await response.json().catch(() => ({}))) as { ErrorCode?: number; Message?: string };
-  if (!response.ok || result.ErrorCode !== 0) throw new Error(`Postmark rejected the email (${result.ErrorCode ?? response.status}): ${result.Message ?? response.statusText}`);
+  if (!response.ok) {
+    const result = (await response.json().catch(() => ({}))) as { name?: string; message?: string };
+    throw new Error(`Resend rejected the email (${response.status} ${result.name ?? response.statusText}): ${result.message ?? ""}`);
+  }
 }
 
 const escape = (value: string) => value.replace(/[&<>"']/g, char => `&#${char.charCodeAt(0)};`);

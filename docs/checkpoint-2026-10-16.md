@@ -16,16 +16,24 @@ Supersedes [[checkpoint-2026-10-13]].
 - Local sign-in works once the local database has every migration ([[cloudflare-workers-deploy]]).
 - Only Cloudflare builds of `main` run migrations; other branches skip them.
 
+## Open pull requests
+
+- #8: only `main` builds migrate, `pnpm test`, these notes.
+- #9: saved stocks refresh on the schedule (the stranded `c6877f4`), and the price job's two heaviest reads cut from about 900 to 130 ms of CPU locally.
+- #10: password reset by email through Postmark ([[password-reset]]).
+- #11: announced unscheduled closures treated like holidays.
+
 ## Needs the user
 
-- Optionally add a Cloudflare rate-limiting rule on `/login` and `/register` as a second layer.
-- Choose an email provider before password reset can be built.
+- **The price scheduler Worker is gone.** `gowatchlist-price-scheduler` no longer exists on the Cloudflare account, so nothing triggers the price job ([[price-refresh-reliability]]). Redeploying it needs `CRON_SECRET`, which can't be read back from the app Worker.
+- Before merging #10: confirm the sender domain in Postmark and set `POSTMARK_SERVER_TOKEN` and `EMAIL_FROM` on the `gowatchlist` Worker.
+- The Cloudflare rate-limiting rule on the sign-in pages. Wrangler's login can't manage WAF rules, so it's a dashboard step. The Free plan allows one rule matching on path only: 10 requests per 10 seconds per IP, blocked for 10 seconds.
 
 ## Not done
 
-- Password reset (needs an email provider).
-- The price job's app request used about 1.3 s of CPU on 2026-10-12, so it may hit the Workers CPU limit as the tracked list grows.
-- Unscheduled market closures aren't modelled.
-- Old remote branches with unmerged commits: `feature/main`, `feat/loading-states`, `feat/ux-completion`, `landingPage`. Their work was rebuilt or replaced on `main`.
-- `fix/watchlist-state-test-resolver` holds `c6877f4` ("Refresh saved listings in the scheduled price job", 2026-10-14), pushed after PR #7 merged. It is in no pull request and not on `main`.
-- Merged branches were deleted on 2026-10-16, at the user's request; the unmerged ones above were kept.
+- A production before/after measurement of the price job's CPU, which needs the scheduler running again.
+
+## Branches
+
+- Merged branches were deleted on 2026-10-16. `feature/main`, `feat/loading-states`, `feat/ux-completion` and `landingPage` were deleted from GitHub the same day at the user's request; local `archive/…` branches keep their commits.
+- `fix/watchlist-state-test-resolver` still holds `c6877f4`; it can go once #9 merges.

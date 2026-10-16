@@ -5,13 +5,16 @@ import type { PrismaClient } from "@prisma/client";
  * How many attempts each kind of request gets per window. Sign-in is limited
  * per email (guessing one account's password) and per network address
  * (trying many accounts); registration and password checks inside Settings
- * likewise. Every attempt counts, successful or not.
+ * likewise, and password reset emails per address and per network address.
+ * Every attempt counts, successful or not.
  */
 export const rateLimits = {
   loginEmail: { max: 10, minutes: 15 },
   loginAddress: { max: 30, minutes: 15 },
   register: { max: 5, minutes: 60 },
   accountPassword: { max: 5, minutes: 15 },
+  resetEmail: { max: 3, minutes: 60 },
+  resetAddress: { max: 10, minutes: 60 },
 } as const;
 
 export type RateLimitName = keyof typeof rateLimits;

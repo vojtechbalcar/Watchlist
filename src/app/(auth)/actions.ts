@@ -5,14 +5,18 @@ import { redirect } from "next/navigation";
 import { AuthError, CredentialsSignin } from "next-auth";
 import { auth, signIn, signOut } from "@/auth";
 import { getDb } from "@/lib/db";
+import { sendPasswordResetEmail } from "@/lib/email";
 import { hashPassword, verifyPassword } from "@/lib/password";
+import { consumePasswordReset, requestPasswordReset } from "@/lib/password-reset";
 import { allowAttempt, clientAddress } from "@/lib/rate-limit";
 
 export type AuthFormState = { error: string; email: string } | undefined;
 export type AccountFormState = { error?: string; success?: string } | undefined;
+export type ResetRequestState = { error?: string; sent?: boolean; email: string } | undefined;
 
 const MIN_PASSWORD_LENGTH = 8;
 const tooManyAttempts = "Too many attempts. Wait 15 minutes and try again.";
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Auth.js passes the page a visitor was stopped at as a full URL. Keep only its
@@ -50,7 +54,7 @@ export async function login(_state: AuthFormState, formData: FormData): Promise<
 export async function register(_state: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter a valid email address.", email };
+  if (!emailPattern.test(email)) return { error: "Enter a valid email address.", email };
   if (password.length < MIN_PASSWORD_LENGTH) return { error: "Use at least 8 characters for your password.", email };
   if (!(await allowAttempt(getDb(), "register", clientAddress(await headers())))) return { error: "Too many new accounts from this network. Try again in an hour.", email };
 
@@ -59,6 +63,48 @@ export async function register(_state: AuthFormState, formData: FormData): Promi
 
   await getDb().user.create({ data: { email, passwordHash: await hashPassword(password) } });
   return startSession(email, password, safeRedirect(formData.get("callbackUrl")));
+}
+
+/**
+ * Where the emailed link points. Only the Host header: Cloudflare routes by it,
+ * while X-Forwarded-Host is whatever the client sent, and trusting it would let
+ * anyone mail a victim a link to their own site carrying a valid token.
+ */
+function originOf(requestHeaders: Headers) {
+  const host = requestHeaders.get("host") ?? "localhost";
+  const local = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
+  return `${local ? "http" : "https"}://${host}`;
+}
+
+/**
+ * Emails a reset link. The answer is the same whether or not the address has an
+ * account; registration already reveals that, but there's no reason to add a
+ * second way.
+ */
+export async function requestReset(_state: ResetRequestState, formData: FormData): Promise<ResetRequestState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!emailPattern.test(email)) return { error: "Enter a valid email address.", email };
+  const db = getDb();
+  const requestHeaders = await headers();
+  const [byEmail, byAddress] = await Promise.all([allowAttempt(db, "resetEmail", email), allowAttempt(db, "resetAddress", clientAddress(requestHeaders))]);
+  if (!byEmail || !byAddress) return { error: "Too many reset requests. Wait an hour and try again.", email };
+  try {
+    await requestPasswordReset(db, { email, origin: originOf(requestHeaders), now: new Date(), send: sendPasswordResetEmail });
+  } catch (error) {
+    console.error("[password-reset] sending failed", error instanceof Error ? error.message : error);
+    return { error: "We couldn’t send the email. Try again in a few minutes.", email };
+  }
+  return { sent: true, email };
+}
+
+/** Sets the new password from an emailed link, then signs in with it. */
+export async function resetPassword(_state: AuthFormState, formData: FormData): Promise<AuthFormState> {
+  const token = String(formData.get("token") ?? "");
+  const password = String(formData.get("password") ?? "");
+  if (password.length < MIN_PASSWORD_LENGTH) return { error: "Use at least 8 characters for your password.", email: "" };
+  const email = await consumePasswordReset(getDb(), { token, passwordHash: await hashPassword(password), now: new Date() });
+  if (!email) return { error: "This link has expired or was already used. Request a new one.", email: "" };
+  return startSession(email, password, "/");
 }
 
 export async function logout() {

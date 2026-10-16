@@ -27,3 +27,5 @@ Supersedes [[checkpoint-2026-10-13]].
 - The price job's app request used about 1.3 s of CPU on 2026-10-12, so it may hit the Workers CPU limit as the tracked list grows.
 - Unscheduled market closures aren't modelled.
 - Old remote branches with unmerged commits: `feature/main`, `feat/loading-states`, `feat/ux-completion`, `landingPage`. Their work was rebuilt or replaced on `main`.
+- `fix/watchlist-state-test-resolver` holds `c6877f4` ("Refresh saved listings in the scheduled price job", 2026-10-14), pushed after PR #7 merged. It is in no pull request and not on `main`.
+- Merged branches were deleted on 2026-10-16, at the user's request; the unmerged ones above were kept.

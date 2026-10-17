@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-12
+updated: 2026-10-16
 status: current
 ---
 
@@ -97,6 +97,41 @@ reads and the OAuth token can't query historically.
 
 Rejected: having the scheduler Worker raise the alert, because its
 failures land in the same unread logs; and a paid uptime monitor.
+
+## Price job CPU (2026-10-16)
+
+The app request behind each scheduled run used 650–1,341 ms of CPU, which
+risks Cloudflare error 1102 as more stocks are saved. Profiling against the
+dev database (60 instruments, 24,000 closes, 6,400 listings) found two reads
+doing most of the work:
+
+- `readTrackedStates` asked Prisma for each instrument's latest close as a
+  nested `take: 1` relation: 230–500 ms. Two flat queries (instruments, then
+  `max(date)` per ticker) take about 25 ms.
+- `buildMarket` loaded a year of closes as Prisma rows with `Decimal`s, then
+  grouped them in JavaScript: about 300 ms. Postgres now groups them per ticker
+  with `json_agg` and casts to `float8`: about 100 ms for the whole build.
+
+Both return identical output, checked by running the old and new code against
+the same data. Computing and serializing the snapshot was never the cost; the
+Prisma row mapping was. Each remaining query costs about 7 ms of CPU.
+`rebuildDirectory` (about 150 ms) only runs when the symbol list or sectors
+change, which is about once a day. Rejected: caching the snapshot between runs
+(it changes whenever a quote does) and splitting the job into more requests
+(each pays the bundle's start-up again).
+
+A production before/after comparison wasn't possible on 2026-10-16: see the
+next section.
+
+## Scheduler Worker missing (2026-10-16)
+
+`wrangler tail gowatchlist-price-scheduler` failed with "This Worker does
+not exist on your account", and the account's script list holds only
+`gowatchlist`; the older `watchlist` Worker is gone too. An 11-minute tail of
+`gowatchlist` saw no `/api/cron/prices` requests. GitHub's scheduled runs
+stopped on 2026-10-12 when the scheduler replaced them, so nothing has been
+triggering the price job. Redeploying needs `CRON_SECRET` on the scheduler,
+and a Cloudflare secret can't be read back from the app Worker.
 
 ## References
 

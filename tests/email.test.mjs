@@ -30,6 +30,20 @@ test("the reset email goes through Resend's API", async t => {
   assert.ok(body.html.includes("https://usewatchlist.dev/reset-password?token=abc"));
 });
 
+test("the styled reset email escapes its button and fallback URLs and retains plain text", async t => {
+  environment(t, { RESEND_API_KEY: "re_key", EMAIL_FROM: "hello@usewatchlist.dev" });
+  t.mock.method(globalThis, "fetch", async () => Response.json({ id: "1" }));
+  await sendPasswordResetEmail("ada@example.com", "https://x/reset-password?token=a&b=\"c\"");
+
+  const { html, text } = JSON.parse(globalThis.fetch.mock.calls[0].arguments[1].body);
+  assert.match(html, /^<!doctype html>/);
+  assert.ok(html.includes("Choose a new password"));
+  assert.ok(html.includes("token=a&#38;b=&#34;c&#34;"));
+  assert.ok(!html.includes('token=a&b="c"'));
+  assert.equal([...html.matchAll(/href="https:\/\/x\/reset-password\?token=a&#38;b=&#34;c&#34;"/g)].length, 2);
+  assert.ok(text.includes('https://x/reset-password?token=a&b="c"'));
+});
+
 test("a Resend rejection is an error with Resend's reason", async t => {
   environment(t, { RESEND_API_KEY: "re_key", EMAIL_FROM: "hello@usewatchlist.dev" });
   t.mock.method(globalThis, "fetch", async () => Response.json({ statusCode: 403, name: "validation_error", message: "The usewatchlist.dev domain is not verified." }, { status: 403 }));

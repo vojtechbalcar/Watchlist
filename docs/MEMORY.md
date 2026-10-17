@@ -38,6 +38,7 @@
 
 - [[account-security]] — password change, account deletion, session revocation via `sessionVersion`, and sign-in/registration rate limits.
 - [[password-reset]] — emailed single-use reset links through Resend (Postmark, then Cloudflare Email Sending, were considered first), hashed tokens, and why the link's host comes only from `Host`.
+- [[password-reset-email]] — Mobbin styling for reset email, an ink pill action, and accessible HTML with a plain-text alternative.
 
 - [[checkpoint-2026-10-16]] — current state: what works, what needs the user, and what's not done.
 - [[security-hardening]] — security headers, constant-time cron secret, body caps, privacy notice, and CI; plus the duplicate work that wasn't merged.

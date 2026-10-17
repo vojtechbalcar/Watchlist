@@ -6,7 +6,7 @@ status: current
 
 # Password reset
 
-Related: [[account-security]], [[account-pages]], [[security-hardening]], [[cloudflare-workers-deploy]]
+Related: [[account-security]], [[account-pages]], [[security-hardening]], [[cloudflare-workers-deploy]], [[password-reset-email]]
 
 Email goes through **Resend**. The user first chose Postmark, which the
 feature was built and verified with, then switched to Resend on 2026-10-16;

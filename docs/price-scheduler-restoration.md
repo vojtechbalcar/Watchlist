@@ -32,6 +32,9 @@ HTTP. The existing error handler could not recover an exhausted invocation.
   GitHub rejected publishing it because the saved OAuth login lacks the
   `workflow` scope. The runtime fix is published separately; the monitoring
   workflow remains local until a credential with that scope is available.
+  Its original commit and the initial merge are preserved on
+  `archive/main-with-local-price-health-2026-10-17`; working `main` is synced
+  with the separately published runtime fix.
 
 Rejected: increasing paid limits, bypassing the price credit budget, or
 ignoring an authenticated job's failure because the scheduler itself exists.
@@ -60,5 +63,18 @@ records the new success and shows 49 missing close checks, down from 55,
 proving that the job persisted data. All 60 quotes are still overdue: the
 normal budget catches up closes before rotating through final quotes.
 
-Automatic timer verification is still pending at this point; successful
-manual recovery alone does not verify the trigger.
+## Automatic production verification — 10:47 UTC
+
+The real scheduled invocation at **10:47:32 UTC** succeeded in 6.9 seconds
+with 0 ms of reported scheduler CPU and no exceptions. It persisted closes
+for UPS, DE, NEE, DUK, SO, and AEP. The matching app request returned HTTP 200,
+used 536 ms CPU, and had no exceptions. This verifies the automatic trigger,
+shared-secret authentication, price API access, and database writes together.
+
+The app version was `2aa2785f-8713-4005-bf80-2e6993de8af0`: Cloudflare's
+automatic build of the published `main` had already replaced the manual
+deployment with the same fix. GitHub CI passes for commit `941983b`.
+
+Health still reports the outage backlog rather than pretending every quote
+is fresh. Close checks catch up first, followed by final quotes, within the
+existing per-minute and daily credit budget.

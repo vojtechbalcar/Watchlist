@@ -1,6 +1,6 @@
 ---
 type: troubleshooting
-updated: 2026-10-12
+updated: 2026-10-16
 status: current
 ---
 
@@ -172,6 +172,34 @@ pushing this change alone, before any commit that needs a migration.
 
 Two Workers build from this repo: `gowatchlist` (serves the domain) and the
 older `watchlist`. Each needs its own build variable, or its builds now fail.
+
+### Only builds of `main` migrate (2026-10-16)
+
+Workers Builds also builds other branches, and every build shares the
+production database. With `DATABASE_URL` available to those builds, a pull
+request's migration would reach production before it merged. `migrate.mjs`
+now skips any build whose `WORKERS_CI_BRANCH` isn't `main`. A build without
+that variable is still treated as production, so it migrates or fails.
+
+PR branches show a red "Workers Builds" check. The user says those builds
+don't actually fail, so the check isn't a signal to chase. The branch build
+from 17:19 on 2026-10-12 was red before a missing URL became fatal, so the
+red check was never caused by `migrate.mjs`.
+
+### Local dev doesn't migrate (2026-10-15)
+
+**Symptom.** Every local sign-in failed with `error=Configuration`, even a
+wrong password, which should give `CredentialsSignin`.
+
+**Cause.** The database in `.env.local` (and `.dev.vars`) was missing
+`20261012120000_account_security`, so `User.sessionVersion` and `RateLimit`
+didn't exist. Builds apply migrations only on Cloudflare; a local build
+never does.
+
+**Fix.** `pnpm db:deploy`. Run it after pulling any commit that adds a folder
+under `prisma/migrations`. The authorize log only reaches the dev server's
+terminal; running the same Prisma calls in a script exposed the
+`ColumnNotFound` and `TableDoesNotExist` errors.
 
 ## Cron runs killed at 10 ms of CPU (2026-10-07)
 

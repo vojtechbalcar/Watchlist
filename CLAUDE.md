@@ -6,6 +6,7 @@ or just moving with it?
 ## Commands
 - Dev: `pnpm dev`
 - Typecheck: `pnpm typecheck`
+- Test: `pnpm test`
 
 ## Hard rules
 - Client components read price data from Postgres only, through the server. Only the

@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-13
+updated: 2026-10-16
 status: current
 ---
 
@@ -38,7 +38,7 @@ The final production build exposed two malformed compact-density selectors in `g
 
 ## Verification
 
-- Workspace suite: `node --experimental-strip-types --import /tmp/watchlist-cleanup-test-runtime.mjs --test tests/*.test.mjs` — 167 passed. The temporary preload registers `tests/resolve-typescript.mjs`; the user's in-progress watchlist-state test does not register it yet.
+- Workspace suite: `node --experimental-strip-types --import /tmp/watchlist-cleanup-test-runtime.mjs --test tests/*.test.mjs` — 167 passed. The temporary preload registers `tests/resolve-typescript.mjs`, which the watchlist-state test didn't register yet. That broke CI on `main` after the standing commit (`6c2b15f`); PR #7 made the test register the resolver itself, and `pnpm test` now runs the suite without a preload.
 - `node node_modules/typescript/bin/tsc --noEmit` and `node node_modules/eslint/bin/eslint.js .` pass. These are the same installed commands behind the package scripts; the local Corepack launcher currently fails its pnpm signature lookup.
 - `node node_modules/next/dist/bin/next build --webpack` passes, including TypeScript and all 78 static pages. No database migration or deployment was run.
 - Shared browser: Overview loaded its average chart; Compare drew the benchmark and three saved stocks with finite coordinates and changed from YTD to 1M; Explore search displayed AAPL's stored quote through the authorized live-lookup route. Account membership and preferences were not edited. Screenshot snapshots failed, but navigation, DOM inspection, and focused interactions worked.

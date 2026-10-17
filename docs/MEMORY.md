@@ -2,6 +2,9 @@
 
 ## Current state
 
+- [[price-scheduler-restoration]] — October 17 recovery, shared secret rotation,
+  the request-limit fix, and production verification and catch-up status.
+
 - [[ui-polish]] — native dropdown arrow alignment, responsive search/navigation, table sort icons, profile feedback, and isolated-browser verification.
 
 - [[codebase-cleanup]] — account saved-copy lifecycle, shared quote loading, and benchmark chart preparation; preserves the browser working copy and stored market data rules.

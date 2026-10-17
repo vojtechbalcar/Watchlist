@@ -8,7 +8,8 @@ import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured }
 import { parseStoredCloses } from "@/lib/period-returns";
 import { isWatchlistTicker } from "@/lib/watchlist-catalog";
 
-const LISTING_CHUNK = 1000;
+// Fewer HTTP database requests when a stale symbol directory catches up.
+const LISTING_CHUNK = 4000;
 
 /** Only saved, existing listings outside Instrument join the shared rotation. */
 async function readSavedListings(db: PrismaClient, tracked: TrackedState[]) {

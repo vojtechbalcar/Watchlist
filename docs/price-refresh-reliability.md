@@ -125,6 +125,9 @@ next section.
 
 ## Scheduler Worker missing (2026-10-16)
 
+Restoration on October 17 is recorded in [[price-scheduler-restoration]];
+the missing-Worker diagnosis below is historical.
+
 `wrangler tail gowatchlist-price-scheduler` failed with "This Worker does
 not exist on your account", and the account's script list holds only
 `gowatchlist`; the older `watchlist` Worker is gone too. An 11-minute tail of

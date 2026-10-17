@@ -1,8 +1,8 @@
 import type { PrismaClient } from "@prisma/client";
 import { fetchSic, fetchTickerMap, secTicker, sectorForSic } from "@/lib/sec-sectors";
 
-/** Companies classified per run: about 11 hours for the whole list, then only new listings. */
-export const SECTOR_BATCH = 40;
+/** Leave HTTP subrequests for database writes and prices on Workers Free. */
+export const SECTOR_BATCH = 4;
 /** EDGAR allows 10 requests a second. */
 const SEC_INTERVAL_MS = 120;
 

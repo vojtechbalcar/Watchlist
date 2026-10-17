@@ -25,7 +25,10 @@ Supersedes [[checkpoint-2026-10-13]].
 
 ## Needs the user
 
-- **The price scheduler Worker is gone.** `gowatchlist-price-scheduler` no longer exists on the Cloudflare account, so nothing triggers the price job ([[price-refresh-reliability]]). Redeploying it needs `CRON_SECRET`, which can't be read back from the app Worker.
+- October 17: the scheduler is redeployed and the shared secret is rotated.
+  An authenticated production job now succeeds after fixing its subrequest
+  limit. Automatic timer verification and the data backlog are tracked in
+  [[price-scheduler-restoration]]. The old secret did not need to be read back.
 - Before merging #10: confirm the sender domain in Postmark and set `POSTMARK_SERVER_TOKEN` and `EMAIL_FROM` on the `gowatchlist` Worker.
 - The Cloudflare rate-limiting rule on the sign-in pages. Wrangler's login can't manage WAF rules, so it's a dashboard step. The Free plan allows one rule matching on path only: 10 requests per 10 seconds per IP, blocked for 10 seconds.
 

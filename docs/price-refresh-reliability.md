@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-16
+updated: 2026-10-19
 status: current
 ---
 
@@ -122,6 +122,11 @@ change, which is about once a day. Rejected: caching the snapshot between runs
 
 A production before/after comparison wasn't possible on 2026-10-16: see the
 next section.
+
+**Production after (2026-10-19).** The scheduled runs at 10:37 and 10:42 UTC
+used 364 and 370 ms of CPU, against 650–1,341 ms before. Each refreshed prices
+within the normal credit budget, after [[price-job-bind-limit-outage]] was
+fixed.
 
 ## Scheduler Worker missing (2026-10-16)
 

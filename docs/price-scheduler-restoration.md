@@ -27,7 +27,8 @@ HTTP. The existing error handler could not recover an exhausted invocation.
 - Deployed the existing lightweight scheduler with `2-59/5 * * * *`.
 - Reduced SEC classification to four companies per run and increased listing
   insertion chunks to 4,000 rows (too many: it caused
-  [[price-job-bind-limit-outage]]; now 3,200). The shared six-credit price budget stays
+  [[price-job-bind-limit-outage]]; the list now goes in as one JSON
+  statement). The shared six-credit price budget stays
   unchanged. Classification progresses more slowly; price refreshes have room.
 - The hourly Price health workflow exists in local commit `c78d6d1`, but
   GitHub rejected publishing it because the saved OAuth login lacks the

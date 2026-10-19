@@ -2,6 +2,7 @@
   "name": "watchlist",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.34.7",
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/migrate.mjs && opennextjs-cloudflare build",

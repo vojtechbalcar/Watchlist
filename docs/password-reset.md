@@ -91,9 +91,11 @@ webpack from a copy of the tree, because Turbopack rejects a symlinked
 `node_modules`. Requesting a reset printed the email through the new
 "Resend isn't configured" fallback. The link set a new password and signed
 in, the old password failed, and reopening the link showed it expired.
-Sending through Resend itself is untested until the domain and key exist.
+Sending through Resend was untested until the domain and key existed (see
+below).
 
 The designed email (2026-10-19) has a test that checks the palette, that the
 link is escaped in both places, and that no remote content is loaded. The
-full suite (177), typecheck and ESLint pass. It hasn't been looked at in a
-real mail client yet.
+full suite (177), typecheck and ESLint pass. On 2026-10-19 the user
+confirmed the production Resend setup and checked the email in real mail
+clients.

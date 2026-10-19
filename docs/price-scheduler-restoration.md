@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-17
+updated: 2026-10-19
 status: current
 ---
 
@@ -35,6 +35,9 @@ HTTP. The existing error handler could not recover an exhausted invocation.
   Its original commit and the initial merge are preserved on
   `archive/main-with-local-price-health-2026-10-17`; working `main` is synced
   with the separately published runtime fix.
+  On 2026-10-19 the GitHub login had the `workflow` scope, but neither
+  `c78d6d1` nor that archive branch was in this clone, so the workflow was
+  rewritten from the spec in [[price-refresh-reliability]] and published.
 
 Rejected: increasing paid limits, bypassing the price credit budget, or
 ignoring an authenticated job's failure because the scheduler itself exists.

@@ -1,0 +1,27 @@
+# Alerts when stored prices fall behind the schedule. /api/cron/health answers
+# 503 with the problems when they do, which fails this run, and a failed
+# scheduled run emails the repository owner. GitHub's schedule is unreliable
+# (docs/price-refresh-reliability.md), which only delays the alert.
+name: Price health
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Call /api/cron/health
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          status=$(curl -sS -o report.json -w '%{http_code}' --max-time 60 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://usewatchlist.dev/api/cron/health)
+          cat report.json; echo
+          test "$status" = 200

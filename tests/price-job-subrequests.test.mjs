@@ -20,7 +20,12 @@ test("a metadata backlog leaves room for prices and outcome recording within 50 
       findMany: query(({ where, take } = {}) => where?.cik
         ? Array.from({ length: take }, (_, i) => ({ cik: i + 1 }))
         : listings),
-      createMany: query(() => ({})),
+      // Over the Prisma Postgres driver's 16,384 bind values, Prisma splits the insert into a
+      // transaction, which needs a WebSocket the deployed Worker loses (2026-10-18 outage).
+      createMany: query(({ data }) => {
+        assert.ok(data.length * Object.keys(data[0]).length <= 16384, `${data.length} listings fit one statement`);
+        return {};
+      }),
     },
     savedWatchlist: { findMany: query(() => []) },
     instrument: { findMany: query(() => instruments), updateMany: query(() => ({})) },

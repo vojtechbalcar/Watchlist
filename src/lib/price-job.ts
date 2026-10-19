@@ -8,8 +8,11 @@ import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured }
 import { parseStoredCloses } from "@/lib/period-returns";
 import { isWatchlistTicker } from "@/lib/watchlist-catalog";
 
-// Fewer HTTP database requests when a stale symbol directory catches up.
-const LISTING_CHUNK = 4000;
+// Fewer HTTP database requests when a stale symbol directory catches up, but each chunk
+// must fit one statement: past the Prisma Postgres driver's 16,384 bind values, Prisma
+// splits the insert into a transaction, whose WebSocket the deployed Worker loses. A
+// listing has five columns.
+const LISTING_CHUNK = 3200;
 
 /** Only saved, existing listings outside Instrument join the shared rotation. */
 async function readSavedListings(db: PrismaClient, tracked: TrackedState[]) {

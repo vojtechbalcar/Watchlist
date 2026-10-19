@@ -15,17 +15,15 @@ const HISTORY_DAYS = 380;
  */
 export async function buildMarket(db: PrismaClient, now = new Date()) {
   const since = new Date(now.getTime() - HISTORY_DAYS * 24 * 60 * 60 * 1000);
+  // Postgres groups and converts the year of closes; as Prisma rows with Decimals they cost most of the job's CPU.
   const [instruments, closes] = await Promise.all([
     db.instrument.findMany({ select: { ticker: true, quote: true } }),
-    db.dailyClose.findMany({ where: { date: { gte: since } }, orderBy: [{ ticker: "asc" }, { date: "asc" }], select: { ticker: true, date: true, close: true } }),
+    db.$queryRaw<{ ticker: string; closes: [string, number][] }[]>`
+      SELECT "ticker", json_agg(json_build_array(to_char("date", 'YYYY-MM-DD'), "close"::float8) ORDER BY "date") AS "closes"
+      FROM "DailyClose" WHERE "date" >= ${since} GROUP BY "ticker"`,
   ]);
 
-  const byTicker = new Map<string, DatedClose[]>();
-  for (const row of closes) {
-    const list = byTicker.get(row.ticker) ?? [];
-    list.push({ date: row.date.toISOString().slice(0, 10), close: Number(row.close) });
-    byTicker.set(row.ticker, list);
-  }
+  const byTicker = new Map<string, DatedClose[]>(closes.map(row => [row.ticker, row.closes.map(([date, close]) => ({ date, close }))]));
 
   const market: MarketSnapshot = { builtAt: now.toISOString(), asOf: null, instruments: {} };
   const series: MarketSeries = { builtAt: now.toISOString(), series: {} };

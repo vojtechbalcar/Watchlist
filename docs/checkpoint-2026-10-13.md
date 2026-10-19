@@ -1,10 +1,12 @@
 ---
 type: checkpoint
 updated: 2026-10-13
-status: current
+status: superseded
 ---
 
 # Checkpoint — 2026-10-13
+
+Superseded by [[checkpoint-2026-10-16]].
 
 Supersedes [[checkpoint-2026-10-06]].
 

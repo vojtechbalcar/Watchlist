@@ -6,7 +6,7 @@ status: current
 
 # Password reset
 
-Related: [[account-security]], [[account-pages]], [[security-hardening]], [[cloudflare-workers-deploy]]
+Related: [[account-security]], [[account-pages]], [[security-hardening]], [[cloudflare-workers-deploy]], [[password-reset-email]]
 
 Email goes through **Resend**. The user first chose Postmark, which the
 feature was built and verified with, then switched to Resend on 2026-10-16;
@@ -40,15 +40,8 @@ page leads to `/forgot-password`, which emails a link to
   tracking switch: click and open tracking are per-domain settings, off by
   default, and must stay off. Tracking rewrites the link, and the privacy
   notice promises no tracking.
-- **The email matches the app but loads nothing.** `passwordResetEmail` in
-  `src/lib/email.ts` builds it with tables and inline styles in the
-  `globals.css` palette ([[design-tokens-from-figma]]), with a black pill
-  button and a paste-in link below it. There are no images, web fonts, or
-  stylesheets, so opening it fetches nothing and can't work as a tracking
-  pixel. Maroon appears only on the wordmark and the heading's period.
-  Rejected: embedding `public/WachlistHeaderLogo.svg`, because Gmail and
-  Outlook drop SVG. The wordmark is rebuilt as text over a maroon bar
-  instead.
+- **The email matches the app but loads nothing.** See
+  [[password-reset-email]] for its design.
 - **Without Resend,** development prints the email to the dev server's
   terminal; production refuses to send and the page asks to try again later.
 
@@ -94,8 +87,5 @@ in, the old password failed, and reopening the link showed it expired.
 Sending through Resend was untested until the domain and key existed (see
 below).
 
-The designed email (2026-10-19) has a test that checks the palette, that the
-link is escaped in both places, and that no remote content is loaded. The
-full suite (177), typecheck and ESLint pass. On 2026-10-19 the user
-confirmed the production Resend setup and checked the email in real mail
-clients.
+On 2026-10-19 the user confirmed the production Resend setup and checked
+the email in real mail clients.

@@ -30,6 +30,20 @@ test("the reset email goes through Resend's API", async t => {
   assert.ok(body.html.includes("https://usewatchlist.dev/reset-password?token=abc"));
 });
 
+test("the styled reset email escapes its button and fallback URLs and retains plain text", async t => {
+  environment(t, { RESEND_API_KEY: "re_key", EMAIL_FROM: "hello@usewatchlist.dev" });
+  t.mock.method(globalThis, "fetch", async () => Response.json({ id: "1" }));
+  await sendPasswordResetEmail("ada@example.com", "https://x/reset-password?token=a&b=\"c\"");
+
+  const { html, text } = JSON.parse(globalThis.fetch.mock.calls[0].arguments[1].body);
+  assert.match(html, /^<!doctype html>/);
+  assert.ok(html.includes("Choose a new password"));
+  assert.ok(html.includes("token=a&#38;b=&#34;c&#34;"));
+  assert.ok(!html.includes('token=a&b="c"'));
+  assert.equal([...html.matchAll(/href="https:\/\/x\/reset-password\?token=a&#38;b=&#34;c&#34;"/g)].length, 2);
+  assert.ok(text.includes('https://x/reset-password?token=a&b="c"'));
+});
+
 test("a Resend rejection is an error with Resend's reason", async t => {
   environment(t, { RESEND_API_KEY: "re_key", EMAIL_FROM: "hello@usewatchlist.dev" });
   t.mock.method(globalThis, "fetch", async () => Response.json({ statusCode: 403, name: "validation_error", message: "The usewatchlist.dev domain is not verified." }, { status: 403 }));
@@ -48,14 +62,12 @@ test("without Resend, development prints the link and production refuses", async
 });
 
 test("the reset email follows the app's design without remote content", () => {
-  const { subject, text, html } = passwordResetEmail("https://usewatchlist.dev/reset-password?token=a&b");
+  const { subject, text, html } = passwordResetEmail("https://usewatchlist.dev/reset-password?token=abc");
   assert.equal(subject, "Reset your Watchlist password");
-  assert.ok(text.includes("https://usewatchlist.dev/reset-password?token=a&b"));
-  // The button and the paste-in fallback both carry the escaped link.
-  assert.equal(html.split('href="https://usewatchlist.dev/reset-password?token=a&#38;b"').length - 1, 2);
-  assert.match(html, /background-color:#141414[^"]*border-radius:9999px/);
-  assert.match(html, /color:#8c3b52[^>]*>\.<\/span>/i);
-  assert.match(html, /background-color:#f3f3f3[^"]*border-radius:24px/);
+  assert.ok(text.includes("https://usewatchlist.dev/reset-password?token=abc"));
+  assert.match(html, /border-radius:9999px;background:#141414/);
+  assert.match(html, /border-radius:24px;background:#f3f3f3/);
+  assert.match(html, /color:#8c3b52;">\.<\/span>/);
   assert.match(html, /<meta name="color-scheme" content="light">/);
   // Every style attribute closes where it should: the font stack can't end it early.
   for (const [, style] of html.matchAll(/style="([^"]*)"/g)) assert.doesNotMatch(style, /font-family:$/);

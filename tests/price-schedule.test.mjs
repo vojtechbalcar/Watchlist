@@ -120,3 +120,16 @@ test("a quote belongs to the latest session that had opened when it was fetched"
   assert.equal(sessionOpenedBy(at("2026-11-26T18:00:00Z")), "2026-11-25"); // Thanksgiving
   assert.equal(sessionOpenedBy(at("2026-10-04T15:00:00Z")), "2026-10-02"); // Sunday
 });
+
+test("announced unscheduled closures have no session, like holidays", () => {
+  // The national day of mourning for President Carter, a Thursday.
+  assert.equal(marketHours("2025-01-09"), null);
+  assert.equal(isMarketOpen(at("2025-01-09T16:00:00Z")), false);
+  assert.equal(latestSettledSession(at("2025-01-09T23:00:00Z")).ymd, "2025-01-08");
+  assert.equal(sessionOpenedBy(at("2025-01-10T13:00:00Z")), "2025-01-08");
+  assert.deepEqual(quotesDue([state("AAPL", { quoteFetchedAt: at("2025-01-08T21:30:00Z") })], at("2025-01-09T17:00:00Z")), []);
+  // Hurricane Sandy closed the market two days running.
+  assert.equal(marketHours("2012-10-29"), null);
+  assert.equal(marketHours("2012-10-30"), null);
+  assert.equal(marketHours("2025-01-10"), 16 * 60);
+});

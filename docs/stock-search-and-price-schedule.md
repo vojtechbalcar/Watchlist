@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-01
+updated: 2026-10-16
 status: current
 ---
 
@@ -249,6 +249,13 @@ session that never happens. The dates are computed by rule, including Good
 Friday from Easter. Rejected: a hardcoded list of dates, which runs out, and
 Twelve Data's `/market_state`, which costs a credit per check.
 
-Not modelled: unscheduled closures such as a national day of mourning. On
-one, the job behaves as it used to on every holiday: it fetches quotes that
-haven't moved.
+**Unscheduled closures (2026-10-16).** National days of mourning and
+emergencies can't be computed, but the NYSE announces them days ahead.
+`UNSCHEDULED_CLOSURES` in `price-schedule.ts` lists them (Hurricane Sandy,
+Presidents Bush and Carter), and `marketHours` treats each like a holiday, so
+the job, the health check, and the on-demand refreshes all skip it. Add the
+next one when it's announced. Without it the job spends the day's credits on
+quotes that don't move. Rejected: detecting a closure from Twelve Data's
+`is_market_open` (it would thread database state through the pure schedule
+functions, and a flag that lags at the bell could close a real session) and
+`/market_state` (a credit per check).

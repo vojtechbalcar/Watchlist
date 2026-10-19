@@ -27,12 +27,19 @@ Supersedes [[checkpoint-2026-10-16]].
 
 ## Needs the user
 
-- Optionally, the Cloudflare rate-limiting rule on `/login` and `/register`.
-  Wrangler's login can't manage WAF rules, so it's a dashboard step. The Free
-  plan allows one rule matching on path only: 10 requests per 10 seconds per
-  IP, blocked for 10 seconds. The app already limits sign-in attempts itself.
-- Locally, `pnpm` fails because corepack is too old to verify pnpm's
-  signature. `npm i -g corepack@latest` should fix it.
+- Nothing. The user added the Cloudflare rate-limiting rule on `/login` and
+  `/register` (10 requests per 10 seconds per IP, blocked for 10 seconds);
+  the 11th request in a burst returns 429.
+
+## Local tooling
+
+- `pnpm` failed locally twice over. First, corepack was too old to verify
+  pnpm's signature; the user updated it to 0.36.0. Then corepack, finding no
+  `packageManager` in Watchlist's `package.json`, walked up to
+  `~/package.json`, an unrelated yarn project ("jan-muller-web") in the home
+  folder, and refused. `package.json` now pins `pnpm@10.34.7`, and CI reads
+  that pin instead of its own `version: 10`. CI and the Cloudflare build pass
+  with it.
 
 ## Not done
 

@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-17
+updated: 2026-10-19
 status: current
 ---
 
@@ -28,6 +28,26 @@ the same Mobbin principles as Watchlist's interface.
 - The plain-text alternative and Resend transport remain in place. The URL
   is escaped independently in both HTML links and retained verbatim in text.
 
+## Merged with a second design (2026-10-19)
+
+Two branches designed this email at once: #12 (this design, merged first and
+in production) and #13. Merging #13 kept #12's layout, button label, Outlook
+markup, phone padding and `#595959` text, and added from #13:
+
+- **The header logo's wordmark.** Lowercase "watchlist" in bold text over a
+  maroon bar, in the colours baked into `public/WachlistHeaderLogo.svg`. It
+  replaced the "Watchlist." text mark so the email matches the app header.
+  The SVG itself was rejected because Gmail and Outlook drop SVG.
+- **The auth pages' footer.** "Made for watching. · Privacy", linking the
+  privacy notice on the same host as the reset link.
+- **`passwordResetEmail(link)`**, which returns the subject, text and HTML
+  without sending, so the design is tested directly.
+
+Rejected from #13: its `#707070` secondary text (weaker contrast on the gray
+panel than `#595959`), the "Choose a new password ↗" button label (it
+repeated the heading, and the arrow suggests an external site), and its
+unconditional layout without Outlook width and padding fixes.
+
 Rejected: the unstyled paragraph email, a maroon action button, decorative
 charts, and image-dependent branding. This is an account recovery message;
 the action and security details lead.
@@ -40,3 +60,7 @@ horizontal overflow and both links retain the original destination. No
 external assets are requested. Email tests cover escaped button/fallback
 URLs and the plain-text alternative. Browser rendering does not replace
 testing in an actual inbox; no email was sent during this check.
+
+After the merge with #13, a test checks the palette, the privacy link, and
+that no remote content is loaded. The full suite, typecheck, ESLint and the
+Next.js production build pass.

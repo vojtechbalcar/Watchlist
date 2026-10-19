@@ -43,9 +43,12 @@ function button(href: string, label: string) {
  * The shared shell for account email, following the app's Mobbin language
  * (DESIGN.md): white canvas, a soft #f3f3f3 panel with 24px corners, ink text,
  * no shadows, and maroon only for brand accents. Tables and inline
- * styles because mail clients drop most CSS.
+ * styles because mail clients drop most CSS. Nothing loads when it opens, so
+ * it can't act as a tracking pixel: the SVG wordmark (which Gmail and Outlook
+ * drop) is rebuilt from text over its maroon bar, in the colours baked into
+ * public/WachlistHeaderLogo.svg.
  */
-function layout({ preview, body, footnote }: { preview: string; body: string; footnote: string }) {
+function layout({ preview, body, footnote, privacy }: { preview: string; body: string; footnote: string; privacy: string }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -66,11 +69,12 @@ function layout({ preview, body, footnote }: { preview: string; body: string; fo
 <tr><td align="center" style="padding:32px 16px;font-family:${font};color:#141414;">
 <!--[if mso]><table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;table-layout:fixed;">
-<tr><td style="padding:0 8px 24px;font-size:20px;line-height:24px;font-weight:700;color:#141414;">Watchlist<span style="color:#8c3b52;">.</span></td></tr>
+<tr><td style="padding:0 8px 24px;"><span style="display:inline-block;font-size:22px;line-height:1;font-weight:700;letter-spacing:-0.02em;color:#241f21;border-bottom:5px solid #a63d57;padding-bottom:4px;">watchlist</span></td></tr>
 <tr><td class="email-panel" bgcolor="#f3f3f3" style="padding:40px 32px;border-radius:24px;background:#f3f3f3;">
 ${body}
 </td></tr>
 <tr><td style="padding:24px 8px 0;font-size:14px;line-height:20px;color:#595959;">${escape(footnote)}</td></tr>
+<tr><td style="padding:32px 8px 0;font-size:12px;line-height:18px;color:#595959;">Made for watching. &middot; <a href="${escape(privacy)}" style="color:#141414;text-decoration:underline;">Privacy</a></td></tr>
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
 </td></tr>
@@ -79,7 +83,8 @@ ${body}
 </html>`;
 }
 
-export async function sendPasswordResetEmail(to: string, link: string) {
+export function passwordResetEmail(link: string) {
+  const subject = "Reset your Watchlist password";
   const text = [
     "Someone asked to reset the password for your Watchlist account.",
     "",
@@ -97,6 +102,11 @@ ${button(link, "Reset password")}
 <p style="margin:32px 0 8px;font-size:13px;line-height:20px;color:#595959;">If the button doesn't work, paste this link into your browser:</p>
 <p style="margin:0;font-size:13px;line-height:20px;word-break:break-all;overflow-wrap:anywhere;"><a href="${escape(link)}" style="color:#141414;text-decoration:underline;word-break:break-all;overflow-wrap:anywhere;">${escape(link)}</a></p>`,
     footnote: "If it wasn't you, ignore this email. Your password stays the same.",
+    privacy: new URL("/privacy", link).href,
   });
-  await send({ to, subject: "Reset your Watchlist password", text, html });
+  return { subject, text, html };
+}
+
+export async function sendPasswordResetEmail(to: string, link: string) {
+  await send({ to, ...passwordResetEmail(link) });
 }

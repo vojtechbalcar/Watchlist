@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-16
+updated: 2026-10-19
 status: current
 ---
 
@@ -40,6 +40,8 @@ page leads to `/forgot-password`, which emails a link to
   tracking switch: click and open tracking are per-domain settings, off by
   default, and must stay off. Tracking rewrites the link, and the privacy
   notice promises no tracking.
+- **The email matches the app but loads nothing.** See
+  [[password-reset-email]] for its design.
 - **Without Resend,** development prints the email to the dev server's
   terminal; production refuses to send and the page asks to try again later.
 
@@ -82,4 +84,8 @@ webpack from a copy of the tree, because Turbopack rejects a symlinked
 `node_modules`. Requesting a reset printed the email through the new
 "Resend isn't configured" fallback. The link set a new password and signed
 in, the old password failed, and reopening the link showed it expired.
-Sending through Resend itself is untested until the domain and key exist.
+Sending through Resend was untested until the domain and key existed (see
+below).
+
+On 2026-10-19 the user confirmed the production Resend setup and checked
+the email in real mail clients.

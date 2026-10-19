@@ -1,6 +1,6 @@
 ---
 type: decision
-updated: 2026-10-16
+updated: 2026-10-19
 status: current
 ---
 
@@ -40,6 +40,15 @@ page leads to `/forgot-password`, which emails a link to
   tracking switch: click and open tracking are per-domain settings, off by
   default, and must stay off. Tracking rewrites the link, and the privacy
   notice promises no tracking.
+- **The email matches the app but loads nothing.** `passwordResetEmail` in
+  `src/lib/email.ts` builds it with tables and inline styles in the
+  `globals.css` palette ([[design-tokens-from-figma]]), with a black pill
+  button and a paste-in link below it. There are no images, web fonts, or
+  stylesheets, so opening it fetches nothing and can't work as a tracking
+  pixel. Maroon appears only on the wordmark and the heading's period.
+  Rejected: embedding `public/WachlistHeaderLogo.svg`, because Gmail and
+  Outlook drop SVG. The wordmark is rebuilt as text over a maroon bar
+  instead.
 - **Without Resend,** development prints the email to the dev server's
   terminal; production refuses to send and the page asks to try again later.
 
@@ -83,3 +92,8 @@ webpack from a copy of the tree, because Turbopack rejects a symlinked
 "Resend isn't configured" fallback. The link set a new password and signed
 in, the old password failed, and reopening the link showed it expired.
 Sending through Resend itself is untested until the domain and key exist.
+
+The designed email (2026-10-19) has a test that checks the palette, that the
+link is escaped in both places, and that no remote content is loaded. The
+full suite (177), typecheck and ESLint pass. It hasn't been looked at in a
+real mail client yet.

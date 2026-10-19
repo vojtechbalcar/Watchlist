@@ -8,12 +8,6 @@ import { fetchDailyCloses, fetchQuotes, fetchStockList, isTwelveDataConfigured }
 import { parseStoredCloses } from "@/lib/period-returns";
 import { isWatchlistTicker } from "@/lib/watchlist-catalog";
 
-// Fewer HTTP database requests when a stale symbol directory catches up, but each chunk
-// must fit one statement: past the Prisma Postgres driver's 16,384 bind values, Prisma
-// splits the insert into a transaction, whose WebSocket the deployed Worker loses. A
-// listing has five columns.
-const LISTING_CHUNK = 3200;
-
 /** Only saved, existing listings outside Instrument join the shared rotation. */
 async function readSavedListings(db: PrismaClient, tracked: TrackedState[]) {
   const saved = await db.savedWatchlist.findMany({ select: { state: true } });
@@ -77,9 +71,14 @@ export async function runPriceJob(db: PrismaClient, now = new Date()) {
   if (symbolSyncDue(sync?.ranAt ?? null, now) && (await reserveCredits(db, "job", 1, now)) === 1) {
     const stocks = await fetchStockList();
     // New listings only; names of existing ones rarely change and aren't worth 6,000 updates a day.
-    for (let i = 0; i < stocks.length; i += LISTING_CHUNK) {
-      await db.listing.createMany({ data: stocks.slice(i, i + LISTING_CHUNK), skipDuplicates: true });
-    }
+    // One statement with the list as a single JSON parameter, like syncCiks: Prisma Postgres rejects
+    // a createMany past about 1,150 listings ("error while decoding inbound frame"), and splitting
+    // one over 16,384 bind values opens a transaction whose WebSocket the deployed Worker loses.
+    await db.$executeRaw`
+      INSERT INTO "Listing" ("symbol", "name", "exchange", "type", "currency")
+      SELECT v.symbol, v.name, v.exchange, v.type, v.currency
+      FROM jsonb_to_recordset(${JSON.stringify(stocks)}::jsonb) AS v(symbol text, name text, exchange text, type text, currency text)
+      ON CONFLICT ("symbol") DO NOTHING`;
     await db.jobState.upsert({ where: { job: "symbols" }, create: { job: "symbols", ranAt: now }, update: { ranAt: now } });
     await rebuildDirectory(db, now);
     report.listings = stocks.length;

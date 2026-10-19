@@ -30,7 +30,27 @@ async function send({ to, subject, text, html }: { to: string; subject: string; 
 
 const escape = (value: string) => value.replace(/[&<>"']/g, char => `&#${char.charCodeAt(0)};`);
 
-export async function sendPasswordResetEmail(to: string, link: string) {
+// The app's palette (src/app/globals.css). Maroon is brand only: the wordmark and the heading's period.
+const ink = "#141414";
+const muted = "#707070";
+const surface = "#f3f3f3";
+const brand = "#8c3b52";
+// Baked into public/WachlistHeaderLogo.svg, which this rebuilds.
+const wordmarkInk = "#241f21";
+const wordmarkBrand = "#a63d57";
+// Single quotes: it goes inside double-quoted style attributes.
+const font = "'Helvetica Neue',Helvetica,Arial,sans-serif";
+
+/**
+ * Laid out with tables and inline styles, which every mail client renders.
+ * No images, web fonts, or stylesheets: nothing loads when the email opens, so
+ * it can't act as a tracking pixel, and the SVG wordmark (which Gmail and
+ * Outlook drop) is rebuilt from text over its maroon bar.
+ */
+export function passwordResetEmail(link: string) {
+  const href = escape(link);
+  const privacy = escape(new URL("/privacy", link).href);
+  const subject = "Reset your Watchlist password";
   const text = [
     "Someone asked to reset the password for your Watchlist account.",
     "",
@@ -39,8 +59,44 @@ export async function sendPasswordResetEmail(to: string, link: string) {
     "",
     "If it wasn't you, ignore this email. Your password stays the same.",
   ].join("\n");
-  const html = `<p>Someone asked to reset the password for your Watchlist account.</p>
-<p><a href="${escape(link)}">Choose a new password</a>. The link works once, for ${RESET_LINK_MINUTES} minutes.</p>
-<p>If it wasn't you, ignore this email. Your password stays the same.</p>`;
-  await send({ to, subject: "Reset your Watchlist password", text, html });
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>${subject}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:${font};">
+<div style="display:none;max-height:0;overflow:hidden;">The link works once, for ${RESET_LINK_MINUTES} minutes.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;font-family:${font};color:${ink};">
+<tr><td style="padding:0 8px 24px;">
+<span style="display:inline-block;font-size:22px;line-height:1;font-weight:700;letter-spacing:-0.02em;color:${wordmarkInk};border-bottom:5px solid ${wordmarkBrand};padding-bottom:4px;">watchlist</span>
+</td></tr>
+<tr><td style="background-color:${surface};border-radius:24px;padding:40px 32px;">
+<p style="margin:0 0 16px;font-size:14px;line-height:1.5;color:${muted};">Password reset</p>
+<h1 style="margin:0 0 16px;font-size:32px;line-height:1.13;font-weight:700;color:${ink};">Choose a new password<span style="color:${brand};">.</span></h1>
+<p style="margin:0 0 32px;font-size:16px;line-height:1.5;font-weight:300;color:${muted};">Someone asked to reset the password for your watchlist account. The link works once, for ${RESET_LINK_MINUTES} minutes.</p>
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td style="background-color:${ink};border-radius:9999px;">
+<a href="${href}" style="display:inline-block;padding:14px 24px;font-family:${font};font-size:16px;font-weight:500;line-height:1.5;color:#ffffff;text-decoration:none;border-radius:9999px;">Choose a new password&nbsp;&nbsp;&#8599;</a>
+</td></tr></table>
+<p style="margin:32px 0 8px;font-size:14px;line-height:1.5;color:${muted};">Button not working? Paste this link into your browser:</p>
+<p style="margin:0;font-size:14px;line-height:1.5;word-break:break-all;"><a href="${href}" style="color:${ink};text-decoration:underline;">${href}</a></p>
+</td></tr>
+<tr><td style="padding:24px 8px 0;font-size:14px;line-height:1.5;color:${muted};">If it wasn't you, ignore this email. Your password stays the same.</td></tr>
+<tr><td style="padding:32px 8px 0;font-size:12px;line-height:1.5;color:${muted};">Made for watching. &middot; <a href="${privacy}" style="color:${ink};text-decoration:underline;">Privacy</a></td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+  return { subject, text, html };
+}
+
+export async function sendPasswordResetEmail(to: string, link: string) {
+  await send({ to, ...passwordResetEmail(link) });
 }

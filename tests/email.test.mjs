@@ -3,7 +3,7 @@ import { register } from "node:module";
 import test from "node:test";
 
 register("./resolve-typescript.mjs", import.meta.url);
-const { sendPasswordResetEmail } = await import("../src/lib/email.ts");
+const { passwordResetEmail, sendPasswordResetEmail } = await import("../src/lib/email.ts");
 
 function environment(t, values) {
   const saved = {};
@@ -45,4 +45,22 @@ test("without Resend, development prints the link and production refuses", async
 
   process.env.NODE_ENV = "production";
   await assert.rejects(sendPasswordResetEmail("ada@example.com", "https://x/reset-password?token=abc"), /RESEND_API_KEY/);
+});
+
+test("the reset email follows the app's design without remote content", () => {
+  const { subject, text, html } = passwordResetEmail("https://usewatchlist.dev/reset-password?token=a&b");
+  assert.equal(subject, "Reset your Watchlist password");
+  assert.ok(text.includes("https://usewatchlist.dev/reset-password?token=a&b"));
+  // The button and the paste-in fallback both carry the escaped link.
+  assert.equal(html.split('href="https://usewatchlist.dev/reset-password?token=a&#38;b"').length - 1, 2);
+  assert.match(html, /background-color:#141414[^"]*border-radius:9999px/);
+  assert.match(html, /color:#8c3b52[^>]*>\.<\/span>/i);
+  assert.match(html, /background-color:#f3f3f3[^"]*border-radius:24px/);
+  assert.match(html, /<meta name="color-scheme" content="light">/);
+  // Every style attribute closes where it should: the font stack can't end it early.
+  for (const [, style] of html.matchAll(/style="([^"]*)"/g)) assert.doesNotMatch(style, /font-family:$/);
+  assert.match(html, /font-family:'Helvetica Neue',Helvetica,Arial,sans-serif/);
+  // No images, fonts, or styles fetched when the email opens.
+  assert.doesNotMatch(html, /<img|<link|url\(|@import/i);
+  assert.ok(html.includes('href="https://usewatchlist.dev/privacy"'));
 });

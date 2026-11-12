@@ -53,6 +53,7 @@
 - [[git-commit-workflow]] — automatically commit and push each completed, verified change to GitHub.
 - [[watchlist-placeholder-data]] — demo data, illustrative histories, and the future Postgres boundary.
 - [[CLAUDE-hard-rules]] — market data access, brand/direction colors, and product language.
+- [[design-reference-requests]] — "design examples" means sites to borrow a visual style from, not products with similar features.
 
 ## Historical implementation decisions
 
